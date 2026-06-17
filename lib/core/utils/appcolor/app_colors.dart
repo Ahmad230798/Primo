@@ -27,7 +27,7 @@ class AppColors {
   // --- ألوان مخصصة ---
   // هذا اللون الوردي/الرمادي الفاتح غالباً مستخدم كخلفية لعداد الكمية (+ 1 -)
   static const Color quantityBackground = Color(0xFFE6BDB8);
-
+  static const Color greyBackground = Color(0xffF3F3F4);
   // --- اللون الشفاف ---
   // في الصورة يوجد لون 000000 بشفافية 0%، وهذا ببساطة يعني لون شفاف
   static const Color transparent = Colors.transparent;

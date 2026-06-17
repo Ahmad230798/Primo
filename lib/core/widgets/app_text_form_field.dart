@@ -19,6 +19,7 @@ class AppTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final int? linesCount;
   final bool? isFilled;
+  final double? borderWidth;
   const AppTextFormField({
     super.key,
     required this.hinttText,
@@ -36,6 +37,7 @@ class AppTextFormField extends StatelessWidget {
     this.focusColor,
     this.isFilled,
     this.prefixIcone,
+    this.borderWidth,
   });
 
   @override
@@ -58,7 +60,7 @@ class AppTextFormField extends StatelessWidget {
             OutlineInputBorder(
               borderSide: BorderSide(
                 color: focusColor ?? AppColors.quantityBackground,
-                width: 1.3,
+                width: borderWidth ?? 1.3,
               ),
               borderRadius: BorderRadius.circular(16.r),
             ),
@@ -67,7 +69,7 @@ class AppTextFormField extends StatelessWidget {
             OutlineInputBorder(
               borderSide: BorderSide(
                 color: focusColor ?? AppColors.quantityBackground,
-                width: 1.3,
+                width: borderWidth ?? 1.3,
               ),
               borderRadius: BorderRadius.circular(16.r),
             ),

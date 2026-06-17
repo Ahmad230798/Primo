@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/feature/auth/presentation/screens/login_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/register_screen.dart';
+import 'package:primo/feature/home/presentation/screen/home.dart';
 import 'package:primo/feature/profile/presentation/screen/edit_profile.dart';
 import 'package:primo/feature/profile/presentation/screen/profile.dart';
 import 'package:primo/feature/splash_screen/splash_screen.dart';
@@ -21,6 +22,8 @@ class AppRoutes {
         return CupertinoPageRoute(builder: (_) => const Profile());
       case Routes.editProfile:
         return CupertinoPageRoute(builder: (_) => const EditProfile());
+      case Routes.home:
+        return CupertinoPageRoute(builder: (_) => const Home());
       default:
         return CupertinoPageRoute(
           builder: (_) => const Scaffold(

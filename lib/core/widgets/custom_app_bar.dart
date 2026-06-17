@@ -9,7 +9,7 @@ class CustomAppBar extends StatelessWidget {
   final Widget? suffixsIcon;
   final void Function()? onTap;
   final void Function()? onBackTap;
-  final IconData? icon;
+  final Widget? icon;
   final bool showRightIcon;
 
   const CustomAppBar({
@@ -64,8 +64,8 @@ class CustomAppBar extends StatelessWidget {
 
             // 3. الأيقونة اليمنى (مدمجة مع الـ InkWell والشرط)
             showRightIcon
-                ? Icon(icon ?? Icons.shield_outlined, color: Colors.white)
-                : SizedBox(width: 40.w), // صندوق فارغ للحفاظ على توسيط العنوان
+                ? icon ?? SizedBox(width: 20.w)
+                : SizedBox(width: 20.w), // صندوق فارغ للحفاظ على توسيط العنوان
           ],
         ),
       ),
