@@ -5,14 +5,24 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class CustomCounter extends StatelessWidget {
   final double? width;
-  const CustomCounter({super.key, this.width});
+  final double? horizontalPadding;
+  final double? verticalPadding;
+
+  const CustomCounter({
+    super.key,
+    this.width,
+    this.horizontalPadding,
+    this.verticalPadding,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
       width: width ?? 1.sw,
-
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding ?? 24.w,
+        vertical: verticalPadding ?? 18.h,
+      ),
       decoration: BoxDecoration(
         color: AppColors.formBorder,
         borderRadius: BorderRadius.circular(999),
@@ -21,7 +31,7 @@ class CustomCounter extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.add),
+          Icon(Icons.add, color: AppColors.primary),
           Text("1", style: AppTextStyle.font20),
           Center(child: Icon(Icons.remove)),
         ],
