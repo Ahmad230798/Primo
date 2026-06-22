@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
@@ -18,7 +20,7 @@ class ActivityCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           // 1. الطبقة السفلية: الصورة
-          image:  DecorationImage(
+          image: DecorationImage(
             image: AssetImage(image),
             fit: BoxFit.cover, // هام جداً لتعبئة مساحة البطاقة بشكل احترافي
           ),
