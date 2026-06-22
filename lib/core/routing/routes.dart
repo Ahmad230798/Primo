@@ -15,4 +15,7 @@ class Routes {
   static const String createOffer = '/createOffer';
   static const String adminSuggestions = '/adminSuggestions';
   static const String addCategory = '/addCategory';
+  static const String productDetails = '/productDetails';
+  static const String cart = '/cart';
+  static const String orderTrucking = '/orderTrucking';
 }

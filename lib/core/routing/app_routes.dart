@@ -14,6 +14,10 @@ import 'package:primo/feature/auth/presentation/screens/register_screen.dart';
 import 'package:primo/feature/direct_orders/presentation/screen/direct_orders_screen.dart';
 import 'package:primo/feature/home/presentation/screen/home.dart';
 import 'package:primo/feature/inventory/presentation/screen/inventory_screen.dart';
+import 'package:primo/feature/cart/presentation/screens/cart.dart';
+import 'package:primo/feature/home/presentation/screen/home.dart';
+import 'package:primo/feature/orders/presentation/screens/order_tracking.dart';
+import 'package:primo/feature/product/presentation/screen/product_details.dart';
 import 'package:primo/feature/profile/presentation/screen/edit_profile.dart';
 import 'package:primo/feature/profile/presentation/screen/profile.dart';
 import 'package:primo/feature/splash_screen/splash_screen.dart';
@@ -58,6 +62,12 @@ class AppRoutes {
         return CupertinoPageRoute(
           builder: (_) => const AdminCategoriesScreen(),
         );
+      case Routes.productDetails:
+        return CupertinoPageRoute(builder: (_) => const ProductDetails());
+      case Routes.cart:
+        return CupertinoPageRoute(builder: (_) => const Cart());
+      case Routes.orderTrucking:
+        return CupertinoPageRoute(builder: (_) => const OrderTracking());
       default:
         return CupertinoPageRoute(
           builder: (_) => const Scaffold(

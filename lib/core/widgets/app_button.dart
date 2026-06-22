@@ -13,6 +13,7 @@ class AppButton extends StatelessWidget {
   final bool? isLoading;
   final IconData? icon;
   final Color? textcolor;
+  final bool? isIconExist;
   const AppButton({
     super.key,
     required this.text,
@@ -24,6 +25,7 @@ class AppButton extends StatelessWidget {
     this.icon,
     this.textcolor,
     this.isLoading,
+    this.isIconExist,
   });
 
   @override
@@ -51,11 +53,13 @@ class AppButton extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(width: 8.w),
-                  Icon(
-                    icon ?? Icons.arrow_forward,
-                    size: 25,
-                    color: color ?? Colors.white,
-                  ),
+                  isIconExist ?? true
+                      ? Icon(
+                          icon ?? Icons.arrow_forward,
+                          size: 25,
+                          color: color ?? Colors.white,
+                        )
+                      : SizedBox(),
                 ],
               ),
       ),
