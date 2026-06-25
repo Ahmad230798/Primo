@@ -1,327 +1,264 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-// import 'package:primo/core/utils/appcolor/app_colors.dart';
-// import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
-// import 'package:primo/core/widgets/app_button.dart';
-// import 'package:primo/core/widgets/custom_app_bar.dart';
-// import 'package:primo/feature/orders/presentation/widgets/adress_selection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'; // 1. استيراد المكتبة
+import 'package:primo/core/utils/appcolor/app_colors.dart';
+import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_button.dart';
+import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/feature/orders/presentation/bloc/checkout_cubit.dart';
+import 'package:primo/feature/orders/presentation/bloc/checkout_state.dart';
+import 'package:primo/feature/orders/presentation/widgets/adress_selection_sheet.dart';
+import 'package:primo/feature/orders/presentation/widgets/delivery_method_card.dart';
+import 'package:primo/feature/orders/presentation/widgets/summary_row.dart';
 
-// class CheckoutPage extends StatefulWidget {
-//   const CheckoutPage({super.key});
+class CheckoutScreen extends StatelessWidget {
+  const CheckoutScreen({super.key});
 
-//   @override
-//   State<CheckoutPage> createState() => _CheckoutPageState();
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: const CustomAppBar(
+                title: "إتمام الطلب",
+                showRightIcon: false,
+              ),
+            ),
 
-// class _CheckoutPageState extends State<CheckoutPage> {
-//   // متغيرات لإدارة حالة الواجهة (UI State) مؤقتاً
-//   int selectedDeliveryType = 0; // 0: توصيل للمنزل, 1: استلام من الفرع
-//   int selectedPaymentMethod = 0; // 0: الدفع عند الاستلام, 1: بطاقة ائتمانية
+            // 2. تغليف المحتوى القابل للتغير بـ BlocBuilder
+            Expanded(
+              child: BlocBuilder<CheckoutCubit, CheckoutState>(
+                builder: (context, state) {
+                  // استدعاء نسخة الـ Cubit للوصول إلى المتغيرات والدوال
+                  final cubit = context.read<CheckoutCubit>();
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: AppColors.white, // أو لون الخلفية الأساسي لتطبيقك
-//       body: SafeArea(
-//         child: SingleChildScrollView(
-//           // هنا فعلنا التمرير لأن صفحة الدفع قد تكون طويلة
-//           physics: const BouncingScrollPhysics(),
-//           child: Padding(
-//             padding: EdgeInsets.symmetric(horizontal: 24.w),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 16.verticalSpace,
-//                 const CustomAppBar(
-//                   title: "إتمام الطلب",
-//                   // يمكنك إضافة أيقونة الرجوع هنا إذا كان الـ CustomAppBar يدعمها
-//                 ),
-//                 32.verticalSpace,
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 24.w,
+                      vertical: 20.h,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "طريقة الاستلام",
+                          style: AppTextStyle.font18.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textMain,
+                          ),
+                        ),
+                        16.verticalSpace,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DeliveryMethodCard(
+                                title: "توصيل للعنوان",
+                                subtitle: "يصلك خلال 30 دقيقة",
+                                icon: Icons.local_shipping,
+                                // ربط حالة التحديد بمتغير الـ Cubit
+                                isSelected: cubit.selectedDeliveryMethod == 0,
+                                // استدعاء دالة التغيير عند النقر
+                                onTap: () => cubit.changeDeliveryMethod(0),
+                              ),
+                            ),
+                            16.horizontalSpace,
+                            Expanded(
+                              child: DeliveryMethodCard(
+                                title: "استلام من المتجر",
+                                subtitle: "جاهز خلال 15 دقيقة",
+                                icon: Icons.storefront_outlined,
+                                isSelected: cubit.selectedDeliveryMethod == 1,
+                                onTap: () => cubit.changeDeliveryMethod(1),
+                              ),
+                            ),
+                          ],
+                        ),
+                        32.verticalSpace,
 
-//                 // --- 1. نوع الطلب (توصيل / استلام) ---
-//                 Text("نوع الطلب", style: AppTextStyle.font20),
-//                 16.verticalSpace,
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: _buildSelectionCard(
-//                         title: "توصيل للمنزل",
-//                         icon: Icons.local_shipping_outlined,
-//                         isSelected: selectedDeliveryType == 0,
-//                         onTap: () => setState(() => selectedDeliveryType = 0),
-//                       ),
-//                     ),
-//                     12.horizontalSpace,
-//                     Expanded(
-//                       child: _buildSelectionCard(
-//                         title: "استلام من الفرع",
-//                         icon: Icons.storefront_outlined,
-//                         isSelected: selectedDeliveryType == 1,
-//                         onTap: () => setState(() => selectedDeliveryType = 1),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 32.verticalSpace,
+                        // إظهار قسم العنوان فقط إذا كانت طريقة الاستلام هي التوصيل
+                        if (cubit.selectedDeliveryMethod == 0) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "عنوان التوصيل",
+                                style: AppTextStyle.font18.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textMain,
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (_) => BlocProvider.value(
+                                      // تمرير نفس الـ Cubit للنافذة المنبثقة لتتمكن من تغيير العنوان
+                                      value: cubit,
+                                      child: const AddressSelectionSheet(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "تغيير",
+                                  style: AppTextStyle.font14.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          16.verticalSpace,
+                          Container(
+                            padding: EdgeInsets.all(16.w),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(16.r),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "المنزل",
+                                        style: AppTextStyle.font16.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textMain,
+                                        ),
+                                      ),
+                                      8.verticalSpace,
+                                      Text(
+                                        "شارع التحلية، حي العليا، مبنى 45، شقة 12\nالرياض، المملكة العربية السعودية",
+                                        style: AppTextStyle.font14.copyWith(
+                                          color: AppColors.greyMedium3,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                12.horizontalSpace,
+                                Container(
+                                  padding: EdgeInsets.all(8.w),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.greyBackground,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.location_on,
+                                    color: AppColors.greyMedium1,
+                                    size: 24,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          32.verticalSpace,
+                        ],
 
-//                 // --- 2. عنوان التوصيل (يظهر فقط إذا اختار المستخدم "توصيل") ---
-//                 if (selectedDeliveryType == 0) ...[
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       Text("عنوان التوصيل", style: AppTextStyle.font20),
-//                       TextButton(
-//                         onPressed: () {
-//                           showModalBottomSheet(
-//                             context: context,
-//                             isScrollControlled:
-//                                 true, // مهم جداً ليأخذ الارتفاع المناسب
-//                             backgroundColor: Colors
-//                                 .transparent, // لجعل الحواف العلوية الدائرية تظهر بشكل صحيح
-//                             builder: (context) {
-//                               return const AddressSelectionSheet(); // استدعاء الويدجت الذي صنعناه
-//                             },
-//                           );
-//                           // TODO: فتح نافذة تغيير العنوان
-//                         },
-//                         child: Text(
-//                           "تغيير",
-//                           style: AppTextStyle.font14.copyWith(
-//                             color: Colors.blue, // أو AppColors.primary
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   8.verticalSpace,
-//                   Container(
-//                     padding: EdgeInsets.all(16.w),
-//                     decoration: BoxDecoration(
-//                       color: AppColors.formBorder.withOpacity(0.5),
-//                       borderRadius: BorderRadius.circular(12),
-//                     ),
-//                     child: Row(
-//                       children: [
-//                         Icon(
-//                           Icons.location_on,
-//                           color: AppColors.greyMedium1,
-//                           size: 28.sp,
-//                         ),
-//                         12.horizontalSpace,
-//                         Expanded(
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Text(
-//                                 "المنزل",
-//                                 style: AppTextStyle.font14.copyWith(
-//                                   fontWeight: FontWeight.bold,
-//                                 ),
-//                               ),
-//                               4.verticalSpace,
-//                               Text(
-//                                 "شارع الثورة, بناء رقم 12, الطابق 3",
-//                                 style: AppTextStyle.font14.copyWith(
-//                                   color: AppColors.greyMedium2,
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   32.verticalSpace,
-//                 ],
+                        Text(
+                          "ملخص الطلب",
+                          style: AppTextStyle.font18.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textMain,
+                          ),
+                        ),
+                        16.verticalSpace,
+                        Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(16.r),
+                          ),
+                          child: Column(
+                            children: [
+                              // 3. استخدام المتغيرات المحسوبة من الـ Cubit للفاتورة
+                              SummaryRow(
+                                title: "المجموع الفرعي",
+                                value:
+                                    "${cubit.subTotal.toStringAsFixed(2)} ر.س",
+                              ),
+                              12.verticalSpace,
+                              SummaryRow(
+                                title: "رسوم التوصيل",
+                                value:
+                                    "${cubit.deliveryFee.toStringAsFixed(2)} ر.س",
+                              ),
+                              16.verticalSpace,
+                              const Divider(
+                                color: AppColors.formBorder,
+                                thickness: 1,
+                              ),
+                              16.verticalSpace,
+                              SummaryRow(
+                                title: "الإجمالي",
+                                value: "${cubit.total.toStringAsFixed(2)} ر.س",
+                                isTotal: true,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
 
-//                 // --- 3. طريقة الدفع ---
-//                 Text("طريقة الدفع", style: AppTextStyle.font20),
-//                 16.verticalSpace,
-//                 _buildPaymentMethodTile(
-//                   title: "الدفع عند الاستلام",
-//                   icon: Icons.money,
-//                   value: 0,
-//                   groupValue: selectedPaymentMethod,
-//                   onChanged: (val) =>
-//                       setState(() => selectedPaymentMethod = val!),
-//                 ),
-//                 8.verticalSpace,
-//                 _buildPaymentMethodTile(
-//                   title: "بطاقة ائتمانية",
-//                   icon: Icons.credit_card,
-//                   value: 1,
-//                   groupValue: selectedPaymentMethod,
-//                   onChanged: (val) =>
-//                       setState(() => selectedPaymentMethod = val!),
-//                 ),
-//                 32.verticalSpace,
-
-//                 // --- 4. ملخص الطلب ---
-//                 Text("ملخص الطلب", style: AppTextStyle.font20),
-//                 16.verticalSpace,
-//                 Container(
-//                   padding: EdgeInsets.all(16.w),
-//                   decoration: BoxDecoration(
-//                     border: Border.all(color: AppColors.formBorder),
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                   child: Column(
-//                     children: [
-//                       _buildSummaryRow("المجموع الفرعي", "255.00 ل.س"),
-//                       12.verticalSpace,
-//                       _buildSummaryRow(
-//                         "رسوم التوصيل",
-//                         selectedDeliveryType == 0 ? "15.00 ل.س" : "مجاناً",
-//                       ),
-//                       12.verticalSpace,
-//                       const Divider(),
-//                       12.verticalSpace,
-//                       _buildSummaryRow(
-//                         "الإجمالي",
-//                         selectedDeliveryType == 0 ? "270.00 ل.س" : "255.00 ل.س",
-//                         isTotal: true,
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 32.verticalSpace,
-
-//                 // --- 5. زر التأكيد ---
-//                 AppButton(
-//                   text: "تأكيد الطلب",
-//                   icon: Icons.check_circle_outline,
-//                   // سيتم ربط هذا الزر لاحقاً بـ CheckoutBloc
-//                   // onPressed: () {},
-//                 ),
-//                 32.verticalSpace, // مسافة أمان أسفل الشاشة
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   // ---------------- الويدجتس المساعدة (Helper Widgets) ----------------
-
-//   // بطاقة اختيار نوع التوصيل
-//   Widget _buildSelectionCard({
-//     required String title,
-//     required IconData icon,
-//     required bool isSelected,
-//     required VoidCallback onTap,
-//   }) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: AnimatedContainer(
-//         duration: const Duration(milliseconds: 200),
-//         padding: EdgeInsets.symmetric(vertical: 16.h),
-//         decoration: BoxDecoration(
-//           color: isSelected
-//               ? Colors.red.withOpacity(0.1)
-//               : AppColors.formBorder.withOpacity(
-//                   0.5,
-//                 ), // استبدل اللون الأحمر بلون التطبيق الأساسي
-//           borderRadius: BorderRadius.circular(12),
-//           border: Border.all(
-//             color: isSelected
-//                 ? Colors.red
-//                 : Colors
-//                       .transparent, // استبدل اللون الأحمر بلون التطبيق الأساسي
-//             width: 1.5,
-//           ),
-//         ),
-//         child: Column(
-//           children: [
-//             Icon(
-//               icon,
-//               color: isSelected ? Colors.red : AppColors.greyMedium1,
-//               size: 28.sp,
-//             ),
-//             8.verticalSpace,
-//             Text(
-//               title,
-//               style: AppTextStyle.font14.copyWith(
-//                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-//                 color: isSelected ? Colors.red : AppColors.greyMedium2,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   // عنصر طريقة الدفع
-//   Widget _buildPaymentMethodTile({
-//     required String title,
-//     required IconData icon,
-//     required int value,
-//     required int groupValue,
-//     required ValueChanged<int?> onChanged,
-//   }) {
-//     bool isSelected = value == groupValue;
-//     return GestureDetector(
-//       onTap: () => onChanged(value),
-//       child: Container(
-//         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-//         decoration: BoxDecoration(
-//           border: Border.all(
-//             color: isSelected ? Colors.red : AppColors.formBorder,
-//           ), // استبدل اللون الأحمر
-//           borderRadius: BorderRadius.circular(12),
-//           color: isSelected ? Colors.red.withOpacity(0.05) : Colors.transparent,
-//         ),
-//         child: Row(
-//           children: [
-//             Icon(
-//               icon,
-//               color: isSelected ? Colors.red : AppColors.greyMedium1,
-//               size: 24.sp,
-//             ),
-//             12.horizontalSpace,
-//             Text(
-//               title,
-//               style: AppTextStyle.font14.copyWith(
-//                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-//                 color: isSelected ? Colors.black : AppColors.greyMedium2,
-//               ),
-//             ),
-//             const Spacer(),
-//             Radio<int>(
-//               value: value,
-//               groupValue: groupValue,
-//               onChanged: onChanged,
-//               activeColor: Colors.red, // استبدل اللون الأحمر
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   // سطر ملخص الفاتورة
-//   Widget _buildSummaryRow(String title, String value, {bool isTotal = false}) {
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: [
-//         Text(
-//           title,
-//           style: isTotal
-//               ? AppTextStyle.font20.copyWith(fontWeight: FontWeight.bold)
-//               : AppTextStyle.font14.copyWith(color: AppColors.greyMedium2),
-//         ),
-//         Text(
-//           value,
-//           style: isTotal
-//               ? AppTextStyle.font20.copyWith(
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.red,
-//                 ) // استبدل اللون الأحمر
-//               : AppTextStyle.font14.copyWith(fontWeight: FontWeight.bold),
-//         ),
-//       ],
-//     );
-//   }
-// }
+            // 4. زر التأكيد مع BlocConsumer لمعالجة حالات التحميل، النجاح، والخطأ
+            Container(
+              padding: EdgeInsets.only(
+                left: 24.w,
+                right: 24.w,
+                bottom: 24.h,
+                top: 16.h,
+              ),
+              decoration: const BoxDecoration(color: AppColors.background),
+              child: BlocConsumer<CheckoutCubit, CheckoutState>(
+                listener: (context, state) {
+                  if (state is CheckoutSuccess) {
+                    // الانتقال لشاشة نجاح الطلب
+                    // Navigator.pushNamed(context, '/order-success');
+                  } else if (state is CheckoutError) {
+                    // إظهار رسالة الخطأ
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: AppColors.primary,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return AppButton(
+                    text: "تأكيد الطلب",
+                    icon: Icons.lock_outline_rounded,
+                    // يظهر مؤشر التحميل تلقائياً إذا كانت الحالة Loading
+                    isLoading: state is CheckoutLoading,
+                    onPressed: () {
+                      // يمنع إرسال الطلب مرة أخرى إذا كان قيد التحميل
+                      if (state! is CheckoutLoading) {
+                        context.read<CheckoutCubit>().submitOrder();
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
