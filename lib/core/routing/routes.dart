@@ -12,6 +12,7 @@ class Routes {
   static const String cart = '/cart';
   static const String orderTracking = '/orderTracking'; // تم تصحيح الكلمة
   static const String orderDetailsScreen = '/orderDetailsScreen';
+  static const String orderHistory = '/orderHistory';
   static const String suggestProduct = '/suggestProduct';
   static const String favorites = '/favorites';
 
