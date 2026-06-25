@@ -1,5 +1,5 @@
 // import 'package:flutter/cupertino.dart';
-// import 'package:flutter/material.dart'; 
+// import 'package:flutter/material.dart';
 
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:primo/core/routing/routes.dart';
@@ -167,7 +167,8 @@ import 'package:primo/feature/suggestions/presentation/screens/suggest_product_p
 class AppRoutes {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     // استخراج الـ arguments مسبقاً إذا وُجدت
-    final args = settings.arguments;
+
+    // final args = settings.arguments;
 
     switch (settings.name) {
       // ================== Auth & Splash ==================
@@ -224,17 +225,23 @@ class AppRoutes {
       case Routes.adminOrders:
         return CupertinoPageRoute(builder: (_) => const AdminOrdersScreen());
       case Routes.orderDetails:
-        return CupertinoPageRoute(builder: (_) => const AdminOrderDetailsScreen());
+        return CupertinoPageRoute(
+          builder: (_) => const AdminOrderDetailsScreen(),
+        );
       case Routes.directOrders:
         return CupertinoPageRoute(builder: (_) => const DirectOrdersScreen());
       case Routes.adminCategories:
-        return CupertinoPageRoute(builder: (_) => const AdminCategoriesScreen());
+        return CupertinoPageRoute(
+          builder: (_) => const AdminCategoriesScreen(),
+        );
       case Routes.addCategory:
         return CupertinoPageRoute(builder: (_) => const AddCategoryScreen());
       case Routes.adminOffers:
         return CupertinoPageRoute(builder: (_) => const CreateOfferScreen());
       case Routes.adminSuggestions:
-        return CupertinoPageRoute(builder: (_) => const AdminSuggestionsScreen());
+        return CupertinoPageRoute(
+          builder: (_) => const AdminSuggestionsScreen(),
+        );
 
       // ================== Default & Checkout ==================
       case Routes.checkoutScreen:
