@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/feature/orders/presentation/screens/order_details_screen.dart';
 
 // --- Auth & Profile ---
 import 'package:primo/feature/splash_screen/splash_screen.dart';
@@ -25,7 +26,7 @@ import 'package:primo/feature/inventory/presentation/screen/inventory_screen.dar
 import 'package:primo/feature/admin_product/presentation/screen/add_product_screen.dart';
 import 'package:primo/feature/admin_product/presentation/screen/edit_product_screen.dart';
 import 'package:primo/feature/admin_orders/presentation/screen/admin_orders_screen.dart';
-import 'package:primo/feature/admin_orders/presentation/screen/order_details_screen.dart';
+import 'package:primo/feature/admin_orders/presentation/screen/order_details_screen.dart' hide OrderDetailsScreen;
 import 'package:primo/feature/direct_orders/presentation/screen/direct_orders_screen.dart';
 import 'package:primo/feature/admin_categories/presentation/screen/admin_categories_screen.dart';
 import 'package:primo/feature/admin_categories/presentation/screen/add_category_screen.dart';
@@ -56,6 +57,8 @@ class AppRoutes {
         return CupertinoPageRoute(builder: (_) => const Cart());
       case Routes.orderTracking:
         return CupertinoPageRoute(builder: (_) => const OrderTracking());
+      case Routes.orderDetailsScreen:
+        return CupertinoPageRoute(builder: (_) => const OrderDetailsScreen());
 
       // ================== Admin App ==================
       case Routes.adminHome:

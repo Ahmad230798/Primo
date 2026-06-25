@@ -11,6 +11,7 @@ class Routes {
   static const String productDetails = '/productDetails';
   static const String cart = '/cart';
   static const String orderTracking = '/orderTracking'; // تم تصحيح الكلمة
+  static const String orderDetailsScreen = '/orderDetailsScreen';
 
   // --- Admin App Routes ---
   static const String adminHome = '/adminHome';
@@ -25,6 +26,5 @@ class Routes {
   static const String addCategory = '/addCategory';
   static const String adminOffers = '/adminOffers'; // تم التوحيد مع الـ Drawer
   static const String adminSuggestions = '/adminSuggestions';
-  static const String orderTrucking = '/orderTrucking';
   static const String checkoutScreen = '/checkoutScreen';
 }
