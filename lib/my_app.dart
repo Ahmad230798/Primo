@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.system,
         theme: AppTheme.lightTheme,
-        initialRoute: Routes.orderDetailsScreen,
+        initialRoute: Routes.suggestProduct,
         onGenerateRoute: AppRoutes().generateRoute,
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,

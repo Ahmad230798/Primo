@@ -26,12 +26,13 @@ import 'package:primo/feature/inventory/presentation/screen/inventory_screen.dar
 import 'package:primo/feature/admin_product/presentation/screen/add_product_screen.dart';
 import 'package:primo/feature/admin_product/presentation/screen/edit_product_screen.dart';
 import 'package:primo/feature/admin_orders/presentation/screen/admin_orders_screen.dart';
-import 'package:primo/feature/admin_orders/presentation/screen/order_details_screen.dart' hide OrderDetailsScreen;
+import 'package:primo/feature/admin_orders/presentation/screen/admin_order_details_screen.dart';
 import 'package:primo/feature/direct_orders/presentation/screen/direct_orders_screen.dart';
 import 'package:primo/feature/admin_categories/presentation/screen/admin_categories_screen.dart';
 import 'package:primo/feature/admin_categories/presentation/screen/add_category_screen.dart';
 import 'package:primo/feature/admin_offers/presentation/screen/create_offer_screen.dart';
 import 'package:primo/feature/admin_suggestions/presentation/screen/admin_suggestions_screen.dart';
+import 'package:primo/feature/suggestions/presentation/screens/suggest_product_page.dart';
 
 class AppRoutes {
   Route generateRoute(RouteSettings settings) {
@@ -59,6 +60,8 @@ class AppRoutes {
         return CupertinoPageRoute(builder: (_) => const OrderTracking());
       case Routes.orderDetailsScreen:
         return CupertinoPageRoute(builder: (_) => const OrderDetailsScreen());
+      case Routes.suggestProduct:
+        return CupertinoPageRoute(builder: (_) => const SuggestProductPage());
 
       // ================== Admin App ==================
       case Routes.adminHome:
@@ -72,7 +75,9 @@ class AppRoutes {
       case Routes.adminOrders:
         return CupertinoPageRoute(builder: (_) => const AdminOrdersScreen());
       case Routes.orderDetails:
-        return CupertinoPageRoute(builder: (_) => const OrderDetailsScreen());
+        return CupertinoPageRoute(
+          builder: (_) => const AdminOrderDetailsScreen(),
+        );
       case Routes.directOrders:
         return CupertinoPageRoute(builder: (_) => const DirectOrdersScreen());
       case Routes.adminCategories:
