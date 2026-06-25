@@ -22,7 +22,14 @@ class ProductDetails extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomAppBar(title: "Primo"),
+                CustomAppBar(
+                  title: "Primo",
+                  showRightIcon: true,
+                  icon: Icon(
+                    Icons.favorite_border_outlined,
+                    color: AppColors.primary,
+                  ),
+                ),
                 Image.asset("assets/images/tomato.png"),
                 16.verticalSpace,
                 Row(

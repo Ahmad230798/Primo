@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/feature/favorites/presentation/screens/favorites_screen.dart';
 import 'package:primo/feature/orders/presentation/screens/order_details_screen.dart';
 
 // --- Auth & Profile ---
@@ -62,6 +63,8 @@ class AppRoutes {
         return CupertinoPageRoute(builder: (_) => const OrderDetailsScreen());
       case Routes.suggestProduct:
         return CupertinoPageRoute(builder: (_) => const SuggestProductPage());
+      case Routes.favorites:
+        return CupertinoPageRoute(builder: (_) => const FavoritesPage());
 
       // ================== Admin App ==================
       case Routes.adminHome:
