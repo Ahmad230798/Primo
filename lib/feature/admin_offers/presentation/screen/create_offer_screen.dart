@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
-import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/core/widgets/admin_drawer.dart';
 
 import '../widgets/calculation_card.dart';
 import '../widgets/offer_type_toggle.dart';
@@ -16,30 +17,68 @@ class CreateOfferScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      // ربط القائمة الجانبية وتمرير المسار الحالي لتمييزه
+      drawer: const AdminDrawer(currentRoute: Routes.adminOffers),
+
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
-                // 1. شريط التنقل العلوي
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: CustomAppBar(
-                    title: "إدارة العروض والخصومات",
-                    // سهم الرجوع على اليمين (RTL)
-                    suffixsIcon: Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppColors.textMain,
-                      size: 26.sp,
+                // 1. الهيدر المخصص (Drawer + Notifications)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 16.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    border: Border(
+                      bottom: BorderSide(color: AppColors.formBorder, width: 1),
                     ),
-                    // صورة المدير على اليسار
-                    icon: Icon(
-                      Icons.notifications_none_rounded,
-                      color: AppColors.textMain,
-                      size: 26.sp,
-                    ),
-                    showRightIcon: true,
-                    onBackTap: () => Navigator.pop(context),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // أيقونة الإشعارات (يمين)
+                      InkWell(
+                        onTap: () {},
+                        borderRadius: BorderRadius.circular(99.r),
+                        child: Padding(
+                          padding: EdgeInsets.all(4.w),
+                          child: Icon(
+                            Icons.notifications_none_rounded,
+                            color: AppColors.textMain,
+                            size: 28.sp,
+                          ),
+                        ),
+                      ),
+
+                      // العنوان (في المنتصف باللون الأحمر كما في التصميم)
+                      Text(
+                        "إدارة العروض والخصومات",
+                        style: AppTextStyle.font18.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      // أيقونة القائمة / Drawer (يسار)
+                      Builder(
+                        builder: (innerContext) => InkWell(
+                          onTap: () => Scaffold.of(innerContext).openDrawer(),
+                          borderRadius: BorderRadius.circular(99.r),
+                          child: Padding(
+                            padding: EdgeInsets.all(4.w),
+                            child: Icon(
+                              Icons.menu_rounded,
+                              color: AppColors.textMain,
+                              size: 28.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 

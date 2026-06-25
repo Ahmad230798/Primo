@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
+import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 
 import '../widgets/suggestion_item_card.dart';
@@ -12,7 +14,9 @@ class AdminSuggestionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white, // خلفية الصفحة بيضاء كما في التصميم
+      backgroundColor: AppColors.white,
+      drawer: const AdminDrawer(currentRoute: Routes.adminSuggestions),
+
       body: SafeArea(
         child: Column(
           children: [

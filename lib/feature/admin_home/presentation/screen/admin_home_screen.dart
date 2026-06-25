@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
+import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 
 import '../widgets/admin_stats_section.dart';
@@ -14,6 +16,7 @@ class AdminHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      drawer: const AdminDrawer(currentRoute: Routes.adminHome),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(

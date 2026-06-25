@@ -2,9 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/admin_drawer.dart';
 
+// تأكد من مسار استدعاء الـ AdminDrawer حسب مشروعك
 import '../widgets/incoming_order_card.dart';
 import '../widgets/orders_tab_bar.dart';
 
@@ -15,10 +18,13 @@ class AdminOrdersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      // ربط القائمة الجانبية وتمرير المسار الحالي لتمييزه باللون
+      drawer: const AdminDrawer(currentRoute: Routes.adminOrders),
+
       body: SafeArea(
         child: Column(
           children: [
-            // 1. الهيدر المخصص (يتطابق مع الصورة)
+            // 1. الهيدر المخصص
             Container(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
               decoration: BoxDecoration(
@@ -30,24 +36,7 @@ class AdminOrdersScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // أيقونة الرجوع (يمين - السهم لليمين في الـ RTL)
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppColors.textMain,
-                      size: 24.sp,
-                    ),
-                  ),
-                  // العنوان (في المنتصف)
-                  Text(
-                    "إدارة الطلبات",
-                    style: AppTextStyle.font18.copyWith(
-                      color: AppColors.textMain,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  // شارة الطلبات النشطة (يسار)
+                  // شارة الطلبات النشطة (يمين)
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 12.w,
@@ -68,6 +57,32 @@ class AdminOrdersScreen extends StatelessWidget {
                       "12 نشط",
                       style: AppTextStyle.font12.copyWith(
                         color: AppColors.white,
+                      ),
+                    ),
+                  ),
+
+                  // العنوان (في المنتصف)
+                  Text(
+                    "إدارة الطلبات",
+                    style: AppTextStyle.font18.copyWith(
+                      color: AppColors.textMain,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  // أيقونة القائمة / Drawer (يسار)
+                  // استخدمنا Builder لضمان عمل Scaffold.of(context) بنجاح
+                  Builder(
+                    builder: (innerContext) => InkWell(
+                      onTap: () => Scaffold.of(innerContext).openDrawer(),
+                      borderRadius: BorderRadius.circular(99.r),
+                      child: Padding(
+                        padding: EdgeInsets.all(4.w),
+                        child: Icon(
+                          Icons.menu_rounded,
+                          color: AppColors.textMain,
+                          size: 28.sp,
+                        ),
                       ),
                     ),
                   ),
