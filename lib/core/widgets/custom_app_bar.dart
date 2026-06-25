@@ -9,6 +9,7 @@ class CustomAppBar extends StatelessWidget {
   final Widget? suffixsIcon;
   final void Function()? onTap;
   final void Function()? onBackTap;
+  final void Function()? onRightIconTap; // أضفنا هذا المتغير
   final Widget? icon;
   final bool showRightIcon;
 
@@ -20,6 +21,7 @@ class CustomAppBar extends StatelessWidget {
     this.showRightIcon = true,
     this.onTap,
     this.onBackTap,
+    this.onRightIconTap, // أضفنا هذا المتغير
   });
 
   @override
@@ -40,13 +42,14 @@ class CustomAppBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 1. زر الرجوع (اليسار)
+            // 1. الأيقونة اليسرى (غالباً الرجوع أو الإشعارات)
             InkWell(
               onTap:
                   onBackTap ??
                   () {
                     Navigator.pop(context);
                   },
+              borderRadius: BorderRadius.circular(99.r),
               child:
                   suffixsIcon ??
                   Icon(
@@ -62,10 +65,19 @@ class CustomAppBar extends StatelessWidget {
               style: AppTextStyle.font24.copyWith(color: AppColors.primary),
             ),
 
-            // 3. الأيقونة اليمنى (مدمجة مع الـ InkWell والشرط)
+            // 3. الأيقونة اليمنى (زر القائمة Menu)
             showRightIcon
-                ? icon ?? SizedBox(width: 20.w)
-                : SizedBox(width: 20.w), // صندوق فارغ للحفاظ على توسيط العنوان
+                ? InkWell(
+                    // إذا لم نمرر دالة، سيقوم بفتح الـ Drawer افتراضياً
+                    onTap:
+                        onRightIconTap ??
+                        () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                    borderRadius: BorderRadius.circular(99.r),
+                    child: icon ?? SizedBox(width: 30.w),
+                  )
+                : SizedBox(width: 30.w), // صندوق فارغ للحفاظ على توسيط العنوان
           ],
         ),
       ),
