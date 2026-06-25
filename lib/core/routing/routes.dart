@@ -16,6 +16,7 @@ class Routes {
   static const String suggestProduct = '/suggestProduct';
   static const String favorites = '/favorites';
   static const String addresses = '/addresses';
+  static const String categories = '/categories';
 
   // --- Admin App Routes ---
   static const String adminHome = '/adminHome';
