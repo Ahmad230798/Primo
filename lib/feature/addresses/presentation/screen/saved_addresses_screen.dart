@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
-import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
+import 'package:primo/feature/addresses/presentation/bloc/addresses_cubit.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_state.dart';
 import 'package:primo/feature/addresses/presentation/widgets/address_card.dart';
 

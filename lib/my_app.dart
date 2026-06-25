@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         theme: AppTheme.lightTheme,
         initialRoute: Routes.categories,
-        onGenerateRoute: AppRoutes().generateRoute,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,

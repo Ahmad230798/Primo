@@ -5,7 +5,7 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_text_form_field.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/home/presentation/widgets/activities_list.dart';
-import 'package:primo/feature/home/presentation/widgets/catigory_section.dart';
+import 'package:primo/feature/home/presentation/widgets/category_section.dart';
 import 'package:primo/feature/home/presentation/widgets/latest_product.dart';
 
 class Home extends StatelessWidget {
@@ -36,7 +36,7 @@ class Home extends StatelessWidget {
                 33.verticalSpace,
                 ActivitiesList(),
                 41.verticalSpace,
-                CatigorySection(),
+                CategorySection(),
                 32.verticalSpace,
                 Row(
                   children: [
