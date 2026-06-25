@@ -25,4 +25,6 @@ class Routes {
   static const String addCategory = '/addCategory';
   static const String adminOffers = '/adminOffers'; // تم التوحيد مع الـ Drawer
   static const String adminSuggestions = '/adminSuggestions';
+  static const String orderTrucking = '/orderTrucking';
+  static const String checkoutScreen = '/checkoutScreen';
 }
