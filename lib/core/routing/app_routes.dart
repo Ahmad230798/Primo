@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
+import 'package:primo/feature/addresses/presentation/screen/saved_addresses_screen.dart';
+import 'package:primo/feature/categories/presentation/screen/all_categories_screen.dart';
 import 'package:primo/feature/favorites/presentation/screens/favorites_screen.dart';
 import 'package:primo/feature/orders/presentation/screens/order_details_screen.dart';
 import 'package:primo/feature/orders/presentation/screens/order_history_screen.dart';
@@ -68,6 +71,15 @@ class AppRoutes {
         return CupertinoPageRoute(builder: (_) => const FavoritesPage());
       case Routes.orderHistory:
         return CupertinoPageRoute(builder: (_) => const OrderHistoryScreen());
+      case Routes.categories:
+        return CupertinoPageRoute(builder: (_) => const AllCategoriesScreen());
+      case Routes.addresses:
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => AddressesCubit(),
+            child: const SavedAddressesScreen(),
+          ),
+        );
 
       // ================== Admin App ==================
       case Routes.adminHome:
