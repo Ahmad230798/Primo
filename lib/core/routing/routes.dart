@@ -12,7 +12,8 @@ class Routes {
   static const String cart = '/cart';
   static const String orderTracking = '/orderTracking'; // تم تصحيح الكلمة
   static const String orderDetailsScreen = '/orderDetailsScreen';
-  static const String suggestProduct = 'suggestProduct';
+  static const String suggestProduct = '/suggestProduct';
+  static const String favorites = '/favorites';
 
   // --- Admin App Routes ---
   static const String adminHome = '/adminHome';
