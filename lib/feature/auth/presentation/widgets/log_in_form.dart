@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
@@ -65,7 +68,13 @@ class LogInForm extends StatelessWidget {
               ),
             ),
             24.verticalSpace,
-            AppButton(text: 'تسجيل الدخول'),
+            AppButton(
+              text: 'تسجيل الدخول',
+              onPressed: () {
+                context.pushNamedAndRemoveUntil(Routes.home);
+                context.showSuccess("Welcome User");
+              },
+            ),
             40.verticalSpace,
           ],
         ),

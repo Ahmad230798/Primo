@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
@@ -56,38 +59,7 @@ class RegisterForm extends StatelessWidget {
                 color: AppColors.greyMedium2,
               ),
             ),
-            24.verticalSpace,
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 13.5.h, horizontal: 30.w),
-              width: 1.sw,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  width: 1,
-                  style: BorderStyle.solid,
-                  color: AppColors.secondaryBorder,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    color: AppColors.secondaryBorder,
-                  ),
-                  Expanded(
-                    child: Text(
-                      "تحديد موقع التوصيل على الخريطة",
-                      style: AppTextStyle.font14.copyWith(
-                        letterSpacing: 0.28,
-                        color: AppColors.greyMedium2,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
             24.verticalSpace,
             Text("كلمة المرور", style: AppTextStyle.font16),
             8.verticalSpace,
@@ -172,7 +144,13 @@ class RegisterForm extends StatelessWidget {
                 ),
               ],
             ),
-            AppButton(text: "إنشاء حساب"),
+            AppButton(
+              text: "إنشاء حساب",
+              onPressed: () {
+                context.pushNamed(Routes.login);
+                context.showSuccess("Sign up successfully");
+              },
+            ),
           ],
         ),
       ),
