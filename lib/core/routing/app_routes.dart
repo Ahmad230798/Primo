@@ -133,6 +133,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/feature/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:primo/feature/auth/presentation/screens/otp_verification_screen.dart';
+import 'package:primo/feature/auth/presentation/screens/reset_password_screen.dart';
+import 'package:primo/feature/main_layout/presentation/screen/user_main_layout.dart';
+import 'package:primo/feature/notifications/presentation/screen/notifications_screen.dart';
+import 'package:primo/feature/profile/presentation/screen/change_password_screen.dart';
+import 'package:primo/feature/profile/presentation/screen/settings_screen.dart';
+import 'package:primo/feature/search/presentation/screen/search_results_screen.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
 
 // --- Imports (تم اختصارها للتنظيم) ---
@@ -179,6 +187,18 @@ class AppRoutes {
         return CupertinoPageRoute(builder: (_) => const LoginScreen());
       case Routes.register:
         return CupertinoPageRoute(builder: (_) => const RegisterScreen());
+      case Routes.userMainLayout:
+        return CupertinoPageRoute(builder: (_) => const UserMainLayout());
+      case Routes.changePassword:
+        return CupertinoPageRoute(builder: (_) => const ChangePasswordScreen());
+      case Routes.forgotPassword:
+        return CupertinoPageRoute(builder: (_) => const ForgotPasswordScreen());
+      case Routes.otpVerification:
+        return CupertinoPageRoute(
+          builder: (_) => const OtpVerificationScreen(),
+        );
+      case Routes.resetPassword:
+        return CupertinoPageRoute(builder: (_) => const ResetPasswordScreen());
 
       // ================== User App ==================
       case Routes.home:
@@ -196,6 +216,12 @@ class AppRoutes {
         return CupertinoPageRoute(builder: (_) => const Cart());
       case Routes.orderTracking:
         return CupertinoPageRoute(builder: (_) => const OrderTracking());
+      case Routes.notifications:
+        return CupertinoPageRoute(builder: (_) => const NotificationsScreen());
+      case Routes.searchResults:
+        return CupertinoPageRoute(builder: (_) => const SearchResultsScreen());
+      case Routes.settings:
+        return CupertinoPageRoute(builder: (_) => const SettingsScreen());
       case Routes.orderDetailsScreen:
         return CupertinoPageRoute(builder: (_) => const OrderDetailsScreen());
       case Routes.suggestProduct:

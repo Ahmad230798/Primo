@@ -3,6 +3,11 @@ class Routes {
   static const String splash = "/splash";
   static const String login = "/login";
   static const String register = "/register";
+  static const String userMainLayout = "/userMainLayout";
+  static const String changePassword = "/changePassword";
+  static const String forgotPassword = "/forgotPassword";
+  static const String otpVerification = "/otpVerification";
+  static const String resetPassword = "/resetPassword";
 
   // --- User App Routes ---
   static const String home = '/home';
@@ -10,7 +15,10 @@ class Routes {
   static const String editProfile = '/editProfile';
   static const String productDetails = '/productDetails';
   static const String cart = '/cart';
-  static const String orderTracking = '/orderTracking'; // تم تصحيح الكلمة
+  static const String orderTracking = '/orderTracking';
+  static const String notifications = '/notifications';
+  static const String searchResults = '/searchResults';
+  static const String settings = '/settings';
   static const String orderDetailsScreen = '/orderDetailsScreen';
   static const String orderHistory = '/orderHistory';
   static const String suggestProduct = '/suggestProduct';
