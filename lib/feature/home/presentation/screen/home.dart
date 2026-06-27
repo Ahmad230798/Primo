@@ -18,6 +18,8 @@ class Home extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: SingleChildScrollView(
+            // التعديل الوحيد هنا: أضفنا مسافة سفلية بمقدار 120
+            padding: EdgeInsets.only(bottom: 120.h),
             child: Column(
               children: [
                 CustomAppBar(title: "Primo", suffixsIcon: Icon(Icons.person)),
@@ -34,9 +36,9 @@ class Home extends StatelessWidget {
                   isFilled: true,
                 ),
                 33.verticalSpace,
-                ActivitiesList(),
+                const ActivitiesList(),
                 41.verticalSpace,
-                CatigorySection(),
+                const CatigorySection(),
                 32.verticalSpace,
                 Row(
                   children: [
@@ -58,7 +60,7 @@ class Home extends StatelessWidget {
                   ],
                 ),
                 16.verticalSpace,
-                LatestProduct(),
+                const LatestProduct(),
               ],
             ),
           ),
