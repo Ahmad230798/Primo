@@ -8,8 +8,8 @@ import '../widgets/customer_info_card.dart';
 import '../widgets/order_status_tracker.dart';
 import '../widgets/ordered_items_list.dart';
 
-class OrderDetailsScreen extends StatelessWidget {
-  const OrderDetailsScreen({super.key});
+class AdminOrderDetailsScreen extends StatelessWidget {
+  const AdminOrderDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

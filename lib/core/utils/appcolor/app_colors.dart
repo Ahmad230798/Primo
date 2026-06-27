@@ -34,4 +34,5 @@ class AppColors {
   static const Color splashBackGround = Color(0xFF2F3131);
   static const Color formBorder = Color(0xFFE2E2E2);
   static const Color secondaryBorder = Color(0xFF916F6B);
+  static const Color green = Color(0xFF2E7D32);
 }
