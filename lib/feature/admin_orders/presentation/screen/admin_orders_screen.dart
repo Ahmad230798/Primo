@@ -99,29 +99,41 @@ class AdminOrdersScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
                 children: [
                   // الطلب العادي
-                  IncomingOrderCard(
-                    isDelayed: false,
-                    orderId: "طلب #1042",
-                    timeText: "15 دقيقة مضت",
-                    customerName: "أحمد محمود",
-                    customerAvatarLetter: "أ",
-                    orderType: "طلب توصيل",
-                    totalPrice: "120 ج.م",
-                    onStatusUpdate: () {},
-                    onActionTap: () {},
+                  GestureDetector(
+                    onTap: () {
+                      // الانتقال لتفاصيل الطلب
+                      Navigator.pushNamed(context, Routes.orderDetails);
+                    },
+                    child: IncomingOrderCard(
+                      isDelayed: false,
+                      orderId: "طلب #1042",
+                      timeText: "15 دقيقة مضت",
+                      customerName: "أحمد محمود",
+                      customerAvatarLetter: "أ",
+                      orderType: "طلب توصيل",
+                      totalPrice: "120 ج.م",
+                      onStatusUpdate: () {},
+                      onActionTap: () {},
+                    ),
                   ),
                   16.verticalSpace,
                   // الطلب المتأخر
-                  IncomingOrderCard(
-                    isDelayed: true,
-                    orderId: "طلب #1038",
-                    timeText: "45 دقيقة مضت",
-                    customerName: "سارة محمد",
-                    customerAvatarLetter: "س",
-                    orderType: "استلام من الفرع",
-                    totalPrice: "85 ج.م",
-                    onStatusUpdate: () {},
-                    onActionTap: () {},
+                  GestureDetector(
+                    onTap: () {
+                      // الانتقال لتفاصيل الطلب
+                      Navigator.pushNamed(context, Routes.orderDetails);
+                    },
+                    child: IncomingOrderCard(
+                      isDelayed: true,
+                      orderId: "طلب #1038",
+                      timeText: "45 دقيقة مضت",
+                      customerName: "سارة محمد",
+                      customerAvatarLetter: "س",
+                      orderType: "استلام من الفرع",
+                      totalPrice: "85 ج.م",
+                      onStatusUpdate: () {},
+                      onActionTap: () {},
+                    ),
                   ),
                 ],
               ),

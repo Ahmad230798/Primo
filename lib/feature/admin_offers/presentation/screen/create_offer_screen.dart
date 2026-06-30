@@ -42,7 +42,9 @@ class CreateOfferScreen extends StatelessWidget {
                     children: [
                       // أيقونة الإشعارات (يمين)
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pushNamed(context, Routes.notifications);
+                        },
                         borderRadius: BorderRadius.circular(99.r),
                         child: Padding(
                           padding: EdgeInsets.all(4.w),
@@ -229,7 +231,9 @@ class CreateOfferScreen extends StatelessWidget {
                   ),
                 ),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, Routes.adminHome);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     elevation: 0,

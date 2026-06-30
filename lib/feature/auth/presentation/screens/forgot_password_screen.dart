@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
@@ -203,7 +204,7 @@ class ForgotPasswordScreen extends StatelessWidget {
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: الانتقال لشاشة التحقق (OTP)
+                  Navigator.pushNamed(context, Routes.otpVerification);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
