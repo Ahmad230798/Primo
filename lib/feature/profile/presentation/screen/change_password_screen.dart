@@ -25,7 +25,7 @@ class ChangePasswordScreen extends StatelessWidget {
                 title: "تغيير كلمة المرور",
                 // سهم الرجوع باللون الأحمر كما في التصميم
                 suffixsIcon: Icon(
-                  Icons.arrow_forward_rounded,
+                  Icons.arrow_back,
                   color: AppColors.primary,
                   size: 26.sp,
                 ),
