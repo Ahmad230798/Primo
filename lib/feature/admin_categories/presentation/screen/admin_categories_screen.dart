@@ -20,7 +20,9 @@ class AdminCategoriesScreen extends StatelessWidget {
       floatingActionButtonLocation:
           FloatingActionButtonLocation.startFloat, // Start في الـ RTL تعني يمين
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushNamed(context, Routes.addCategory);
+        },
         backgroundColor: AppColors.primary,
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -37,10 +39,20 @@ class AdminCategoriesScreen extends StatelessWidget {
               child: CustomAppBar(
                 title: "Primo",
                 // 2. عكسنا الأيقونات (suffixsIcon تظهر على اليمين في الـ RTL)
-                suffixsIcon: Icon(
-                  Icons.notifications_none_rounded,
-                  color: AppColors.textMain,
-                  size: 28.sp,
+                suffixsIcon: InkWell(
+                  onTap: () {
+                    // الانتقال لصفحة الإشعارات
+                    Navigator.pushNamed(context, Routes.notifications);
+                  },
+                  borderRadius: BorderRadius.circular(99.r),
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Icon(
+                      Icons.notifications_none_rounded,
+                      color: AppColors.textMain,
+                      size: 28.sp,
+                    ),
+                  ),
                 ),
                 // (icon تظهر على اليسار)
                 icon: Icon(

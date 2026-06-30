@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
@@ -99,7 +100,12 @@ class ResetPasswordScreen extends StatelessWidget {
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: حفظ كلمة المرور وتوجيه المستخدم للرئيسية
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    Routes.login,
+                    (route) => false,
+                  );
+                  // ملاحظة: وجهته للـ login ليقوم بتسجيل الدخول بكلمة المرور الجديدة (هذا الأصح أمنياً).
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

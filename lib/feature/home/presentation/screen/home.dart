@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_text_form_field.dart';
@@ -24,16 +25,25 @@ class Home extends StatelessWidget {
               children: [
                 CustomAppBar(title: "Primo", suffixsIcon: Icon(Icons.person)),
                 8.verticalSpace,
-                AppTextFormField(
-                  prefixIcone: Icon(
-                    Icons.search,
-                    size: 25,
-                    color: AppColors.primary,
+                // في ملف home.dart ، استبدل AppTextFormField بهذا الكود:
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, Routes.searchResults);
+                  },
+                  // وضعنا AbsorbPointer لمنع الكيبورد من الظهور في الشاشة الرئيسية، ليتم النقر فقط ونقله لشاشة البحث
+                  child: AbsorbPointer(
+                    child: AppTextFormField(
+                      prefixIcone: const Icon(
+                        Icons.search,
+                        size: 25,
+                        color: AppColors.primary,
+                      ),
+                      hinttText: "ابحث في Primo...",
+                      borderWidth: 0,
+                      fillColor: AppColors.formBorder,
+                      isFilled: true,
+                    ),
                   ),
-                  hinttText: "ابحث في Primo...",
-                  borderWidth: 0,
-                  fillColor: AppColors.formBorder,
-                  isFilled: true,
                 ),
                 33.verticalSpace,
                 const ActivitiesList(),

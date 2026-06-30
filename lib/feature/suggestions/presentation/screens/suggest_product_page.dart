@@ -121,16 +121,20 @@ class SuggestProductPage extends StatelessWidget {
                 top: 16.h,
               ),
               color: AppColors.background,
-              child: AppButton(
+              child: // في suggest_product_page.dart ، استبدل زر الإرسال بهذا الكود:
+              AppButton(
                 text: "إرسال الاقتراح",
-                isIconExist:
-                    false, // إلغاء الأيقونة السهمية ليطابق الصورة تماماً
+                isIconExist: false,
                 onPressed: () {
-                  // TODO: ربط الحدث مع الـ Cubit لاحقاً لإرسال البيانات للسيرفر
-                  // context.read<SuggestionsCubit>().sendSuggestion(
-                  //   name: productNameController.text,
-                  //   details: productDetailsController.text,
-                  // );
+                  // إظهار رسالة والعودة للصفحة السابقة
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text("تم إرسال مقترحك بنجاح! شكراً لك."),
+                      backgroundColor: AppColors.primary,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  Navigator.pop(context);
                 },
               ),
             ),

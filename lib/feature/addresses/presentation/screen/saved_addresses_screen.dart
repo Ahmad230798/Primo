@@ -49,7 +49,7 @@ class SavedAddressesScreen extends StatelessWidget {
                             );
                           },
                           onEditTap: () {
-                            // TODO: الانتقال لصفحة تعديل العنوان
+                            Navigator.pushNamed(context, '/editAddress');
                           },
                           onDeleteTap: () {
                             // TODO: استدعاء دالة الحذف
@@ -76,7 +76,10 @@ class SavedAddressesScreen extends StatelessWidget {
               child: AppButton(
                 text: "إضافة عنوان جديد",
                 icon: Icons.add,
-                onPressed: () {},
+                onPressed: () {
+                  // حالياً نضعها كرسالة أو إذا كان لديك مسار لها ضعه هنا
+                  // Navigator.pushNamed(context, '/addAddress');
+                },
               ),
             ),
           ],

@@ -26,28 +26,20 @@ class AdminSuggestionsScreen extends StatelessWidget {
               child: CustomAppBar(
                 title: "مقترحات الزبائن",
                 // أيقونة الإشعارات على اليمين مع النقطة الحمراء (RTL)
-                suffixsIcon: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Icon(
+                suffixsIcon: InkWell(
+                  onTap: () {
+                    // الانتقال لصفحة الإشعارات
+                    Navigator.pushNamed(context, Routes.notifications);
+                  },
+                  borderRadius: BorderRadius.circular(99.r),
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Icon(
                       Icons.notifications_none_rounded,
                       color: AppColors.textMain,
-                      size: 26.sp,
+                      size: 28.sp,
                     ),
-                    Positioned(
-                      top: 2.h,
-                      right: 2.w,
-                      child: Container(
-                        width: 10.w,
-                        height: 10.w,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.white, width: 2),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 // أيقونة القائمة (Menu) على اليسار
                 icon: Icon(

@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/feature/cart/presentation/screens/cart.dart';
+import 'package:primo/feature/categories/presentation/screen/all_categories_screen.dart';
 
 // استدعاء شاشة الـ Home القديمة الخاصة بك
 import 'package:primo/feature/home/presentation/screen/home.dart';
+import 'package:primo/feature/orders/presentation/screens/order_history_screen.dart';
+import 'package:primo/feature/profile/presentation/screen/profile.dart';
 
 class UserMainLayout extends StatefulWidget {
   const UserMainLayout({super.key});
@@ -21,10 +25,10 @@ class _UserMainLayoutState extends State<UserMainLayout> {
 
   // قائمة الشاشات التي سيتم التنقل بينها
   final List<Widget> _screens = [
-    const Center(child: Text("حسابي")), // Index 0
-    const Center(child: Text("الطلبات")), // Index 1
-    const Center(child: Text("السلة")), // Index 2
-    const Center(child: Text("الأقسام")), // Index 3
+    const Profile(), // Index 0 (حسابي)
+    const OrderHistoryScreen(), // Index 1 (الطلبات)
+    const Cart(), // Index 2 (السلة)
+    const AllCategoriesScreen(), // Index 3 (الأقسام)
     const Home(), // Index 4 (الرئيسية)
   ];
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/categories/presentation/widgets/category_grid_card.dart';
@@ -32,7 +33,7 @@ class AllCategoriesScreen extends StatelessWidget {
                 showRightIcon: true,
                 icon: InkWell(
                   onTap: () {
-                    // TODO: الانتقال لشاشة البحث (SearchPage)
+                    Navigator.pushNamed(context, Routes.searchResults);
                   },
                   child: Icon(
                     Icons.search,
@@ -62,8 +63,8 @@ class AllCategoriesScreen extends StatelessWidget {
                     title: category["title"]!,
                     imagePath: category["image"]!,
                     onTap: () {
-                      // TODO: الانتقال لصفحة عرض منتجات هذا القسم المحددة
-                      // مثال: Navigator.pushNamed(context, '/category-products', arguments: category["id"]);
+                      // ملاحظة: حالياً تأخذه لشاشة المنتجات، لاحقاً سنمرر الـ id
+                      Navigator.pushNamed(context, Routes.productDetails);
                     },
                   );
                 },
