@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/feature/auth/data/models/register_request_body.dart';
-import 'package:primo/feature/auth/data/repos/auh_repo.dart';
+import 'package:primo/feature/auth/domain/usecases/register_usecase.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_state.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
-  final AuthRepo _authRepo;
+  final RegisterUseCase _registerUseCase;
 
-  RegisterCubit(this._authRepo) : super(RegisterInitial());
+  RegisterCubit(this._registerUseCase) : super(RegisterInitial());
 
   // متحكمات النصوص (من الأفضل وضعها هنا ليبقى كود الـ UI نظيفاً جداً)
   TextEditingController nameController = TextEditingController();
@@ -63,13 +63,9 @@ class RegisterCubit extends Cubit<RegisterState> {
     );
 
     // 3. استدعاء السيرفر عبر الـ Repo
-    print(
-      "Cubit: Emitting Loading State, Calling Repository...",
-    ); // <--- أضف هذا
 
-    final response = await _authRepo.register(requestBody);
+    final response = await _registerUseCase.execute(requestBody);
 
-    print("Cubit: Repository returned response.");
 
     // 4. السحر هنا: فك الـ Either باستخدام fold
     response.fold(
