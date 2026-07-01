@@ -105,7 +105,11 @@ class AddCategoryScreen extends StatelessWidget {
                     // الأزرار السفلية
                     // زر الحفظ
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // TODO: إرسال البيانات للباك إيند لاحقاً
+                        // العودة للصفحة السابقة بعد الحفظ
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         elevation: 0,

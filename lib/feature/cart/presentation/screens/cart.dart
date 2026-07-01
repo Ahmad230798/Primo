@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
@@ -53,7 +54,14 @@ class Cart extends StatelessWidget {
                 16.verticalSpace,
                 CartItemList(),
                 32.verticalSpace,
-                AppButton(text: "متابعة للدفع", icon: Icons.arrow_forward),
+                // في ملف cart.dart، استبدل الـ AppButton الأخير بهذا الكود:
+                AppButton(
+                  text: "متابعة للدفع",
+                  icon: Icons.arrow_forward,
+                  onPressed: () {
+                    Navigator.pushNamed(context, Routes.checkoutScreen);
+                  },
+                ),
               ],
             ),
           ),

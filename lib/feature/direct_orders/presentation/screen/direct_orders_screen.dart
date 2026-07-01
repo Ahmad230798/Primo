@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
@@ -23,10 +24,20 @@ class DirectOrdersScreen extends StatelessWidget {
               child: CustomAppBar(
                 title: "Primo",
                 // 2. عكسنا الأيقونات (suffixsIcon تظهر على اليمين في الـ RTL)
-                suffixsIcon: Icon(
-                  Icons.notifications_none_rounded,
-                  color: AppColors.textMain,
-                  size: 28.sp,
+                suffixsIcon: InkWell(
+                  onTap: () {
+                    // الانتقال لصفحة الإشعارات
+                    Navigator.pushNamed(context, Routes.notifications);
+                  },
+                  borderRadius: BorderRadius.circular(99.r),
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Icon(
+                      Icons.notifications_none_rounded,
+                      color: AppColors.textMain,
+                      size: 28.sp,
+                    ),
+                  ),
                 ),
                 // (icon تظهر على اليسار)
                 icon: Icon(
@@ -87,14 +98,29 @@ class DirectOrdersScreen extends StatelessWidget {
                         itemCount: 1, // بطاقة واحدة للتوضيح كما في الصورة
                         separatorBuilder: (context, index) => 24.verticalSpace,
                         itemBuilder: (context, index) {
-                          return const ActiveOrderCard(
-                            orderId: "#ORD-8924",
-                            timeAgo: "منذ 5 دقائق",
-                            price: "245.50",
-                            paymentMethod: "دفع إلكتروني",
-                            customerName: "خالد عبدالله",
-                            customerType: "عميل مميز",
-                            distance: "3.2 كم",
+                          return GestureDetector(
+                            onTap: () {
+                              // الذهاب لتفاصيل الطلب في الأدمن
+                              Navigator.pushNamed(context, Routes.orderDetails);
+                            },
+                            child: GestureDetector(
+                              onTap: () {
+                                // الانتقال لتفاصيل الطلب
+                                Navigator.pushNamed(
+                                  context,
+                                  Routes.orderDetails,
+                                );
+                              },
+                              child: const ActiveOrderCard(
+                                orderId: "#ORD-8924",
+                                timeAgo: "منذ 5 دقائق",
+                                price: "245.50",
+                                paymentMethod: "دفع إلكتروني",
+                                customerName: "خالد عبدالله",
+                                customerType: "عميل مميز",
+                                distance: "3.2 كم",
+                              ),
+                            ),
                           );
                         },
                       ),

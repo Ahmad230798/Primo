@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
@@ -56,7 +57,11 @@ class DescriptionSection extends StatelessWidget {
                   style: AppTextStyle.font16,
                 ),
                 16.verticalSpace,
-                AppButton(text: "اطلب توفير منتج"),
+                AppButton(
+                  text: "اطلب توفير منتج",
+                  onPressed: () =>
+                      Navigator.pushNamed(context, Routes.suggestProduct),
+                ),
                 24.verticalSpace,
               ],
             ),

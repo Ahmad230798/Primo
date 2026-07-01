@@ -39,7 +39,7 @@ class AdminHomeScreen extends StatelessWidget {
                   ),
                   showRightIcon: true,
                   onBackTap: () {
-                    // TODO: فتح الإشعارات
+                    Navigator.pushNamed(context, Routes.notifications);
                   },
                 ),
                 16.verticalSpace,

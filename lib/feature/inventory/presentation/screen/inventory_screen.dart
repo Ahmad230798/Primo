@@ -17,11 +17,15 @@ class InventoryScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: const AdminDrawer(currentRoute: Routes.adminInventory),
-      // زر الإضافة العائم (FAB)
+
+      // زر الإضافة العائم (FAB) -> يذهب لصفحة إضافة منتج
       floatingActionButton: SizedBox(
         height: 56.h,
         child: FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: () {
+            // إضافة منتج جديد
+            Navigator.pushNamed(context, Routes.addProducts);
+          },
           backgroundColor: AppColors.primary,
           elevation: 4,
           shape: RoundedRectangleBorder(
@@ -40,22 +44,39 @@ class InventoryScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // 1. قمنا بتغليف الـ AppBar بـ Padding ليأخذ نفس مسافات الصفحة
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: CustomAppBar(
                 title: "Primo",
-                // 2. عكسنا الأيقونات (suffixsIcon تظهر على اليمين في الـ RTL)
-                suffixsIcon: Icon(
-                  Icons.notifications_none_rounded,
-                  color: AppColors.textMain,
-                  size: 28.sp,
+                // أيقونة الإشعارات (تظهر يميناً)
+                suffixsIcon: InkWell(
+                  onTap: () {
+                    // الانتقال لصفحة الإشعارات
+                    Navigator.pushNamed(context, Routes.notifications);
+                  },
+                  borderRadius: BorderRadius.circular(99.r),
+                  child: Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Icon(
+                      Icons.notifications_none_rounded,
+                      color: AppColors.textMain,
+                      size: 28.sp,
+                    ),
+                  ),
                 ),
-                // (icon تظهر على اليسار)
-                icon: Icon(
-                  Icons.menu_rounded,
-                  color: AppColors.textMain,
-                  size: 28.sp,
+                // أيقونة فتح القائمة الجانبية
+                icon: Builder(
+                  builder: (ctx) => InkWell(
+                    onTap: () => Scaffold.of(ctx).openDrawer(),
+                    child: Padding(
+                      padding: EdgeInsets.all(4.w),
+                      child: Icon(
+                        Icons.menu_rounded,
+                        color: AppColors.textMain,
+                        size: 28.sp,
+                      ),
+                    ),
+                  ),
                 ),
                 showRightIcon: true,
               ),
@@ -67,8 +88,7 @@ class InventoryScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    16.verticalSpace, // قللنا المسافة قليلاً بعد تعديل الـ AppBar
-                    // العناوين
+                    16.verticalSpace,
                     Text(
                       "إدارة المخزون",
                       style: AppTextStyle.font30.copyWith(
@@ -83,8 +103,6 @@ class InventoryScreen extends StatelessWidget {
                       ),
                     ),
                     24.verticalSpace,
-
-                    // شريط البحث والفلترة
                     const SearchAndFilterWidget(),
                     24.verticalSpace,
 
@@ -96,18 +114,24 @@ class InventoryScreen extends StatelessWidget {
                       separatorBuilder: (context, index) => 16.verticalSpace,
                       itemBuilder: (context, index) {
                         final product = _dummyProducts[index];
-                        return InventoryProductCard(
-                          category: product['category'],
-                          name: product['name'],
-                          sku: product['sku'],
-                          price: product['price'],
-                          quantity: product['quantity'],
-                          isAvailable: product['isAvailable'],
-                          imagePath: product['imagePath'],
+                        return InkWell(
+                          onTap: () {
+                            // الذهاب لصفحة تعديل المنتج
+                            Navigator.pushNamed(context, Routes.editProduct);
+                          },
+                          child: InventoryProductCard(
+                            category: product['category'],
+                            name: product['name'],
+                            sku: product['sku'],
+                            price: product['price'],
+                            quantity: product['quantity'],
+                            isAvailable: product['isAvailable'],
+                            imagePath: product['imagePath'],
+                          ),
                         );
                       },
                     ),
-                    100.verticalSpace, // مساحة سفلية للزر العائم
+                    100.verticalSpace,
                   ],
                 ),
               ),

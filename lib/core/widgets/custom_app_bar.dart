@@ -44,11 +44,11 @@ class CustomAppBar extends StatelessWidget {
           children: [
             // 1. الأيقونة اليسرى (غالباً الرجوع أو الإشعارات)
             InkWell(
-              onTap:
-                  onBackTap ??
-                  () {
-                    Navigator.pop(context);
-                  },
+              onTap: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              },
               borderRadius: BorderRadius.circular(99.r),
               child:
                   suffixsIcon ??
