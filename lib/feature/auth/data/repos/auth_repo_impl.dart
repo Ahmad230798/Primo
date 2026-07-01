@@ -2,9 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_error_handler.dart';
+import 'package:primo/feature/auth/data/models/otp_request_body.dart';
+import 'package:primo/feature/auth/data/models/otp_response.dart';
 import 'package:primo/feature/auth/data/models/register_request_body.dart';
 import 'package:primo/feature/auth/data/models/register_response_body.dart';
-import 'package:primo/feature/auth/data/repos/auh_repo.dart';
+import 'package:primo/feature/auth/domain/repo/auth_repo.dart';
 
 class AuthRepoImpl implements AuthRepo {
   final ApiConsumer _apiConsumer;
@@ -15,12 +17,10 @@ class AuthRepoImpl implements AuthRepo {
     RegisterRequestBody registerRequestBody,
   ) async {
     try {
-      print("Repo: Starting API call to: ${ApiConstant.register}");
       final response = await _apiConsumer.postFormData(
         path: ApiConstant.register,
         formData: registerRequestBody.toFormData(),
       );
-      print("Repo: API Call successful!"); // <--- أضف هذا
 
       // إذا نجح الطلب، نعيد البيانات في جهة اليمين (Right)
       return Right(RegisterResponseBody.fromJson(response));
@@ -28,7 +28,27 @@ class AuthRepoImpl implements AuthRepo {
       // إذا اعترض الـ ErrorHandler الطلب ورمى خطأ، نمسكه ونضعه في اليسار (Left)
       return Left(failure);
     } catch (e) {
-      print("Parsing Error (JSON Mismatch): $e");
+      // حماية إضافية لأي خطأ برمجي غير متوقع
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, OtpResponse>> verifyOtp(
+    OtpRequestBody otpRequestBody,
+  ) async {
+    try {
+      final response = await _apiConsumer.postFormData(
+        path: ApiConstant.verifyRegister,
+        formData: otpRequestBody.toFormData(),
+      );
+
+      // إذا نجح الطلب، نعيد البيانات في جهة اليمين (Right)
+      return Right(OtpResponse.fromJson(response));
+    } on ServerFailure catch (failure) {
+      // إذا اعترض الـ ErrorHandler الطلب ورمى خطأ، نمسكه ونضعه في اليسار (Left)
+      return Left(failure);
+    } catch (e) {
       // حماية إضافية لأي خطأ برمجي غير متوقع
       return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
     }

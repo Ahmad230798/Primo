@@ -5,7 +5,7 @@ sealed class RegisterState extends Equatable {
   const RegisterState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 final class RegisterInitial extends RegisterState {}
@@ -19,7 +19,7 @@ final class RegisterSuccess extends RegisterState {
 
   @override
   // هنا نخبر Equatable أن يقارن بناءً على محتوى الاستجابة
-  List<Object> get props => [registerResponse];
+  List<Object?> get props => [registerResponse];
 }
 
 final class RegisterError extends RegisterState {
@@ -29,7 +29,7 @@ final class RegisterError extends RegisterState {
 
   @override
   // هنا السحر: المقارنة ستتم بناءً على نص رسالة الخطأ فقط
-  List<Object> get props => [error];
+  List<Object?> get props => [error];
 }
 
 // أضف هذه الحالة إلى ملف register_state.dart
@@ -46,7 +46,7 @@ final class RegisterChangeUI extends RegisterState {
 
   @override
   // نمرر المتغيرات هنا لكي يقوم Equatable بمقارنتها والسماح بتحديث الشاشة
-  List<Object> get props => [
+  List<Object?> get props => [
     isPasswordObscure,
     isConfirmPasswordObscure,
     isTermsAccepted,
