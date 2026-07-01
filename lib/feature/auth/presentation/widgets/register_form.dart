@@ -12,7 +12,6 @@ import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_state.dart';
 
 class RegisterForm extends StatelessWidget {
-  // تم إزالة البارامترات من هنا لنبقي الكود نظيفاً
   const RegisterForm({super.key});
 
   @override

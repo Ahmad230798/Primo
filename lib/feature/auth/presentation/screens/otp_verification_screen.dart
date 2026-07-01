@@ -36,7 +36,7 @@ class OtpVerificationScreen extends StatelessWidget {
                 state.otpResponse.data?.message ?? "تم تفعيل الحساب بنجاح",
               );
               // الانتقال لشاشة تسجيل الدخول بعد النجاح
-              context.pushNamedAndRemoveUntil(Routes.login);
+              context.pushNamedAndRemoveUntil(Routes.home);
             }
           },
           builder: (context, state) {
@@ -131,7 +131,7 @@ class OtpVerificationScreen extends StatelessWidget {
                         isLoading: state is OtpLoading,
                         onPressed: cubit.emitVerifyOtpStates,
                       ),
-                     
+
                       32.verticalSpace, // مسافة أسفل الزر
                     ],
                   ),

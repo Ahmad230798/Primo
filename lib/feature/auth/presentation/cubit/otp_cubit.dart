@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:primo/core/network/app_storage.dart';
 import '../../domain/usecases/verify_otp_usecase.dart';
 import '../../data/models/otp_request_body.dart';
 import 'otp_state.dart';
@@ -9,7 +10,6 @@ class OtpCubit extends Cubit<OtpState> {
 
   OtpCubit(this._verifyOtpUseCase) : super(OtpInitial());
 
-  
   final List<TextEditingController> controllers = List.generate(
     4,
     (_) => TextEditingController(),
@@ -55,10 +55,15 @@ class OtpCubit extends Cubit<OtpState> {
 
     final response = await _verifyOtpUseCase.execute(requestBody);
 
-    response.fold(
-      (failure) => emit(OtpError(error: failure.errorMessage)),
-      (data) => emit(OtpSuccess(data)),
-    );
+    response.fold((failure) => emit(OtpError(error: failure.errorMessage)), (
+      data,
+    ) async {
+      await AppStorage.saveTokens(
+        accessToken: data.data?.accessToken ?? '',
+        refreshToken: data.data?.refreshToken ?? '',
+      );
+      emit(OtpSuccess(data));
+    });
   }
 
   // 3. الأهم: تنظيف الذاكرة عند إغلاق الشاشة
