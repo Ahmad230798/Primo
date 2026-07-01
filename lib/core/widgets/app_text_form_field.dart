@@ -50,7 +50,6 @@ class AppTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         filled: isFilled,
         fillColor: fillColor,
-
         isDense: true,
         contentPadding:
             contentPadding ??

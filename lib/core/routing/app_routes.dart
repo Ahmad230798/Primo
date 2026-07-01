@@ -129,10 +129,16 @@
 //   }
 // }
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:primo/core/network/api_consumer.dart';
+import 'package:primo/core/network/dio_factory.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/feature/auth/data/repos/auh_repo.dart';
+import 'package:primo/feature/auth/data/repos/auth_repo_impl.dart';
+import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
 import 'package:primo/feature/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/reset_password_screen.dart';
@@ -186,7 +192,13 @@ class AppRoutes {
       case Routes.login:
         return CupertinoPageRoute(builder: (_) => const LoginScreen());
       case Routes.register:
-        return CupertinoPageRoute(builder: (_) => const RegisterScreen());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) =>
+                RegisterCubit(AuthRepoImpl(ApiConsumer(DioFactory.getDio()))),
+            child: const RegisterScreen(),
+          ),
+        );
       case Routes.userMainLayout:
         return CupertinoPageRoute(builder: (_) => const UserMainLayout());
       case Routes.changePassword:

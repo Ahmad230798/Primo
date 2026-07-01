@@ -15,10 +15,12 @@ class AuthRepoImpl implements AuthRepo {
     RegisterRequestBody registerRequestBody,
   ) async {
     try {
+      print("Repo: Starting API call to: ${ApiConstant.register}");
       final response = await _apiConsumer.postFormData(
         path: ApiConstant.register,
         formData: registerRequestBody.toFormData(),
       );
+      print("Repo: API Call successful!"); // <--- أضف هذا
 
       // إذا نجح الطلب، نعيد البيانات في جهة اليمين (Right)
       return Right(RegisterResponseBody.fromJson(response));
@@ -26,6 +28,7 @@ class AuthRepoImpl implements AuthRepo {
       // إذا اعترض الـ ErrorHandler الطلب ورمى خطأ، نمسكه ونضعه في اليسار (Left)
       return Left(failure);
     } catch (e) {
+      print("Parsing Error (JSON Mismatch): $e");
       // حماية إضافية لأي خطأ برمجي غير متوقع
       return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
     }

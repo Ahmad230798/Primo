@@ -22,8 +22,7 @@ class DioFactory {
           sendTimeout: _timeOut,
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Accept-Language': 'ar', // 3. إخبار السيرفر أن لغة التطبيق عربية
+            // 'Accept-Language': 'ar', // 3. إخبار السيرفر أن لغة التطبيق عربية
           },
         ),
       );

@@ -5,5 +5,7 @@ import 'package:primo/feature/auth/data/models/register_response_body.dart';
 
 abstract class AuthRepo {
   // الدالة الآن تعد بإرجاع "إما خطأ أو نجاح"
-  Future<Either<Failure, RegisterResponseBody>> register(RegisterRequestBody registerRequestBody);
+  Future<Either<Failure, RegisterResponseBody>> register(
+    RegisterRequestBody registerRequestBody,
+  );
 }

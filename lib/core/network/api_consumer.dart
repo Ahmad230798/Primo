@@ -3,7 +3,7 @@ import 'package:primo/core/network/api_error_handler.dart';
 
 class ApiConsumer {
   final Dio _dio;
-  
+
   ApiConsumer(this._dio);
 
   /// GET
@@ -36,7 +36,9 @@ class ApiConsumer {
         path,
         data: body,
         queryParameters: queryParameters,
-        options: Options(headers: headers), // سيعتمد على الـ Headers الافتراضية في DioFactory
+        options: Options(
+          headers: headers,
+        ), // سيعتمد على الـ Headers الافتراضية في DioFactory
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -59,13 +61,18 @@ class ApiConsumer {
         options: Options(
           headers: {
             // هنا فقط نحتاج لإجبار السيرفر على استقبال ملفات
-            'Content-Type': 'multipart/form-data', 
+            'Content-Type': 'multipart/form-data',
             ...?headers,
           },
         ),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
+      print("TYPE: ${e.type}");
+      print("ERROR: ${e.error}");
+      print("MESSAGE: ${e.message}");
+      print("URI: ${e.requestOptions.uri}");
+      print("HEADERS: ${e.requestOptions.headers}");
       throw ServerFailure.fromDioError(e);
     }
   }
@@ -78,7 +85,8 @@ class ApiConsumer {
     Map<String, String>? headers,
   }) async {
     try {
-      final response = await _dio.put( // تم تصحيح الاستدعاء من patch إلى put
+      final response = await _dio.put(
+        // تم تصحيح الاستدعاء من patch إلى put
         path,
         data: body,
         queryParameters: queryParameters,
@@ -98,7 +106,7 @@ class ApiConsumer {
     Map<String, String>? headers,
   }) async {
     try {
-      final response = await _dio.patch( 
+      final response = await _dio.patch(
         path,
         data: body,
         queryParameters: queryParameters,
