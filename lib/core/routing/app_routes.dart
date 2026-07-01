@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/feature/auth/presentation/cubit/login_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/otp_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
 import 'package:primo/feature/auth/presentation/screens/forgot_password_screen.dart';
@@ -56,7 +57,12 @@ class AppRoutes {
       case Routes.splash:
         return CupertinoPageRoute(builder: (_) => const SplashScreen());
       case Routes.login:
-        return CupertinoPageRoute(builder: (_) => const LoginScreen());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<LoginCubit>(),
+            child: const LoginScreen(),
+          ),
+        );
       case Routes.register:
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
@@ -71,13 +77,16 @@ class AppRoutes {
       case Routes.forgotPassword:
         return CupertinoPageRoute(builder: (_) => const ForgotPasswordScreen());
       case Routes.otpVerification:
-  final phoneNumber = settings.arguments as String; // استلام الرقم الممرر
-  return MaterialPageRoute(
-    builder: (_) => BlocProvider(
-      create: (context) => getIt<OtpCubit>(), // توفير الكيوبت باستخدام get_it
-      child: OtpVerificationScreen(phoneNumber: phoneNumber), // تمرير الرقم للشاشة
-    ),
-  );
+        final phoneNumber = settings.arguments as String; // استلام الرقم الممرر
+        return MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) =>
+                getIt<OtpCubit>(), // توفير الكيوبت باستخدام get_it
+            child: OtpVerificationScreen(
+              phoneNumber: phoneNumber,
+            ), // تمرير الرقم للشاشة
+          ),
+        );
       case Routes.resetPassword:
         return CupertinoPageRoute(builder: (_) => const ResetPasswordScreen());
 

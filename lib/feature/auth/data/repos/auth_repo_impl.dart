@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_error_handler.dart';
+import 'package:primo/feature/auth/data/models/login_request_body.dart';
+import 'package:primo/feature/auth/data/models/login_response.dart';
 import 'package:primo/feature/auth/data/models/otp_request_body.dart';
 import 'package:primo/feature/auth/data/models/otp_response.dart';
 import 'package:primo/feature/auth/data/models/register_request_body.dart';
@@ -50,6 +52,23 @@ class AuthRepoImpl implements AuthRepo {
       return Left(failure);
     } catch (e) {
       // حماية إضافية لأي خطأ برمجي غير متوقع
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, LoginResponse>> login(
+    LoginRequestBody loginRequestBody,
+  ) async {
+    try {
+      final response = await _apiConsumer.postFormData(
+        path: ApiConstant.login,
+        formData: loginRequestBody.toFormData(),
+      );
+      return Right(LoginResponse.fromJson(response));
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    } catch (e) {
       return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
     }
   }

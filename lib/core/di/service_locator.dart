@@ -1,8 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:primo/feature/auth/data/repos/auth_repo_impl.dart';
 import 'package:primo/feature/auth/domain/repo/auth_repo.dart';
+import 'package:primo/feature/auth/domain/usecases/login_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/register_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:primo/feature/auth/presentation/cubit/login_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/otp_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
 import '../network/api_consumer.dart';
@@ -35,4 +37,9 @@ void setupServiceLocator() {
 
   // 2. حقن الـ OtpCubit (نستخدم Factory ضروري جداً هنا)
   getIt.registerFactory(() => OtpCubit(getIt<VerifyOtpUseCase>()));
+  // حقن LoginUseCase
+  getIt.registerLazySingleton(() => LoginUseCase(getIt<AuthRepo>()));
+
+  // حقن LoginCubit
+  getIt.registerFactory(() => LoginCubit(getIt<LoginUseCase>()));
 }

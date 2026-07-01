@@ -46,7 +46,7 @@ class RegisterScreen extends StatelessWidget {
                 );
               } else {
                 // كإجراء احتياطي: إذا لم يطلب السيرفر OTP، نوجهه لتسجيل الدخول
-                context.pushNamedAndRemoveUntil(Routes.login);
+                context.pushNamedAndRemoveUntil(Routes.home);
               }
             }
           },
@@ -56,7 +56,6 @@ class RegisterScreen extends StatelessWidget {
               current is RegisterSuccess ||
               current is RegisterInitial,
           builder: (context, state) {
-            // final cubit = context.read<RegisterCubit>();
             return SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
