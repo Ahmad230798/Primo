@@ -66,7 +66,6 @@ class RegisterCubit extends Cubit<RegisterState> {
 
     final response = await _registerUseCase.execute(requestBody);
 
-
     // 4. السحر هنا: فك الـ Either باستخدام fold
     response.fold(
       (failure) {
@@ -80,5 +79,14 @@ class RegisterCubit extends Cubit<RegisterState> {
         emit(RegisterSuccess(data));
       },
     );
+  }
+
+  @override
+  Future<void> close() {
+    nameController.dispose();
+    phoneController.dispose();
+    passwordController.dispose();
+    passwordConfirmationController.dispose();
+    return super.close();
   }
 }
