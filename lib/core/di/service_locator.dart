@@ -1,4 +1,18 @@
 import 'package:get_it/get_it.dart';
+import 'package:primo/feature/admin_categories/data/repos/admin_category_repo_impl.dart';
+import 'package:primo/feature/admin_categories/domain/repo/admin_category_repo.dart';
+import 'package:primo/feature/admin_categories/domain/usecases/add_category_usecase.dart';
+import 'package:primo/feature/admin_categories/presentation/cubit/admin_category_cubit.dart';
+import 'package:primo/feature/admin_offers/data/repos/admin_offers_repo_impl.dart';
+import 'package:primo/feature/admin_offers/domain/repo/admin_offers_repo.dart';
+import 'package:primo/feature/admin_offers/domain/usecases/create_offer_usecase.dart';
+import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_cubit.dart';
+import 'package:primo/feature/admin_product/data/repos/admin_product_repo_impl.dart';
+import 'package:primo/feature/admin_product/domain/repo/admin_product_repo.dart';
+import 'package:primo/feature/admin_product/domain/usecases/get_categories_usecase.dart';
+import 'package:primo/feature/admin_product/domain/usecases/get_products_usecase.dart';
+import 'package:primo/feature/admin_product/domain/usecases/manage_product_usecase.dart';
+import 'package:primo/feature/admin_product/presentation/cubit/admin_product_cubit.dart';
 import 'package:primo/feature/auth/data/repos/auth_repo_impl.dart';
 import 'package:primo/feature/auth/domain/repo/auth_repo.dart';
 import 'package:primo/feature/auth/domain/usecases/login_usecase.dart';
@@ -42,4 +56,39 @@ void setupServiceLocator() {
 
   // حقن LoginCubit
   getIt.registerFactory(() => LoginCubit(getIt<LoginUseCase>()));
+
+  // --- Admin Categories ---
+  getIt.registerLazySingleton<AdminCategoryRepo>(
+    () => AdminCategoryRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(
+    () => AddCategoryUseCase(getIt<AdminCategoryRepo>()),
+  );
+  getIt.registerFactory(() => AdminCategoryCubit(getIt<AddCategoryUseCase>()));
+
+  // ================= ADMIN OFFERS =================
+  getIt.registerLazySingleton<AdminOffersRepo>(
+    () => AdminOffersRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(
+    () => CreateOfferUseCase(getIt<AdminOffersRepo>()),
+  );
+  getIt.registerFactory(() => AdminOffersCubit(getIt<CreateOfferUseCase>()));
+
+  getIt.registerLazySingleton<AdminProductRepo>(
+    () => AdminProductRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetProductsUseCase(getIt<AdminProductRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => ManageProductUseCase(getIt<AdminProductRepo>()),
+  );
+
+  getIt.registerFactory(
+    () => AdminProductCubit(
+      getIt<ManageProductUseCase>(),
+      getIt<GetCategoriesUseCase>(), // جلب الأقسام من قسم الـ Categories
+    ),
+  );
 }
