@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'section_header.dart';
 import 'order_card.dart';
 
@@ -13,7 +15,10 @@ class IncomingOrdersSection extends StatelessWidget {
         SectionHeader(
           title: "الطلبات الواردة",
           actionText: "عرض الكل",
-          onActionTap: () {},
+          onActionTap: () {
+            // الانتقال لشاشة الطلبات الكلية
+            context.pushNamed(Routes.adminOrders);
+          },
         ),
         16.verticalSpace,
         ListView.separated(
