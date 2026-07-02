@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/feature/admin_categories/presentation/cubit/admin_category_cubit.dart';
+import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_cubit.dart';
+import 'package:primo/feature/admin_product/presentation/cubit/admin_product_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/login_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/otp_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
@@ -136,7 +139,14 @@ class AppRoutes {
       case Routes.adminInventory:
         return CupertinoPageRoute(builder: (_) => const InventoryScreen());
       case Routes.addProducts:
-        return CupertinoPageRoute(builder: (_) => const AddProductScreen());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) =>
+                getIt<AdminProductCubit>()
+                  ..loadCategories(), // جلب الأقسام فور فتح الشاشة
+            child: const AddProductScreen(),
+          ),
+        );
       case Routes.editProduct:
         return CupertinoPageRoute(builder: (_) => const EditProductScreen());
       case Routes.adminOrders:
@@ -152,9 +162,19 @@ class AppRoutes {
           builder: (_) => const AdminCategoriesScreen(),
         );
       case Routes.addCategory:
-        return CupertinoPageRoute(builder: (_) => const AddCategoryScreen());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<AdminCategoryCubit>(),
+            child: const AddCategoryScreen(),
+          ),
+        );
       case Routes.adminOffers:
-        return CupertinoPageRoute(builder: (_) => const CreateOfferScreen());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<AdminOffersCubit>(),
+            child: const CreateOfferScreen(),
+          ),
+        );
       case Routes.adminSuggestions:
         return CupertinoPageRoute(
           builder: (_) => const AdminSuggestionsScreen(),
