@@ -40,13 +40,23 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginError(error: failure.errorMessage));
       },
       (data) async {
-        // حفظ التوكن بمجرد نجاح تسجيل الدخول
-        await AppStorage.saveTokens(
-          accessToken: data.data?.accessToken ?? '',
-          refreshToken: data.data?.refreshToken ?? "",
-        );
-        await AppStorage.saveUserRole(data.data?.user?.isAdmin ?? 0);
-        emit(LoginSuccess(data));
+        if (data.data?.otpRequired == true) {
+          // إرسال حالة طلب الـ OTP وتمرير الرسالة القادمة من السيرفر
+          emit(
+            LoginRequiresOtp(
+              data.data?.innerMessage ?? "الحساب غير مفعل، يرجى إدخال الكود.",
+            ),
+          );
+        } else {
+          // المسار الطبيعي (تم الدخول بنجاح والحساب مفعل)
+          await AppStorage.saveTokens(
+            accessToken: data.data?.accessToken ?? '',
+            refreshToken: data.data?.refreshToken ?? "",
+          );
+
+          await AppStorage.saveUserRole(data.data?.user?.isAdmin ?? 0);
+          emit(LoginSuccess(data));
+        }
       },
     );
   }

@@ -1,15 +1,14 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart'; // نحتاجها للـ kDebugMode
+import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/app_storage.dart';
+import 'package:primo/core/routing/app_routes.dart';
+import 'package:primo/core/routing/routes.dart';
 
 class DioFactory {
-  // 1. جعلنا المتغيرات private لضمان عدم التلاعب بها من خارج الكلاس
   DioFactory._();
   static Dio? _dio;
-
-  // 2. توحيد مدة الانتظار (المعيار 30 ثانية لتجنب مشاكل الشبكات الضعيفة)
   static const Duration _timeOut = Duration(seconds: 30);
 
   static Dio getDio() {
@@ -20,10 +19,7 @@ class DioFactory {
           connectTimeout: _timeOut,
           receiveTimeout: _timeOut,
           sendTimeout: _timeOut,
-          headers: {
-            'Accept': 'application/json',
-            // 'Accept-Language': 'ar', // 3. إخبار السيرفر أن لغة التطبيق عربية
-          },
+          headers: {'Accept': 'application/json'},
         ),
       );
       _addDioInterceptor();
@@ -34,7 +30,6 @@ class DioFactory {
   static void _addDioInterceptor() {
     _dio?.interceptors.add(
       InterceptorsWrapper(
-        // --- قبل إرسال الطلب ---
         onRequest: (options, handler) async {
           final token = await AppStorage.getAccessToken();
           if (token != null && token.isNotEmpty) {
@@ -42,25 +37,54 @@ class DioFactory {
           }
           return handler.next(options);
         },
-
-        // --- عند استقبال رد ناجح ---
         onResponse: (response, handler) {
           return handler.next(response);
         },
-
-        // --- عند حدوث خطأ (التعديل الأهم للـ Django JWT) ---
         onError: (DioException error, handler) async {
-          // إذا كان الخطأ 401 (التوكن منتهي الصلاحية)
           if (error.response?.statusCode == 401) {
-            // TODO: استدعاء دالة refreshToken() هنا، ثم إعادة إرسال الطلب (Retry)
-            // سنقوم ببرمجتها لاحقاً عندما نصل لإدارة الـ Auth
+            final refreshToken = await AppStorage.getRefreshToken();
+
+            if (refreshToken != null && refreshToken.isNotEmpty) {
+              try {
+                // 💡 التعديل الجوهري: إنشاء Dio جديدة نظيفة لطلب التجديد
+                final refreshDio = Dio(
+                  BaseOptions(baseUrl: ApiConstant.baseUrl),
+                );
+
+                final response = await refreshDio.post(
+                  ApiConstant.refreshToken,
+                  data: {'refresh': refreshToken}, // متوافق مع Django JWT
+                );
+
+                if (response.statusCode == 200) {
+                  final newAccessToken = response.data['access'];
+                  // إذا كان السيرفر يعيد Refresh Token جديداً أيضاً، قم بحفظه هنا
+                  await AppStorage.setAccessToken(newAccessToken);
+
+                  // إعادة إرسال الطلب الأصلي
+                  final options = error.requestOptions;
+                  options.headers['Authorization'] = 'Bearer $newAccessToken';
+
+                  // هنا نستخدم _dio الأساسية لأننا نريد اعتراض الطلب لو فشل لسبب آخر
+                  final retryResponse = await _dio?.fetch(options);
+                  return handler.resolve(retryResponse!);
+                }
+              } catch (e) {
+                // 💡 إذا فشل التجديد (الـ Refresh منتهي أيضاً)، يجب طرد المستخدم
+                await _performLogout();
+                return handler.reject(error);
+              }
+            } else {
+              // لا يوجد Refresh Token من الأساس
+              await _performLogout();
+              return handler.reject(error);
+            }
           }
           return handler.next(error);
         },
       ),
     );
 
-    // 4. حماية أمنية: تشغيل الـ Logger فقط في وضع التطوير (Debug)
     if (kDebugMode) {
       _dio?.interceptors.add(
         PrettyDioLogger(
@@ -73,5 +97,15 @@ class DioFactory {
         ),
       );
     }
+  }
+
+  // دالة مساعدة لتسجيل الخروج
+  static Future<void> _performLogout() async {
+    await AppStorage.clearTokens(); // حذف بيانات المستخدم
+    // التوجيه إلى شاشة تسجيل الدخول باستخدام الـ GlobalKey للـ Navigator
+    AppRoutes.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      Routes.login,
+      (route) => false,
+    );
   }
 }

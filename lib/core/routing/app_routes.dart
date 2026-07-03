@@ -53,11 +53,9 @@ import 'package:primo/feature/admin_suggestions/presentation/screen/admin_sugges
 import 'package:primo/feature/suggestions/presentation/screens/suggest_product_page.dart';
 
 class AppRoutes {
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    // استخراج الـ arguments مسبقاً إذا وُجدت
-
-    // final args = settings.arguments;
-
     switch (settings.name) {
       // ================== Auth & Splash ==================
       case Routes.splash:

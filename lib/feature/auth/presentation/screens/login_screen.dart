@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/helper/snack_bar_helper.dart';
+import 'package:primo/core/routing/otp_enum.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -19,10 +20,30 @@ class LoginScreen extends StatelessWidget {
       body: SafeArea(
         child: BlocConsumer<LoginCubit, LoginState>(
           listenWhen: (previous, current) =>
-              current is LoginError || current is LoginSuccess,
+              current is LoginError ||
+              current is LoginSuccess ||
+              current is LoginRequiresOtp,
           listener: (context, state) {
             if (state is LoginError) {
               context.showError(state.error);
+            } else if (state is LoginRequiresOtp) {
+              // إظهار تنبيه للمستخدم (مثلاً: تم إرسال كود التحقق إلى واتساب)
+              context.showSuccess(state.message);
+
+              // جلب الرقم من الحقل
+              final phoneNumber = context
+                  .read<LoginCubit>()
+                  .phoneController
+                  .text;
+
+              // التوجيه إلى شاشة الـ OTP مع اعتبارها عملية "تسجيل" ليكمل التفعيل
+              context.pushNamed(
+                Routes.otpVerification,
+                arguments: OtpVerificationArgs(
+                  phoneNumber: phoneNumber,
+                  otpType: OtpType.register,
+                ),
+              );
             } else if (state is LoginSuccess) {
               final isAdmin = state.loginResponse.data?.user?.isAdmin ?? 0;
               context.showSuccess(

@@ -29,6 +29,9 @@ LoginData _$LoginDataFromJson(Map<String, dynamic> json) => LoginData(
   accessToken: json['access_token'] as String?,
   refreshToken: json['refresh_token'] as String?,
   expiresIn: (json['expires_in'] as num?)?.toInt(),
+  otpRequired: json['otp_required'] as bool?,
+  phoneVerified: json['phone_verified'] as bool?,
+  innerMessage: json['message'] as String?,
 );
 
 Map<String, dynamic> _$LoginDataToJson(LoginData instance) => <String, dynamic>{
@@ -36,4 +39,7 @@ Map<String, dynamic> _$LoginDataToJson(LoginData instance) => <String, dynamic>{
   'access_token': instance.accessToken,
   'refresh_token': instance.refreshToken,
   'expires_in': instance.expiresIn,
+  'otp_required': instance.otpRequired,
+  'phone_verified': instance.phoneVerified,
+  'message': instance.innerMessage,
 };

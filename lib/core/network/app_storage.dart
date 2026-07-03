@@ -33,6 +33,9 @@ class AppStorage {
     await _secureStorage.write(key: _accessTokenKey, value: accessToken);
     await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
   }
+static Future<void> setAccessToken(String token) async {
+    await _secureStorage.write(key: _accessTokenKey, value: token);
+  }
 
   static Future<String?> getAccessToken() async {
     return await _secureStorage.read(key: _accessTokenKey);

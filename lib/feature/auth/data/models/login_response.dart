@@ -29,12 +29,22 @@ class LoginData {
   
   @JsonKey(name: 'expires_in')
   final int? expiresIn;
+// داخل كلاس البيانات في ملف LoginResponse
 
+@JsonKey(name: 'otp_required')
+final bool? otpRequired;
+
+@JsonKey(name: 'phone_verified')
+final bool? phoneVerified;
+
+// يمكنك أيضاً إضافة رسالة الـ data الداخلية إذا أردت
+@JsonKey(name: 'message')
+final String? innerMessage;
   LoginData({
     this.user,
     this.accessToken,
     this.refreshToken,
-    this.expiresIn,
+    this.expiresIn, this.otpRequired, this.phoneVerified, this.innerMessage,
   });
 
   factory LoginData.fromJson(Map<String, dynamic> json) => 

@@ -35,3 +35,12 @@ final class LoginChangeUI extends LoginState {
   @override
   List<Object?> get props => [isPasswordObscure];
 }
+
+// أضف هذه الحالة مع باقي الحالات
+final class LoginRequiresOtp extends LoginState {
+  final String message;
+  const LoginRequiresOtp(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

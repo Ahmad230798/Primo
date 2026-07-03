@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       child: MaterialApp(
+        navigatorKey: AppRoutes.navigatorKey,
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.system,
         theme: AppTheme.lightTheme,

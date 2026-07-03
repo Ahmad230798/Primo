@@ -9,6 +9,7 @@ abstract class ApiConstant {
   static const String resetPassword = "/reset-password";
   static const String resendOtp = "/resend-otp";
   static const String login = "/login";
+  static const String refreshToken = "/refresh";
 
   // --- Admin ---
   static const String adminCategories = "/admin/categories";
