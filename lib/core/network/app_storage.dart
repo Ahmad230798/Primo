@@ -21,7 +21,21 @@ class AppStorage {
   static const String _refreshTokenKey = 'refresh_token';
   static const String _deviceIdKey = 'device_id';
   static const String _roleKey = 'user_role';
-  static const String _isFirstTimeKey = 'is_first_time';
+  static const String _isFirstTimeKey = 'is_first_time';static const String _lastOtpTimeKey = 'last_otp_time';
+
+  // حفظ وقت آخر محاولة إرسال
+  static Future<void> saveLastOtpTime() async {
+  
+    final currentTime = DateTime.now().toIso8601String();
+    await _secureStorage.write(key: _lastOtpTimeKey, value: currentTime); 
+   
+  }
+
+  // جلب وقت آخر محاولة
+  static Future<String?> getLastOtpTime() async {
+    return await _secureStorage.read(key: _lastOtpTimeKey);
+  
+  }
 
   // =====================================
   // 1. إدارة التوكنز (تخزين مشفر - Secure Storage)

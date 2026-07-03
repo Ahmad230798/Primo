@@ -49,7 +49,14 @@ class ServerFailure extends Failure {
       case 400: // Bad Request
         return ServerFailure(extractedMessage);
       case 401: // Unauthorized
-        return const ServerFailure("انتهت الجلسة، يرجى تسجيل الدخول مجدداً");
+        final serverMessage = (responseData is Map)
+            ? responseData['message']
+            : null;
+
+        // 2. إرجاع ServerFailure بدلاً من Failure المجرد
+        return ServerFailure(
+          serverMessage?.toString() ?? "غير مصرح لك بالدخول",
+        );
       case 403: // Forbidden
         return const ServerFailure("ليس لديك صلاحية للقيام بهذا الإجراء");
       case 404: // Not Found

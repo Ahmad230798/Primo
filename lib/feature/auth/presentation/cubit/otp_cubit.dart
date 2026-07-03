@@ -33,6 +33,31 @@ class OtpCubit extends Cubit<OtpState> {
   int countdown = 59;
   Timer? _timer;
   bool get canResend => countdown == 0;
+  Future<void> checkAndStartTimer() async {
+    final lastTimeStr = await AppStorage.getLastOtpTime();
+
+    if (lastTimeStr != null && lastTimeStr.isNotEmpty) {
+      // تحويل النص إلى تاريخ
+      final lastDate = DateTime.parse(lastTimeStr);
+      // حساب الفارق بالثواني بين الوقت الحالي والوقت المحفوظ
+      final differenceInSeconds = DateTime.now().difference(lastDate).inSeconds;
+
+      if (differenceInSeconds < 59) {
+        // لم تمر دقيقة بعد، نكمل من حيث توقفنا
+        countdown = 59 - differenceInSeconds;
+        startTimer();
+      } else {
+        // مرت دقيقة أو أكثر، الزر يجب أن يكون متاحاً فوراً
+        countdown = 0;
+        emit(OtpTimerTick(countdown));
+      }
+    } else {
+      // هذه أول مرة يطلب فيها كود، نبدأ من 59 ونحفظ الوقت
+      countdown = 59;
+      await AppStorage.saveLastOtpTime();
+      startTimer();
+    }
+  }
 
   // دالة تشغيل المؤقت
   void startTimer() {
@@ -89,7 +114,10 @@ class OtpCubit extends Cubit<OtpState> {
       (failure) {
         emit(OtpError(error: failure.errorMessage));
       },
-      (data) {
+      (data) async {
+        await AppStorage.saveLastOtpTime();
+
+        countdown = 59;
         startTimer(); // إعادة تشغيل المؤقت من 59 ثانية
         emit(ResendOtpSuccess(message: data.message ?? 'تمت إعادة الإرسال'));
       },

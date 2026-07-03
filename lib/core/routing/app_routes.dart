@@ -90,7 +90,7 @@ class AppRoutes {
             settings.arguments as OtpVerificationArgs; // استلام الكلاس المجمع
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) => getIt<OtpCubit>()..startTimer(),
+            create: (context) => getIt<OtpCubit>()..checkAndStartTimer(),
             child: OtpVerificationScreen(
               args: args,
             ), // تمرير الكائن بالكامل للشاشة

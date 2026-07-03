@@ -15,7 +15,8 @@ class LoginCubit extends Cubit<LoginState> {
   final formKey = GlobalKey<FormState>();
 
   bool isPasswordObscure = true;
-
+  int _failedAttempts = 0; // عداد المحاولات الفاشلة
+  DateTime? _lockUntil; // وقت فك الحظر المحلي
   void togglePasswordVisibility() {
     isPasswordObscure = !isPasswordObscure;
     _emitUIChange();
@@ -26,6 +27,24 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   void emitLoginStates() async {
+    if (_lockUntil != null) {
+      if (DateTime.now().isBefore(_lockUntil!)) {
+        final remainingMinutes = _lockUntil!
+            .difference(DateTime.now())
+            .inMinutes;
+        emit(
+          LoginError(
+            error:
+                "تم قفل الحساب مؤقتاً. يرجى المحاولة بعد ${remainingMinutes + 1} دقيقة.",
+          ),
+        );
+        return;
+      } else {
+        // انتهت مدة الحظر، نصفّر العداد
+        _failedAttempts = 0;
+        _lockUntil = null;
+      }
+    }
     emit(LoginLoading());
 
     final requestBody = LoginRequestBody(
@@ -37,9 +56,25 @@ class LoginCubit extends Cubit<LoginState> {
 
     response.fold(
       (failure) {
-        emit(LoginError(error: failure.errorMessage));
+        _failedAttempts++;
+
+        // 3. التحقق من رد السيرفر 429 أو بلوغ الحد الأقصى محلياً (مثلاً 5 مرات)
+        if (_failedAttempts >= 5) {
+          _lockUntil = DateTime.now().add(
+            const Duration(minutes: 15),
+          ); // قفل لمدة 15 دقيقة
+          emit(
+            const LoginError(
+              error: "محاولات خاطئة كثيرة. تم قفل تسجيل الدخول لمدة 15 دقيقة.",
+            ),
+          );
+        } else {
+          emit(LoginError(error: failure.errorMessage));
+        }
       },
       (data) async {
+        _failedAttempts = 0;
+        _lockUntil = null;
         if (data.data?.otpRequired == true) {
           // إرسال حالة طلب الـ OTP وتمرير الرسالة القادمة من السيرفر
           emit(

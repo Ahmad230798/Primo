@@ -41,6 +41,9 @@ class DioFactory {
           return handler.next(response);
         },
         onError: (DioException error, handler) async {
+          if (error.requestOptions.path.contains(ApiConstant.login)) {
+            return handler.next(error);
+          }
           if (error.response?.statusCode == 401) {
             final refreshToken = await AppStorage.getRefreshToken();
 
