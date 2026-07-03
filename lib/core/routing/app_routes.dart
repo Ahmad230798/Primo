@@ -2,13 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/di/service_locator.dart';
+import 'package:primo/core/routing/otp_enum.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/feature/admin_categories/presentation/cubit/admin_category_cubit.dart';
 import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_product_cubit.dart';
+import 'package:primo/feature/auth/presentation/cubit/forgot_password_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/login_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/otp_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
+import 'package:primo/feature/auth/presentation/cubit/reset_password_cubit.dart';
 import 'package:primo/feature/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/reset_password_screen.dart';
@@ -78,20 +81,34 @@ class AppRoutes {
       case Routes.changePassword:
         return CupertinoPageRoute(builder: (_) => const ChangePasswordScreen());
       case Routes.forgotPassword:
-        return CupertinoPageRoute(builder: (_) => const ForgotPasswordScreen());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<ForgotPasswordCubit>(),
+            child: const ForgotPasswordScreen(),
+          ),
+        );
       case Routes.otpVerification:
-        final phoneNumber = settings.arguments as String; // استلام الرقم الممرر
+        final args =
+            settings.arguments as OtpVerificationArgs; // استلام الكلاس المجمع
         return MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) =>
-                getIt<OtpCubit>(), // توفير الكيوبت باستخدام get_it
+            create: (context) => getIt<OtpCubit>()..startTimer(),
             child: OtpVerificationScreen(
-              phoneNumber: phoneNumber,
-            ), // تمرير الرقم للشاشة
+              args: args,
+            ), // تمرير الكائن بالكامل للشاشة
           ),
         );
       case Routes.resetPassword:
-        return CupertinoPageRoute(builder: (_) => const ResetPasswordScreen());
+        final args =
+            settings.arguments as String; // استلام رقم الهاتف من الشاشة السابقة
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<ResetPasswordCubit>(),
+            child: ResetPasswordScreen(
+              phoneNumber: args,
+            ), // تمرير رقم الهاتف للشاشة
+          ),
+        );
 
       // ================== User App ==================
       case Routes.home:

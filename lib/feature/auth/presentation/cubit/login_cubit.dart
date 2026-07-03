@@ -45,6 +45,7 @@ class LoginCubit extends Cubit<LoginState> {
           accessToken: data.data?.accessToken ?? '',
           refreshToken: data.data?.refreshToken ?? "",
         );
+        await AppStorage.saveUserRole(data.data?.user?.isAdmin ?? 0);
         emit(LoginSuccess(data));
       },
     );

@@ -24,10 +24,17 @@ class LoginScreen extends StatelessWidget {
             if (state is LoginError) {
               context.showError(state.error);
             } else if (state is LoginSuccess) {
+              final isAdmin = state.loginResponse.data?.user?.isAdmin ?? 0;
               context.showSuccess(
                 state.loginResponse.message ?? "تم تسجيل الدخول بنجاح",
               );
-              context.pushNamedAndRemoveUntil(Routes.home);
+              if (isAdmin == 1) {
+                // توجيه الإدمن إلى لوحة التحكم (Dashboard)
+                context.pushNamedAndRemoveUntil(Routes.adminHome);
+              } else {
+                // توجيه المستخدم العادي إلى التطبيق
+                context.pushNamedAndRemoveUntil(Routes.home);
+              }
             }
           },
           buildWhen: (previous, current) =>

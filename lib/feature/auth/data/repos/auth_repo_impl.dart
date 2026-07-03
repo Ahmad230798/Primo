@@ -2,12 +2,16 @@ import 'package:dartz/dartz.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_error_handler.dart';
+import 'package:primo/feature/auth/data/models/forget_password_request_body.dart';
+import 'package:primo/feature/auth/data/models/forget_password_response.dart';
 import 'package:primo/feature/auth/data/models/login_request_body.dart';
 import 'package:primo/feature/auth/data/models/login_response.dart';
 import 'package:primo/feature/auth/data/models/otp_request_body.dart';
 import 'package:primo/feature/auth/data/models/otp_response.dart';
 import 'package:primo/feature/auth/data/models/register_request_body.dart';
 import 'package:primo/feature/auth/data/models/register_response_body.dart';
+import 'package:primo/feature/auth/data/models/resend_otp_request_body.dart';
+import 'package:primo/feature/auth/data/models/reset_password_request_body.dart';
 import 'package:primo/feature/auth/domain/repo/auth_repo.dart';
 
 class AuthRepoImpl implements AuthRepo {
@@ -66,6 +70,74 @@ class AuthRepoImpl implements AuthRepo {
         formData: loginRequestBody.toFormData(),
       );
       return Right(LoginResponse.fromJson(response));
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    } catch (e) {
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ForgetPasswordResponse>> forgotPassword(
+    ForgetPasswordRequestBody forgetPasswordRequestBody,
+  ) async {
+    try {
+      final response = await _apiConsumer.postFormData(
+        path: ApiConstant.forgotPassword,
+        formData: forgetPasswordRequestBody.toFormData(),
+      );
+      return Right(ForgetPasswordResponse.fromJson(response));
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    } catch (e) {
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ForgetPasswordResponse>> verifyForgotPasswordOtp(
+    OtpRequestBody otpRequestBody,
+  ) async {
+    try {
+      final response = await _apiConsumer.postFormData(
+        path: ApiConstant.confirmForgotPassword,
+        formData: otpRequestBody.toFormData(),
+      );
+      return Right(ForgetPasswordResponse.fromJson(response));
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    } catch (e) {
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ForgetPasswordResponse>> resetPassword(
+    ResetPassworRequestBody resetPassworRequestBody,
+  ) async {
+    try {
+      final response = await _apiConsumer.postFormData(
+        path: ApiConstant.resetPassword,
+        formData: resetPassworRequestBody.toFormData(),
+      );
+      return Right(ForgetPasswordResponse.fromJson(response));
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    } catch (e) {
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ForgetPasswordResponse>> resendOtp(
+    ResendOtpRequestBody body,
+  ) async {
+    try {
+      final response = await _apiConsumer.postFormData(
+        path: ApiConstant.resendOtp,
+        formData: body.toFormData(),
+      );
+      return Right(ForgetPasswordResponse.fromJson(response));
     } on ServerFailure catch (failure) {
       return Left(failure);
     } catch (e) {

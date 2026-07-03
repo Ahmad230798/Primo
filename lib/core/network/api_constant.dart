@@ -4,6 +4,10 @@ abstract class ApiConstant {
   // --- Auth ---
   static const String register = "/register";
   static const String verifyRegister = "/confirm-registration";
+  static const String forgotPassword = "/forgot-password";
+  static const String confirmForgotPassword = "/confirm-forgot-password";
+  static const String resetPassword = "/reset-password";
+  static const String resendOtp = "/resend-otp";
   static const String login = "/login";
 
   // --- Admin ---

@@ -15,12 +15,18 @@ import 'package:primo/feature/admin_product/domain/usecases/manage_product_useca
 import 'package:primo/feature/admin_product/presentation/cubit/admin_product_cubit.dart';
 import 'package:primo/feature/auth/data/repos/auth_repo_impl.dart';
 import 'package:primo/feature/auth/domain/repo/auth_repo.dart';
+import 'package:primo/feature/auth/domain/usecases/forgot_password_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/login_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/register_usecase.dart';
+import 'package:primo/feature/auth/domain/usecases/resend_otp_usecase.dart';
+import 'package:primo/feature/auth/domain/usecases/reset_password_use_case.dart';
+import 'package:primo/feature/auth/domain/usecases/verify_forget_password_otp_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:primo/feature/auth/presentation/cubit/forgot_password_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/login_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/otp_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
+import 'package:primo/feature/auth/presentation/cubit/reset_password_cubit.dart';
 import '../network/api_consumer.dart';
 import '../network/dio_factory.dart';
 
@@ -50,7 +56,17 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(() => VerifyOtpUseCase(getIt<AuthRepo>()));
 
   // 2. حقن الـ OtpCubit (نستخدم Factory ضروري جداً هنا)
-  getIt.registerFactory(() => OtpCubit(getIt<VerifyOtpUseCase>()));
+  getIt.registerFactory(
+    () => VerifyForgetPasswordOtpUsecase(getIt<AuthRepo>()),
+  );
+  getIt.registerLazySingleton(() => ResendOtpUseCase(getIt<AuthRepo>()));
+  getIt.registerFactory(
+    () => OtpCubit(
+      getIt<VerifyOtpUseCase>(),
+      getIt<VerifyForgetPasswordOtpUsecase>(),
+      getIt<ResendOtpUseCase>(),
+    ),
+  );
   // حقن LoginUseCase
   getIt.registerLazySingleton(() => LoginUseCase(getIt<AuthRepo>()));
 
@@ -90,5 +106,18 @@ void setupServiceLocator() {
       getIt<ManageProductUseCase>(),
       getIt<GetCategoriesUseCase>(), // جلب الأقسام من قسم الـ Categories
     ),
+  );
+  getIt.registerLazySingleton(() => ForgotPasswordUsecase(getIt<AuthRepo>()));
+  getIt.registerFactory(
+    () => ForgotPasswordCubit(getIt<ForgotPasswordUsecase>()),
+  );
+  // 1. حقن حالة الاستخدام (UseCase)
+  // نستخدم LazySingleton لأنه كلاس لا يحمل حالة متغيرة (Stateless)
+  getIt.registerLazySingleton(() => ResetPasswordUseCase(getIt<AuthRepo>()));
+
+  // 2. حقن الكيوبت (Cubit)
+  // نستخدم Factory لضمان إنشاء نسخة جديدة بمتحكمات فارغة في كل مرة تُفتح فيها الشاشة
+  getIt.registerFactory(
+    () => ResetPasswordCubit(getIt<ResetPasswordUseCase>()),
   );
 }

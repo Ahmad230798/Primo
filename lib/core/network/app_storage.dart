@@ -45,7 +45,7 @@ class AppStorage {
   static Future<void> clearTokens() async {
     await _secureStorage.delete(key: _accessTokenKey);
     await _secureStorage.delete(key: _refreshTokenKey);
-    await _prefs?.remove(_roleKey); 
+    await _prefs?.remove(_roleKey);
   }
 
   // =====================================
@@ -76,11 +76,11 @@ class AppStorage {
   // =====================================
   // 4. إدارة الصلاحيات
   // =====================================
-  static Future<void> saveUserRole(String role) async {
-    await _prefs?.setString(_roleKey, role);
+  static Future<void> saveUserRole(int role) async {
+    await _prefs?.setInt(_roleKey, role);
   }
 
-  static String getUserRole() {
-    return _prefs?.getString(_roleKey) ?? 'user';
+  static int getUserRole() {
+    return _prefs?.getInt(_roleKey) ?? 0;
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/helper/snack_bar_helper.dart';
+import 'package:primo/core/routing/otp_enum.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -42,7 +43,10 @@ class RegisterScreen extends StatelessWidget {
                 context.pushNamed(
                   Routes
                       .otpVerification, // تأكد من اسم الروت الخاص بك في ملف Routes
-                  arguments: phoneNumber,
+                  arguments: OtpVerificationArgs(
+                    phoneNumber: phoneNumber,
+                    otpType: OtpType.register, // تحديد النوع كـ register
+                  ),
                 );
               } else {
                 // كإجراء احتياطي: إذا لم يطلب السيرفر OTP، نوجهه لتسجيل الدخول

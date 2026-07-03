@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/helper/app_validators.dart';
+import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
@@ -82,11 +84,16 @@ class LogInForm extends StatelessWidget {
                     ),
                   ),
                   16.verticalSpace,
-                  Text(
-                    "نسيت كلمة المرور؟",
-                    style: AppTextStyle.font14.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w500,
+                  InkWell(
+                    onTap: () {
+                      context.pushNamed(Routes.forgotPassword);
+                    },
+                    child: Text(
+                      "نسيت كلمة المرور؟",
+                      style: AppTextStyle.font14.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                   24.verticalSpace,
