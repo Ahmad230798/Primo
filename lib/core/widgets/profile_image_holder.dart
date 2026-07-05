@@ -90,7 +90,8 @@ class ProfileImageHolder extends StatelessWidget {
 
     // في حال لم يكن ملفاً محلياً، نتعامل معه كرابط شبكة (سواء كان رابطاً كاملاً أو نسبياً من السيرفر)
     String networkUrl = imagePath;
-    if (!networkUrl.startsWith('http://') && !networkUrl.startsWith('https://')) {
+    if (!networkUrl.startsWith('http://') &&
+        !networkUrl.startsWith('https://')) {
       const baseUrl = 'https://api.primo-market.cloud';
       if (networkUrl.startsWith('/')) {
         networkUrl = '$baseUrl$networkUrl';
@@ -101,6 +102,7 @@ class ProfileImageHolder extends StatelessWidget {
 
     return CachedNetworkImage(
       imageUrl: networkUrl,
+      cacheKey: networkUrl + DateTime.now().toString(),
       fit: BoxFit.cover,
       width: w,
       height: h,
@@ -118,11 +120,7 @@ class ProfileImageHolder extends StatelessWidget {
   Widget _buildFallbackIcon(double size) {
     return Container(
       color: AppColors.greyLight,
-      child: Icon(
-        Icons.person,
-        size: size * 0.5,
-        color: AppColors.greyMedium3,
-      ),
+      child: Icon(Icons.person, size: size * 0.5, color: AppColors.greyMedium3),
     );
   }
 }

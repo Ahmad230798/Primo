@@ -193,7 +193,7 @@ void setupServiceLocator() {
       getIt<UpdateProfileUseCase>(),
       getIt<ChangePasswordUseCase>(),
       getIt<DeleteAccountUseCase>(),
-    ),
+    )..getProfile(),
   );
 
   // ================= ADDRESSES =================
@@ -273,7 +273,7 @@ void setupServiceLocator() {
     () => FavoritesCubit(
       getIt<GetFavoritesUseCase>(),
       getIt<ToggleFavoriteUseCase>(),
-    ),
+    )..fetchFavorites(),
   );
 
   // ================= CART =================

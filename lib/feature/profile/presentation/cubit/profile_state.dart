@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:primo/core/models/user_model.dart';
+import 'package:primo/feature/profile/data/models/profile_response.dart';
 
 abstract class ProfileState extends Equatable {
   const ProfileState();
@@ -22,7 +23,7 @@ class ProfileAvatarPicked extends ProfileState {
 }
 
 class ProfileLoaded extends ProfileState {
-  final UserModel user;
+  final ProfileData user;
   const ProfileLoaded(this.user);
 
   @override
@@ -40,7 +41,7 @@ class ProfileError extends ProfileState {
 class UpdateProfileLoading extends ProfileState {}
 
 class UpdateProfileSuccess extends ProfileState {
-  final UserModel user;
+  final ProfileData user;
   final String message;
   const UpdateProfileSuccess(this.user, this.message);
 

@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:primo/core/models/user_model.dart';
 import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/auth/domain/usecases/delete_account_usecase.dart';
+import 'package:primo/feature/profile/data/models/profile_response.dart';
 import '../../data/models/update_profile_request_body.dart';
 import '../../data/models/change_password_request_body.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
@@ -17,7 +18,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ChangePasswordUseCase _changePasswordUseCase;
   final DeleteAccountUseCase _deleteAccountUseCase;
 
-  UserModel? user;
+  ProfileData? user;
   File? selectedAvatar;
   final ImagePicker _picker = ImagePicker();
 
@@ -39,17 +40,16 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> getProfile() async {
     emit(ProfileLoading());
     final response = await _getProfileUseCase.execute();
-    response.fold(
-      (failure) => emit(ProfileError(failure.errorMessage)),
-      (data) {
-        user = data.data;
-        if (user != null) {
-          emit(ProfileLoaded(user!));
-        } else {
-          emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
-        }
-      },
-    );
+    response.fold((failure) => emit(ProfileError(failure.errorMessage)), (
+      data,
+    ) {
+      user = data.data;
+      if (user != null) {
+        emit(ProfileLoaded(user!));
+      } else {
+        emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
+      }
+    });
   }
 
   Future<void> updateProfile({
@@ -64,19 +64,23 @@ class ProfileCubit extends Cubit<ProfileState> {
       avatar: avatar ?? selectedAvatar,
     );
     final response = await _updateProfileUseCase.execute(body);
-    response.fold(
-      (failure) => emit(UpdateProfileError(failure.errorMessage)),
-      (data) {
-        if (data.data != null) {
-          user = data.data;
-          selectedAvatar = null;
-          emit(UpdateProfileSuccess(user!, data.message ?? "تم تحديث الملف الشخصي بنجاح"));
-          emit(ProfileLoaded(user!));
-        } else {
-          emit(const UpdateProfileError("فشل تحديث البيانات"));
-        }
-      },
-    );
+    response.fold((failure) => emit(UpdateProfileError(failure.errorMessage)), (
+      data,
+    ) {
+      if (data.data != null) {
+        user = data.data;
+        selectedAvatar = null;
+        emit(
+          UpdateProfileSuccess(
+            user!,
+            data.message ?? "تم تحديث الملف الشخصي بنجاح",
+          ),
+        );
+        emit(ProfileLoaded(user!));
+      } else {
+        emit(const UpdateProfileError("فشل تحديث البيانات"));
+      }
+    });
   }
 
   Future<void> changePassword({
@@ -104,12 +108,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> deleteAccount() async {
     emit(DeleteAccountLoading());
     final response = await _deleteAccountUseCase.execute();
-    response.fold(
-      (failure) => emit(DeleteAccountError(failure.errorMessage)),
-      (message) async {
-        await AppStorage.clearAllData();
-        emit(DeleteAccountSuccess(message));
-      },
-    );
+    response.fold((failure) => emit(DeleteAccountError(failure.errorMessage)), (
+      message,
+    ) async {
+      await AppStorage.clearAllData();
+      emit(DeleteAccountSuccess(message));
+    });
   }
 }
