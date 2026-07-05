@@ -56,11 +56,11 @@ class DioFactory {
 
                 final response = await refreshDio.post(
                   ApiConstant.refreshToken,
-                  data: {'refresh': refreshToken}, // متوافق مع Django JWT
+                  data: {'refresh_token': refreshToken}, // متوافق مع Django JWT
                 );
 
                 if (response.statusCode == 200) {
-                  final newAccessToken = response.data['access'];
+                  final newAccessToken = response.data['access_token'];
                   // إذا كان السيرفر يعيد Refresh Token جديداً أيضاً، قم بحفظه هنا
                   await AppStorage.setAccessToken(newAccessToken);
 
