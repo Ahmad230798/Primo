@@ -22,11 +22,63 @@ import 'package:primo/feature/auth/domain/usecases/resend_otp_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/reset_password_use_case.dart';
 import 'package:primo/feature/auth/domain/usecases/verify_forget_password_otp_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:primo/feature/auth/domain/usecases/confirm_login_usecase.dart';
+import 'package:primo/feature/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:primo/feature/auth/presentation/cubit/forgot_password_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/login_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/otp_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/reset_password_cubit.dart';
+import 'package:primo/feature/addresses/data/repos/addresses_repo_impl.dart';
+import 'package:primo/feature/addresses/domain/repo/addresses_repo.dart';
+import 'package:primo/feature/addresses/domain/usecases/get_addresses_usecase.dart';
+import 'package:primo/feature/addresses/domain/usecases/get_address_by_id_usecase.dart';
+import 'package:primo/feature/addresses/domain/usecases/create_address_usecase.dart';
+import 'package:primo/feature/addresses/domain/usecases/update_address_usecase.dart';
+import 'package:primo/feature/addresses/domain/usecases/delete_address_usecase.dart';
+import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
+import 'package:primo/feature/orders/data/repos/orders_repo_impl.dart';
+import 'package:primo/feature/orders/domain/repos/orders_repo.dart';
+import 'package:primo/feature/orders/domain/usecases/confirm_order_usecase.dart';
+import 'package:primo/feature/orders/domain/usecases/get_order_by_id_usecase.dart';
+import 'package:primo/feature/orders/domain/usecases/get_order_price_usecase.dart';
+import 'package:primo/feature/orders/domain/usecases/get_orders_usecase.dart';
+import 'package:primo/feature/orders/domain/usecases/rate_product_in_order_usecase.dart';
+import 'package:primo/feature/orders/presentation/bloc/checkout_cubit.dart';
+import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
+import 'package:primo/feature/profile/data/repos/profile_repo_impl.dart';
+import 'package:primo/feature/profile/domain/repo/profile_repo.dart';
+import 'package:primo/feature/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:primo/feature/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:primo/feature/profile/domain/usecases/change_password_usecase.dart';
+import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
+import 'package:primo/feature/home/data/repos/home_repo_impl.dart';
+import 'package:primo/feature/home/domain/repo/home_repo.dart';
+import 'package:primo/feature/home/domain/usecases/get_home_data_usecase.dart';
+import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
+import 'package:primo/feature/product/data/repos/product_repo_impl.dart';
+import 'package:primo/feature/product/domain/repo/product_repo.dart';
+import 'package:primo/feature/product/domain/usecases/get_product_details_usecase.dart';
+import 'package:primo/feature/product/presentation/cubit/product_cubit.dart';
+import 'package:primo/feature/categories/data/repos/user_categories_repo_impl.dart';
+import 'package:primo/feature/categories/domain/repo/user_categories_repo.dart';
+import 'package:primo/feature/categories/domain/usecases/get_user_categories_usecase.dart';
+import 'package:primo/feature/categories/domain/usecases/get_category_products_usecase.dart';
+import 'package:primo/feature/categories/presentation/cubit/user_categories_cubit.dart';
+import 'package:primo/feature/categories/presentation/cubit/category_products_cubit.dart';
+import 'package:primo/feature/search/presentation/cubit/search_cubit.dart';
+import 'package:primo/feature/favorites/data/repos/favorites_repo_impl.dart';
+import 'package:primo/feature/favorites/domain/repo/favorites_repo.dart';
+import 'package:primo/feature/favorites/domain/usecases/get_favorites_usecase.dart';
+import 'package:primo/feature/favorites/domain/usecases/toggle_favorite_usecase.dart';
+import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:primo/feature/cart/data/repos/cart_repo_impl.dart';
+import 'package:primo/feature/cart/domain/repos/cart_repo.dart';
+import 'package:primo/feature/cart/domain/usecases/get_cart_usecase.dart';
+import 'package:primo/feature/cart/domain/usecases/add_to_cart_usecase.dart';
+import 'package:primo/feature/cart/domain/usecases/update_cart_quantity_usecase.dart';
+import 'package:primo/feature/cart/domain/usecases/delete_from_cart_usecase.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import '../network/api_consumer.dart';
 import '../network/dio_factory.dart';
 
@@ -60,11 +112,14 @@ void setupServiceLocator() {
     () => VerifyForgetPasswordOtpUsecase(getIt<AuthRepo>()),
   );
   getIt.registerLazySingleton(() => ResendOtpUseCase(getIt<AuthRepo>()));
+  getIt.registerLazySingleton(() => ConfirmLoginUseCase(getIt<AuthRepo>()));
+  getIt.registerLazySingleton(() => DeleteAccountUseCase(getIt<AuthRepo>()));
   getIt.registerFactory(
     () => OtpCubit(
       getIt<VerifyOtpUseCase>(),
       getIt<VerifyForgetPasswordOtpUsecase>(),
       getIt<ResendOtpUseCase>(),
+      getIt<ConfirmLoginUseCase>(),
     ),
   );
   // حقن LoginUseCase
@@ -79,6 +134,9 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton(
     () => AddCategoryUseCase(getIt<AdminCategoryRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetCategoriesUseCase(getIt<AdminCategoryRepo>()),
   );
   getIt.registerFactory(() => AdminCategoryCubit(getIt<AddCategoryUseCase>()));
 
@@ -119,5 +177,120 @@ void setupServiceLocator() {
   // نستخدم Factory لضمان إنشاء نسخة جديدة بمتحكمات فارغة في كل مرة تُفتح فيها الشاشة
   getIt.registerFactory(
     () => ResetPasswordCubit(getIt<ResetPasswordUseCase>()),
+  );
+  // ================= PROFILE =================
+  getIt.registerLazySingleton<ProfileRepo>(
+    () => ProfileRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetProfileUseCase(getIt<ProfileRepo>()));
+  getIt.registerLazySingleton(() => UpdateProfileUseCase(getIt<ProfileRepo>()));
+  getIt.registerLazySingleton(
+    () => ChangePasswordUseCase(getIt<ProfileRepo>()),
+  );
+  getIt.registerFactory(
+    () => ProfileCubit(
+      getIt<GetProfileUseCase>(),
+      getIt<UpdateProfileUseCase>(),
+      getIt<ChangePasswordUseCase>(),
+      getIt<DeleteAccountUseCase>(),
+    ),
+  );
+
+  // ================= ADDRESSES =================
+  getIt.registerLazySingleton<AddressesRepo>(
+    () => AddressesRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetAddressesUseCase(getIt<AddressesRepo>()));
+  getIt.registerLazySingleton(() => GetAddressByIdUseCase(getIt<AddressesRepo>()));
+  getIt.registerLazySingleton(() => CreateAddressUseCase(getIt<AddressesRepo>()));
+  getIt.registerLazySingleton(() => UpdateAddressUseCase(getIt<AddressesRepo>()));
+  getIt.registerLazySingleton(() => DeleteAddressUseCase(getIt<AddressesRepo>()));
+  getIt.registerFactory(
+    () => AddressesCubit(
+      getIt<GetAddressesUseCase>(),
+      getIt<GetAddressByIdUseCase>(),
+      getIt<CreateAddressUseCase>(),
+      getIt<UpdateAddressUseCase>(),
+      getIt<DeleteAddressUseCase>(),
+    ),
+  );
+
+  // ================= HOME & CATALOG =================
+  getIt.registerLazySingleton<HomeRepo>(
+    () => HomeRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetHomeDataUseCase(getIt<HomeRepo>()));
+  getIt.registerLazySingleton(() => HomeCubit(getIt<GetHomeDataUseCase>()));
+
+  // ================= PRODUCTS =================
+  getIt.registerLazySingleton<ProductRepo>(
+    () => ProductRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetProductDetailsUseCase(getIt<ProductRepo>()));
+  getIt.registerFactory(() => ProductCubit(getIt<GetProductDetailsUseCase>()));
+
+  // ================= CATEGORIES & SEARCH =================
+  getIt.registerLazySingleton<UserCategoriesRepo>(
+    () => UserCategoriesRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetUserCategoriesUseCase(getIt<UserCategoriesRepo>()));
+  getIt.registerLazySingleton(() => GetCategoryProductsUseCase(getIt<UserCategoriesRepo>()));
+  getIt.registerLazySingleton(() => UserCategoriesCubit(getIt<GetUserCategoriesUseCase>()));
+  getIt.registerFactory(() => CategoryProductsCubit(getIt<GetCategoryProductsUseCase>()));
+  getIt.registerFactory(() => SearchCubit(getIt<GetHomeDataUseCase>()));
+
+  // ================= FAVORITES =================
+  getIt.registerLazySingleton<FavoritesRepo>(
+    () => FavoritesRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetFavoritesUseCase(getIt<FavoritesRepo>()));
+  getIt.registerLazySingleton(() => ToggleFavoriteUseCase(getIt<FavoritesRepo>()));
+  getIt.registerLazySingleton(
+    () => FavoritesCubit(
+      getIt<GetFavoritesUseCase>(),
+      getIt<ToggleFavoriteUseCase>(),
+    ),
+  );
+
+  // ================= CART =================
+  getIt.registerLazySingleton<CartRepo>(
+    () => CartRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetCartUseCase(getIt<CartRepo>()));
+  getIt.registerLazySingleton(() => AddToCartUseCase(getIt<CartRepo>()));
+  getIt.registerLazySingleton(() => UpdateCartQuantityUseCase(getIt<CartRepo>()));
+  getIt.registerLazySingleton(() => DeleteFromCartUseCase(getIt<CartRepo>()));
+  getIt.registerLazySingleton(
+    () => CartCubit(
+      getIt<GetCartUseCase>(),
+      getIt<AddToCartUseCase>(),
+      getIt<UpdateCartQuantityUseCase>(),
+      getIt<DeleteFromCartUseCase>(),
+    ),
+  );
+
+  // ================= ORDERS & CHECKOUT =================
+  getIt.registerLazySingleton<OrdersRepo>(
+    () => OrdersRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetOrdersUseCase(getIt<OrdersRepo>()));
+  getIt.registerLazySingleton(() => GetOrderByIdUseCase(getIt<OrdersRepo>()));
+  getIt.registerLazySingleton(() => GetOrderPriceUseCase(getIt<OrdersRepo>()));
+  getIt.registerLazySingleton(() => ConfirmOrderUseCase(getIt<OrdersRepo>()));
+  getIt.registerLazySingleton(() => RateProductInOrderUseCase(getIt<OrdersRepo>()));
+
+  getIt.registerFactory(
+    () => CheckoutCubit(
+      getIt<GetOrderPriceUseCase>(),
+      getIt<ConfirmOrderUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => OrdersCubit(
+      getIt<GetOrdersUseCase>(),
+      getIt<GetOrderByIdUseCase>(),
+      getIt<RateProductInOrderUseCase>(),
+    ),
   );
 }

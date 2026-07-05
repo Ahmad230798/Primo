@@ -40,7 +40,7 @@ class OtpVerificationScreen extends StatelessWidget {
               context.showSuccess(
                 state.otpResponse.data?.message ?? "تم تفعيل الحساب بنجاح",
               );
-              context.pushNamedAndRemoveUntil(Routes.home);
+              context.pushNamedAndRemoveUntil(Routes.userMainLayout);
               // الانتقال لشاشة تسجيل الدخول بعد النجاح
             } else if (state is OtpForgotPasswordSuccess) {
               context.showSuccess(
@@ -147,7 +147,6 @@ class OtpVerificationScreen extends StatelessWidget {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    
                                     if (cubit.canResend) {
                                       cubit.emitResendOtp();
                                     }

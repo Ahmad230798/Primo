@@ -8,6 +8,8 @@ class SettingsLinkItem extends StatelessWidget {
   final IconData icon;
   final String? trailingText; // النص الجانبي (مثل "العربية")
   final VoidCallback onTap;
+  final Color? titleColor;
+  final Color? iconColor;
 
   const SettingsLinkItem({
     super.key,
@@ -15,6 +17,8 @@ class SettingsLinkItem extends StatelessWidget {
     required this.icon,
     this.trailingText,
     required this.onTap,
+    this.titleColor,
+    this.iconColor,
   });
 
   @override
@@ -32,17 +36,17 @@ class SettingsLinkItem extends StatelessWidget {
                 Container(
                   width: 40.w,
                   height: 40.w,
-                  decoration: const BoxDecoration(
-                    color: AppColors.greyBackground,
+                  decoration: BoxDecoration(
+                    color: (iconColor ?? AppColors.greyDark).withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: AppColors.greyDark, size: 20.sp),
+                  child: Icon(icon, color: iconColor ?? AppColors.greyDark, size: 20.sp),
                 ),
                 12.horizontalSpace,
                 Text(
                   title,
                   style: AppTextStyle.font16.copyWith(
-                    color: AppColors.textMain,
+                    color: titleColor ?? AppColors.textMain,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

@@ -7,6 +7,7 @@ import 'package:primo/core/routing/otp_enum.dart';
 import 'package:primo/feature/auth/data/models/resend_otp_request_body.dart';
 import 'package:primo/feature/auth/domain/usecases/resend_otp_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/verify_forget_password_otp_usecase.dart';
+import 'package:primo/feature/auth/domain/usecases/confirm_login_usecase.dart';
 import '../../domain/usecases/verify_otp_usecase.dart';
 import '../../data/models/otp_request_body.dart';
 import 'otp_state.dart';
@@ -14,13 +15,14 @@ import 'otp_state.dart';
 class OtpCubit extends Cubit<OtpState> {
   final VerifyOtpUseCase _verifyOtpUseCase;
   final VerifyForgetPasswordOtpUsecase _verifyForgotPasswordOtpUseCase;
-  final ResendOtpUseCase _resendOtpUseCase; // حقن الـ UseCase
+  final ResendOtpUseCase _resendOtpUseCase;
+  final ConfirmLoginUseCase _confirmLoginUseCase;
   OtpCubit(
     this._verifyOtpUseCase,
     this._verifyForgotPasswordOtpUseCase,
-    ResendOtpUseCase resendOtpUseCase,
-  ) : _resendOtpUseCase = resendOtpUseCase,
-      super(OtpInitial());
+    this._resendOtpUseCase,
+    this._confirmLoginUseCase,
+  ) : super(OtpInitial());
   final List<TextEditingController> controllers = List.generate(
     4,
     (_) => TextEditingController(),
@@ -103,9 +105,17 @@ class OtpCubit extends Cubit<OtpState> {
     emit(ResendOtpLoading());
 
     // تجهيز الطلب بناءً على نوع العملية التي مررناها للشاشة
+    final String resendType;
+    if (otpType == OtpType.register) {
+      resendType = 'register';
+    } else if (otpType == OtpType.login) {
+      resendType = 'login';
+    } else {
+      resendType = 'reset_password';
+    }
     final requestBody = ResendOtpRequestBody(
       phone: phoneNumber,
-      type: otpType == OtpType.register ? 'register' : 'reset_password',
+      type: resendType,
     );
 
     final response = await _resendOtpUseCase.execute(requestBody);
@@ -150,8 +160,20 @@ class OtpCubit extends Cubit<OtpState> {
         );
         emit(OtpSuccess(data)); // سيعيد OtpResponse
       });
+    } else if (otpType == OtpType.login) {
+      // 2. مسار التحقق من كود تسجيل الدخول
+      final response = await _confirmLoginUseCase.execute(requestBody);
+      response.fold((failure) => emit(OtpError(error: failure.errorMessage)), (
+        data,
+      ) async {
+        await AppStorage.saveTokens(
+          accessToken: data.data?.accessToken ?? '',
+          refreshToken: data.data?.refreshToken ?? '',
+        );
+        emit(OtpSuccess(data));
+      });
     } else {
-      // 2. مسار التحقق من كود نسيت كلمة المرور
+      // 3. مسار التحقق من كود نسيت كلمة المرور
       final response = await _verifyForgotPasswordOtpUseCase.execute(
         requestBody,
       );

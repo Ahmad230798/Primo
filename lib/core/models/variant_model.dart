@@ -16,6 +16,10 @@ class VariantModel {
   final bool? hasActiveOffer;
   @JsonKey(name: 'offer_id')
   final int? offerId;
+  @JsonKey(name: 'discount_amount')
+  final dynamic discountAmount;
+  @JsonKey(name: 'new_price')
+  final dynamic newPrice;
 
   VariantModel({
     this.id,
@@ -26,8 +30,12 @@ class VariantModel {
     this.isActive,
     this.hasActiveOffer,
     this.offerId,
+    this.discountAmount,
+    this.newPrice,
   });
 
   factory VariantModel.fromJson(Map<String, dynamic> json) =>
       _$VariantModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VariantModelToJson(this);
 }

@@ -6,7 +6,8 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
 
 class DescriptionSection extends StatelessWidget {
-  const DescriptionSection({super.key});
+  final String? description;
+  const DescriptionSection({super.key, this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,9 @@ class DescriptionSection extends StatelessWidget {
           Text("الوصف", style: AppTextStyle.font20),
           8.verticalSpace,
           Text(
-            "طماطم عضوية مقطوفة حديثاً من مزارعنا المحلية. تتميز بلونها الأحمر الزاهي وطعمهاالغني الذي يضفي نكهة مميزة لصلصاتكوسلطاتك. خالية تماماً من المبيدات الحشريةوالمواد الكيميائية لضمان صحتك وصحة عائلتك.",
+            (description != null && description!.trim().isNotEmpty)
+                ? description!
+                : "طماطم عضوية مقطوفة حديثاً من مزارعنا المحلية. تتميز بلونها الأحمر الزاهي وطعمهاالغني الذي يضفي نكهة مميزة لصلصاتكوسلطاتك. خالية تماماً من المبيدات الحشريةوالمواد الكيميائية لضمان صحتك وصحة عائلتك.",
             style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium2),
           ),
           32.verticalSpace,

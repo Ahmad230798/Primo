@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // --- الألوان الأساسية ---
   static const Color primary = Color(0xFFBB0013); // الأحمر الأساسي
+  static const Color red = Color(0xFFD32F2F); // اللون الأحمر للأخطاء
   static const Color textMain = Color(
     0xFF1A1C1C,
   ); // اللون الداكن للنصوص الرئيسية
