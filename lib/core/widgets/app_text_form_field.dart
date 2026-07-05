@@ -20,6 +20,8 @@ class AppTextFormField extends StatelessWidget {
   final int? linesCount;
   final bool? isFilled;
   final double? borderWidth;
+  final bool? readOnly;
+  final bool? enabled;
   const AppTextFormField({
     super.key,
     required this.hinttText,
@@ -38,11 +40,15 @@ class AppTextFormField extends StatelessWidget {
     this.isFilled,
     this.prefixIcone,
     this.borderWidth,
+    this.readOnly,
+    this.enabled,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      readOnly: readOnly ?? false,
+      enabled: enabled ?? true,
       maxLines: (isObscureText ?? false) ? 1 : (linesCount ?? 1),
       onChanged: onChanged,
       validator: validator,

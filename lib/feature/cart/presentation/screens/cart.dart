@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 import 'package:primo/feature/cart/presentation/widgets/cart_item_list.dart';
 
 class Cart extends StatelessWidget {
@@ -12,60 +16,173 @@ class Cart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: NeverScrollableScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Column(
-              children: [
-                CustomAppBar(
-                  title: "Primo",
-                  icon: Icon(
-                    Icons.notifications_none,
-                    color: AppColors.greyMedium1,
+    return BlocProvider(
+      create: (_) => getIt<CartCubit>()..getCart(),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: BlocConsumer<CartCubit, CartState>(
+            listener: (context, state) {
+              if (state is CartLoaded && state.actionMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.actionMessage!),
+                    backgroundColor: AppColors.primary,
                   ),
-                ),
-                20.verticalSpace,
-                Row(
-                  children: [
-                    Text("عربة التسوق", style: AppTextStyle.font20),
-                    Spacer(),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 4.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.formBorder,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        "3 عناصر",
-                        style: AppTextStyle.font14.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.greyMedium2,
-                        ),
+                );
+              } else if (state is CartError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.errorMessage),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            builder: (context, state) {
+              return Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    child: CustomAppBar(
+                      title: "Primo",
+                      icon: Icon(
+                        Icons.notifications_none,
+                        color: AppColors.greyMedium1,
                       ),
                     ),
-                  ],
+                  ),
+                  20.verticalSpace,
+                  Expanded(
+                    child: _buildBody(context, state),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, CartState state) {
+    if (state is CartLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (state is CartError && context.read<CartCubit>().currentItems.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              state.errorMessage,
+              style: AppTextStyle.font16.copyWith(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            16.verticalSpace,
+            ElevatedButton(
+              onPressed: () => context.read<CartCubit>().getCart(),
+              child: const Text("إعادة المحاولة"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final cubit = context.read<CartCubit>();
+    final items = cubit.currentItems;
+    final totalPrice = cubit.calculateTotal(items);
+
+    if (items.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.shopping_cart_outlined,
+              size: 80.sp,
+              color: AppColors.greyMedium2,
+            ),
+            16.verticalSpace,
+            Text(
+              "السلة فارغة حالياً",
+              style: AppTextStyle.font20.copyWith(
+                color: AppColors.greyMedium2,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text("عربة التسوق", style: AppTextStyle.font20),
+              const Spacer(),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 4.h,
                 ),
-                16.verticalSpace,
-                CartItemList(),
-                32.verticalSpace,
-                // في ملف cart.dart، استبدل الـ AppButton الأخير بهذا الكود:
-                AppButton(
-                  text: "متابعة للدفع",
-                  icon: Icons.arrow_forward,
-                  onPressed: () {
-                    Navigator.pushNamed(context, Routes.checkoutScreen);
-                  },
+                decoration: BoxDecoration(
+                  color: AppColors.formBorder,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  "${items.length} عناصر",
+                  style: AppTextStyle.font14.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.greyMedium2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          16.verticalSpace,
+          CartItemList(items: items),
+          24.verticalSpace,
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.formBorder),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "الإجمالي:",
+                  style: AppTextStyle.font18.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textMain,
+                  ),
+                ),
+                Text(
+                  "$totalPrice ل.س",
+                  style: AppTextStyle.font20.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
           ),
-        ),
+          24.verticalSpace,
+          AppButton(
+            text: "متابعة للدفع",
+            icon: Icons.arrow_forward,
+            onPressed: () {
+              Navigator.pushNamed(context, Routes.checkoutScreen);
+            },
+          ),
+          32.verticalSpace,
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
@@ -8,10 +9,14 @@ import 'package:primo/feature/orders/presentation/widgets/order_info.dart';
 import 'package:primo/feature/orders/presentation/widgets/order_state.dart';
 
 class OrderTracking extends StatelessWidget {
-  const OrderTracking({super.key});
+  final OrderModel? orderArg;
+  const OrderTracking({super.key, this.orderArg});
 
   @override
   Widget build(BuildContext context) {
+    final passedOrder =
+        orderArg ?? ModalRoute.of(context)?.settings.arguments as OrderModel?;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -20,9 +25,9 @@ class OrderTracking extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomAppBar(title: "Primo"),
+                const CustomAppBar(title: "Primo"),
                 32.verticalSpace,
-                OrderInfo(),
+                OrderInfo(order: passedOrder),
                 32.verticalSpace,
                 Text(
                   "حالة الطلب",
@@ -31,16 +36,16 @@ class OrderTracking extends StatelessWidget {
                   ),
                 ),
                 24.verticalSpace,
-                OrderState(),
+                OrderState(order: passedOrder),
                 32.verticalSpace,
                 Row(
-                  mainAxisAlignment: .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    AdditionalOptions(
+                    const AdditionalOptions(
                       iconData: Icons.support_agent_outlined,
                       text: "المساعدة",
                     ),
-                    AdditionalOptions(
+                    const AdditionalOptions(
                       iconData: Icons.description_outlined,
                       text: 'الفاتورة',
                     ),

@@ -1,5 +1,5 @@
 // 1. تحديد أنواع العمليات التي تحتاج OTP
-enum OtpType { register, forgotPassword }
+enum OtpType { register, forgotPassword, login }
 
 // 2. كلاس لتجميع رقم الهاتف ونوع العملية لتمريرهم معاً في الـ Route
 class OtpVerificationArgs {

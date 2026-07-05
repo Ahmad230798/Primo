@@ -1,43 +1,38 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/custom_counter.dart';
+import 'package:primo/feature/cart/data/models/cart_item_model.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 
 class CartItemCard extends StatelessWidget {
-  const CartItemCard({super.key});
+  final CartItemModel item;
+
+  const CartItemCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(1),
+      key: ValueKey(item.id),
       direction: DismissDirection.startToEnd,
       background: Container(
         decoration: BoxDecoration(
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(12),
         ),
-        // محاذاة الأيقونة لتكون على اليمين أثناء السحب
         alignment: Alignment.centerRight,
         padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Icon(Icons.delete_outline, color: AppColors.white, size: 30.sp),
       ),
-
-      // 4. الحدث الذي يقع بعد اكتمال السحب (هنا نرسل حدث الحذف للـ BLoC)
       onDismissed: (direction) {
-        // TODO: استدعاء دالة الحذف من BLoC
-        // مثلاً: context.read<CartBloc>().add(RemoveItemEvent(id));
-
-        // رسالة تأكيد للمستخدم (اختياري)
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("تم حذف المنتج من السلة")));
+        context.read<CartCubit>().deleteFromCart(item.id);
       },
-
-      // 5. تأكيد الحذف (ميزة احترافية لإظهار نافذة تأكيد قبل الحذف النهائي)
       confirmDismiss: (direction) async {
-        // إذا أرجعت true سيتم الحذف، وإذا أرجعت false سيعود العنصر لمكانه
-        return true; // يمكنك تغييرها لإظهار Dialog تأكيد
+        return true;
       },
       child: Container(
         width: 1.sw,
@@ -53,10 +48,24 @@ class CartItemCard extends StatelessWidget {
               height: 94.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  image: AssetImage("assets/images/oil.jpg"),
-                ),
+                color: AppColors.formBorder,
               ),
+              clipBehavior: Clip.antiAlias,
+              child: item.fullImageUrl != null
+                  ? Image.network(
+                      item.fullImageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Icon(
+                        Icons.image_not_supported_outlined,
+                        color: AppColors.greyMedium2,
+                        size: 30.sp,
+                      ),
+                    )
+                  : Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppColors.greyMedium2,
+                      size: 30.sp,
+                    ),
             ),
             17.horizontalSpace,
             Expanded(
@@ -64,36 +73,55 @@ class CartItemCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "زيت زيتون بكر ممتاز أرجنتيني",
+                    item.productName,
                     style: AppTextStyle.font20.copyWith(
                       color: AppColors.textMain,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   4.verticalSpace,
                   Text(
-                    "750 مل",
+                    item.variantProperty,
                     style: AppTextStyle.font14.copyWith(
                       color: AppColors.greyMedium2,
                     ),
                   ),
+                  8.verticalSpace,
                   Row(
                     children: [
                       Expanded(
                         flex: 2,
                         child: Text(
-                          "85.00 ل.س",
+                          "${item.newPrice} ل.س",
                           style: AppTextStyle.font20.copyWith(
                             color: AppColors.textMain,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-
                       Expanded(
                         flex: 3,
                         child: CustomCounter(
                           horizontalPadding: 12.w,
-                          verticalPadding: 12.h,
+                          verticalPadding: 8.h,
+                          count: item.quantity,
+                          onIncrement: () {
+                            context.read<CartCubit>().updateQuantity(
+                              item.id,
+                              item.quantity + 1,
+                            );
+                          },
+                          onDecrement: () {
+                            if (item.quantity > 1) {
+                              context.read<CartCubit>().updateQuantity(
+                                item.id,
+                                item.quantity - 1,
+                              );
+                            } else {
+                              context.read<CartCubit>().deleteFromCart(item.id);
+                            }
+                          },
                         ),
                       ),
                     ],

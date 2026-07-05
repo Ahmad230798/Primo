@@ -1,6 +1,7 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: unnecessary_underscores, deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -12,6 +13,7 @@ class FavoriteProductCard extends StatelessWidget {
   final String imagePath;
   final VoidCallback onFavoriteTap;
   final VoidCallback onAddTap;
+  final ProductModel? product;
 
   const FavoriteProductCard({
     super.key,
@@ -21,41 +23,76 @@ class FavoriteProductCard extends StatelessWidget {
     required this.imagePath,
     required this.onFavoriteTap,
     required this.onAddTap,
+    this.product,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isNet =
+        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, Routes.productDetails),
+      onTap: () {
+        if (product != null) {
+          Navigator.pushNamed(
+            context,
+            Routes.productDetails,
+            arguments: product,
+          );
+        }
+      },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
           color: AppColors.white,
-          border: Border.all(
-            color: AppColors.formBorder,
-            width: 0.5,
-          ), // حد خفيف للبطاقة
+          border: Border.all(color: AppColors.formBorder, width: 0.5),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. الصورة مع أيقونة القلب (Stack)
             Stack(
               children: [
                 Container(
                   height: 120.h,
                   width: 1.sw,
                   decoration: BoxDecoration(
-                    color: AppColors.greyBackground, // خلفية الصورة الرمادية
+                    color: AppColors.greyBackground,
                     borderRadius: BorderRadius.circular(12.r),
-                    image: DecorationImage(
-                      image: AssetImage(imagePath),
-                      fit: BoxFit.cover,
-                    ),
                   ),
+                  clipBehavior: Clip.antiAlias,
+                  child: isNet
+                      ? Image.network(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Icon(
+                              Icons.favorite,
+                              color: AppColors.greyMedium2,
+                              size: 36.sp,
+                            ),
+                          ),
+                        )
+                      : imagePath.isNotEmpty
+                      ? Image.asset(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Icon(
+                              Icons.favorite,
+                              color: AppColors.greyMedium2,
+                              size: 36.sp,
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Icon(
+                            Icons.favorite,
+                            color: AppColors.greyMedium2,
+                            size: 36.sp,
+                          ),
+                        ),
                 ),
-                // أيقونة القلب
                 Positioned(
                   top: 8.h,
                   left: 8.w,
@@ -79,7 +116,6 @@ class FavoriteProductCard extends StatelessWidget {
             ),
             12.verticalSpace,
 
-            // 2. اسم المنتج
             Text(
               title,
               style: AppTextStyle.font14.copyWith(
@@ -91,20 +127,24 @@ class FavoriteProductCard extends StatelessWidget {
             ),
             4.verticalSpace,
 
-            // 3. الوزن
             Text(
               weight,
               style: AppTextStyle.font12.copyWith(color: AppColors.greyMedium3),
             ),
 
-            const Spacer(), // لدفع السعر والزر لأسفل البطاقة دائماً
-            // 4. السعر وزر الإضافة
+            const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  price,
-                  style: AppTextStyle.font20.copyWith(color: AppColors.primary),
+                Expanded(
+                  child: Text(
+                    price,
+                    style: AppTextStyle.font20.copyWith(
+                      color: AppColors.primary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 InkWell(
                   onTap: onAddTap,
@@ -114,7 +154,7 @@ class FavoriteProductCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.23),
+                          color: AppColors.primary.withValues(alpha: 0.23),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                           spreadRadius: 0,

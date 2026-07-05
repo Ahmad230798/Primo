@@ -144,4 +144,37 @@ class AuthRepoImpl implements AuthRepo {
       return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
     }
   }
+  @override
+  Future<Either<Failure, OtpResponse>> confirmLogin(
+    OtpRequestBody otpRequestBody,
+  ) async {
+    try {
+      final response = await _apiConsumer.postFormData(
+        path: ApiConstant.confirmLogin,
+        formData: otpRequestBody.toFormData(),
+      );
+      return Right(OtpResponse.fromJson(response));
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    } catch (e) {
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> deleteAccount() async {
+    try {
+      final response = await _apiConsumer.delete(
+        path: ApiConstant.deleteAccount,
+      );
+      final message = (response is Map && response['message'] != null)
+          ? response['message'].toString()
+          : "تم حذف الحساب بنجاح";
+      return Right(message);
+    } on ServerFailure catch (failure) {
+      return Left(failure);
+    } catch (e) {
+      return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
+    }
+  }
 }

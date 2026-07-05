@@ -10,7 +10,20 @@ class CategoryModel {
 
   CategoryModel({this.id, this.name, this.image});
 
+  String? get fullImageUrl {
+    if (image == null || image!.trim().isEmpty) return null;
+    if (image!.startsWith('http://') || image!.startsWith('https://')) {
+      return image;
+    }
+    const baseUrl = 'https://api.primo-market.cloud';
+    if (image!.startsWith('/')) {
+      return '$baseUrl$image';
+    }
+    return '$baseUrl/$image';
+  }
+
   factory CategoryModel.fromJson(Map<String, dynamic> json) =>
       _$CategoryModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CategoryModelToJson(this);
 }
-// لا تنسَ تشغيل أمر: flutter pub run build_runner build --delete-conflicting-outputs

@@ -65,6 +65,12 @@ static Future<void> setAccessToken(String token) async {
     await _prefs?.remove(_roleKey);
   }
 
+  static Future<void> clearAllData() async {
+    await clearTokens();
+    await _secureStorage.deleteAll();
+    await _prefs?.clear();
+  }
+
   // =====================================
   // 2. إعدادات التطبيق (تخزين عادي - SharedPreferences)
   // =====================================

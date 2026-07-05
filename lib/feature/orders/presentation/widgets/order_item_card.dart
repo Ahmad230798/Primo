@@ -1,22 +1,21 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OrderItemCard extends StatelessWidget {
-  final String title;
-  final String weight;
-  final int quantity;
-  final String price;
-  final String imagePath;
+  final OrderItemModel item;
+  final bool showRating;
+  final Function(int rating)? onRate;
 
   const OrderItemCard({
     super.key,
-    required this.title,
-    required this.weight,
-    required this.quantity,
-    required this.price,
-    required this.imagePath,
+    required this.item,
+    this.showRating = false,
+    this.onRate,
   });
 
   @override
@@ -32,41 +31,52 @@ class OrderItemCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. الصورة (يمين)
           Container(
             width: 80.w,
             height: 80.w,
             decoration: BoxDecoration(
-              color: AppColors.greyBackground,
+              color: AppColors.formBorder,
               borderRadius: BorderRadius.circular(12.r),
-              image: DecorationImage(
-                image: AssetImage(imagePath),
-                fit: BoxFit.cover,
-              ),
             ),
+            clipBehavior: Clip.antiAlias,
+            child: item.fullImageUrl != null
+                ? Image.network(
+                    item.fullImageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Icon(
+                      Icons.image_not_supported_outlined,
+                      color: AppColors.greyMedium2,
+                      size: 24.sp,
+                    ),
+                  )
+                : Icon(
+                    Icons.shopping_bag_outlined,
+                    color: AppColors.greyMedium2,
+                    size: 24.sp,
+                  ),
           ),
           12.horizontalSpace,
-
-          // 2. تفاصيل المنتج والتقييم (الوسط)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Text(
-                      title,
-                      style: AppTextStyle.font16.copyWith(
-                        fontWeight: FontWeight.w500,
-                        height: 20 / 16,
-                        color: AppColors.textMain,
+                    Expanded(
+                      child: Text(
+                        item.name,
+                        style: AppTextStyle.font16.copyWith(
+                          fontWeight: FontWeight.w500,
+                          height: 20 / 16,
+                          color: AppColors.textMain,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    16.horizontalSpace,
+                    8.horizontalSpace,
                     Text(
-                      "SAR $price",
+                      "${item.price} ل.س",
                       style: AppTextStyle.font14.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textMain,
@@ -74,13 +84,15 @@ class OrderItemCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                4.verticalSpace,
-                Text(
-                  weight,
-                  style: AppTextStyle.font16.copyWith(
-                    color: AppColors.greyMedium2,
+                if (item.property != null && item.property!.isNotEmpty) ...[
+                  4.verticalSpace,
+                  Text(
+                    item.property!,
+                    style: AppTextStyle.font14.copyWith(
+                      color: AppColors.greyMedium2,
+                    ),
                   ),
-                ),
+                ],
                 12.verticalSpace,
                 Row(
                   children: [
@@ -94,46 +106,49 @@ class OrderItemCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(
-                        "الكمية: $quantity",
-                        style: AppTextStyle.font16.copyWith(
+                        "الكمية: ${item.quantity}",
+                        style: AppTextStyle.font14.copyWith(
                           fontWeight: FontWeight.w400,
                           color: AppColors.greyMedium2,
-                          height: 24 / 16,
                         ),
                       ),
                     ),
-                    Spacer(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "قيّم المنتج",
-                          style: AppTextStyle.font12.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        4.verticalSpace,
-                        Row(
-                          children: List.generate(
-                            5,
-                            (index) => Icon(
-                              Icons.star_border,
-                              color: AppColors.greyLight,
-                              size: 20.sp,
+                    const Spacer(),
+                    if (showRating && onRate != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "قيّم المنتج",
+                            style: AppTextStyle.font12.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                          4.verticalSpace,
+                          Row(
+                            children: List.generate(
+                              5,
+                              (index) => GestureDetector(
+                                onTap: () => onRate!(index + 1),
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 2.w),
+                                  child: Icon(
+                                    Icons.star_border,
+                                    color: AppColors.primary,
+                                    size: 20.sp,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ],
             ),
           ),
-
-          // 3. السعر والكمية (يسار)
-          16.verticalSpace,
         ],
       ),
     );
