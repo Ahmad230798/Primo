@@ -5,8 +5,15 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class PasswordInputField extends StatefulWidget {
   final String label;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
 
-  const PasswordInputField({super.key, required this.label});
+  const PasswordInputField({
+    super.key,
+    required this.label,
+    this.controller,
+    this.validator,
+  });
 
   @override
   State<PasswordInputField> createState() => _PasswordInputFieldState();
@@ -42,6 +49,8 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
 
         // حقل الإدخال
         TextFormField(
+          controller: widget.controller,
+          validator: widget.validator,
           obscureText: _isObscured, // التحكم بالإخفاء
           obscuringCharacter: '•', // شكل النقاط
           textDirection: TextDirection

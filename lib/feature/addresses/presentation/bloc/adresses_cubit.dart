@@ -1,57 +1,143 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:primo/feature/addresses/presentation/bloc/adresses_state.dart';
+import '../../data/models/address_model.dart';
+import '../../data/models/address_request_body.dart';
+import '../../domain/usecases/create_address_usecase.dart';
+import '../../domain/usecases/delete_address_usecase.dart';
+import '../../domain/usecases/get_address_by_id_usecase.dart';
+import '../../domain/usecases/get_addresses_usecase.dart';
+import '../../domain/usecases/update_address_usecase.dart';
+import 'adresses_state.dart';
 
 class AddressesCubit extends Cubit<AddressesState> {
-  AddressesCubit() : super(AddressesInitial()) {
-    // تحميل العناوين فور إنشاء الـ Cubit
-    _loadAddresses();
+  final GetAddressesUseCase _getAddressesUseCase;
+  final GetAddressByIdUseCase _getAddressByIdUseCase;
+  final CreateAddressUseCase _createAddressUseCase;
+  final UpdateAddressUseCase _updateAddressUseCase;
+  final DeleteAddressUseCase _deleteAddressUseCase;
+
+  List<AddressModel> addresses = [];
+  int? defaultAddressId;
+
+  AddressesCubit(
+    this._getAddressesUseCase,
+    this._getAddressByIdUseCase,
+    this._createAddressUseCase,
+    this._updateAddressUseCase,
+    this._deleteAddressUseCase,
+  ) : super(AddressesInitial()) {
+    getAddresses();
   }
 
-  // نقلنا البيانات الوهمية إلى هنا لتكون تحت إدارة الـ Cubit
-  List<Map<String, dynamic>> _addresses = [
-    {
-      "id": "1",
-      "title": "المنزل",
-      "details":
-          "شارع الملك فهد، حي العليا\nمبنى 45، شقة 12\nالرياض، المملكة العربية السعودية",
-      "icon": Icons.home_filled,
-      "isDefault": true,
-    },
-    {
-      "id": "2",
-      "title": "العمل",
-      "details":
-          "طريق التخصصي، برج العقيق\nالدور 8، مكتب 805\nالرياض، المملكة العربية السعودية",
-      "icon": Icons.business_center_rounded,
-      "isDefault": false,
-    },
-    {
-      "id": "3",
-      "title": "بيت العائلة",
-      "details":
-          "شارع خالد بن الوليد، حي الروضة\nفيلا 15\nالرياض، المملكة العربية السعودية",
-      "icon": Icons.location_on_rounded,
-      "isDefault": false,
-    },
-  ];
-
-  void _loadAddresses() {
-    emit(AddressesLoaded(addresses: _addresses));
+  Future<void> getAddresses({bool showLoading = true}) async {
+    if (showLoading || addresses.isEmpty) {
+      emit(AddressesLoading());
+    }
+    final result = await _getAddressesUseCase.execute();
+    result.fold(
+      (failure) => emit(AddressesError(message: failure.errorMessage)),
+      (response) {
+        addresses = response.data;
+        if (addresses.isNotEmpty) {
+          if (defaultAddressId == null || !addresses.any((a) => a.id == defaultAddressId)) {
+            final defaultAddr = addresses.firstWhere(
+              (a) => a.isDefault,
+              orElse: () => addresses.first,
+            );
+            defaultAddressId = defaultAddr.id;
+          }
+        } else {
+          defaultAddressId = null;
+        }
+        emit(AddressesLoaded(addresses: addresses, defaultAddressId: defaultAddressId));
+      },
+    );
   }
 
-  // --- الدالة المسؤولة عن تغيير العنوان الافتراضي ---
-  void setDefaultAddress(String selectedId) {
-    // 1. إنشاء قائمة جديدة مع تحديث حالة الافتراضي
-    _addresses = _addresses.map((address) {
-      return {
-        ...address, // نسخ باقي البيانات كما هي
-        "isDefault":
-            address["id"] == selectedId, // يصبح true فقط للـ ID المختار
-      };
-    }).toList();
+  Future<AddressModel?> getAddressById(int id) async {
+    final result = await _getAddressByIdUseCase.execute(id);
+    return result.fold(
+      (failure) => null,
+      (response) => response.data,
+    );
+  }
 
-    // 2. إرسال القائمة الجديدة للواجهة لتحديثها فوراً
-    emit(AddressesLoaded(addresses: _addresses));
+  Future<void> createAddress({
+    required String name,
+    required String description,
+    required String locationLat,
+    required String locationLng,
+  }) async {
+    emit(AddressActionLoading());
+    final body = AddressRequestBody(
+      name: name,
+      description: description,
+      locationLat: locationLat,
+      locationLng: locationLng,
+    );
+    final result = await _createAddressUseCase.execute(body);
+    result.fold(
+      (failure) {
+        emit(AddressActionError(message: failure.errorMessage));
+        emit(AddressesLoaded(addresses: addresses, defaultAddressId: defaultAddressId));
+      },
+      (response) {
+        emit(const AddressActionSuccess(message: "تم إضافة العنوان بنجاح"));
+        getAddresses(showLoading: false);
+      },
+    );
+  }
+
+  Future<void> updateAddress({
+    required int id,
+    required String name,
+    required String description,
+    required String locationLat,
+    required String locationLng,
+  }) async {
+    emit(AddressActionLoading());
+    final body = AddressRequestBody(
+      name: name,
+      description: description,
+      locationLat: locationLat,
+      locationLng: locationLng,
+    );
+    final result = await _updateAddressUseCase.execute(id, body);
+    result.fold(
+      (failure) {
+        emit(AddressActionError(message: failure.errorMessage));
+        emit(AddressesLoaded(addresses: addresses, defaultAddressId: defaultAddressId));
+      },
+      (response) {
+        emit(const AddressActionSuccess(message: "تم تعديل العنوان بنجاح"));
+        getAddresses(showLoading: false);
+      },
+    );
+  }
+
+  Future<void> deleteAddress(int id) async {
+    emit(AddressActionLoading());
+    final result = await _deleteAddressUseCase.execute(id);
+    result.fold(
+      (failure) {
+        emit(AddressActionError(message: failure.errorMessage));
+        emit(AddressesLoaded(addresses: addresses, defaultAddressId: defaultAddressId));
+      },
+      (response) {
+        if (defaultAddressId == id) {
+          defaultAddressId = null;
+        }
+        emit(const AddressActionSuccess(message: "تم حذف العنوان بنجاح"));
+        getAddresses(showLoading: false);
+      },
+    );
+  }
+
+  void setDefaultAddress(int? selectedId) {
+    if (selectedId == null) return;
+    defaultAddressId = selectedId;
+    for (var a in addresses) {
+      a.isDefault = (a.id == selectedId);
+    }
+    emit(AddressesLoaded(addresses: addresses, defaultAddressId: defaultAddressId));
   }
 }

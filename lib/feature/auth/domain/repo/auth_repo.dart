@@ -30,4 +30,6 @@ abstract class AuthRepo {
     ResetPassworRequestBody resetPassworRequestBody,
   );
   Future<Either<Failure, ForgetPasswordResponse>> resendOtp(ResendOtpRequestBody body);
+  Future<Either<Failure, OtpResponse>> confirmLogin(OtpRequestBody otpRequestBody);
+  Future<Either<Failure, String>> deleteAccount();
 }

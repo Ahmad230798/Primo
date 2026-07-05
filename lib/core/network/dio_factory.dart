@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -10,6 +11,8 @@ class DioFactory {
   DioFactory._();
   static Dio? _dio;
   static const Duration _timeOut = Duration(seconds: 30);
+  static bool _isRefreshing = false;
+  static Completer<bool>? _refreshCompleter;
 
   static Dio getDio() {
     if (_dio == null) {
@@ -41,44 +44,107 @@ class DioFactory {
           return handler.next(response);
         },
         onError: (DioException error, handler) async {
-          if (error.requestOptions.path.contains(ApiConstant.login)) {
+          final authPaths = [
+            ApiConstant.login,
+            ApiConstant.register,
+            ApiConstant.verifyRegister,
+            ApiConstant.forgotPassword,
+            ApiConstant.confirmForgotPassword,
+            ApiConstant.resetPassword,
+            ApiConstant.resendOtp,
+            '/confirm-login',
+          ];
+          if (authPaths.any((path) => error.requestOptions.path.contains(path))) {
             return handler.next(error);
           }
+
           if (error.response?.statusCode == 401) {
             final refreshToken = await AppStorage.getRefreshToken();
 
             if (refreshToken != null && refreshToken.isNotEmpty) {
+              if (_isRefreshing) {
+                final success = await (_refreshCompleter?.future ?? Future.value(false));
+                if (success) {
+                  final newAccessToken = await AppStorage.getAccessToken();
+                  final options = error.requestOptions;
+                  options.headers['Authorization'] = 'Bearer $newAccessToken';
+                  try {
+                    final retryResponse = await _dio?.fetch(options);
+                    return handler.resolve(retryResponse!);
+                  } catch (e) {
+                    return handler.reject(error);
+                  }
+                } else {
+                  return handler.reject(error);
+                }
+              }
+
+              _isRefreshing = true;
+              _refreshCompleter = Completer<bool>();
+
               try {
-                // 💡 التعديل الجوهري: إنشاء Dio جديدة نظيفة لطلب التجديد
                 final refreshDio = Dio(
-                  BaseOptions(baseUrl: ApiConstant.baseUrl),
+                  BaseOptions(
+                    baseUrl: ApiConstant.baseUrl,
+                    headers: {'Accept': 'application/json'},
+                  ),
                 );
 
                 final response = await refreshDio.post(
                   ApiConstant.refreshToken,
-                  data: {'refresh': refreshToken}, // متوافق مع Django JWT
+                  data: {'refresh_token': refreshToken},
                 );
 
-                if (response.statusCode == 200) {
-                  final newAccessToken = response.data['access'];
-                  // إذا كان السيرفر يعيد Refresh Token جديداً أيضاً، قم بحفظه هنا
-                  await AppStorage.setAccessToken(newAccessToken);
+                if (response.statusCode == 200 || response.statusCode == 201) {
+                  final responseData = response.data;
+                  String? newAccessToken;
+                  String? newRefreshToken;
 
-                  // إعادة إرسال الطلب الأصلي
-                  final options = error.requestOptions;
-                  options.headers['Authorization'] = 'Bearer $newAccessToken';
+                  if (responseData is Map<String, dynamic>) {
+                    if (responseData['data'] is Map<String, dynamic>) {
+                      newAccessToken = responseData['data']['access_token'];
+                      newRefreshToken = responseData['data']['refresh_token'];
+                    } else {
+                      newAccessToken = responseData['access_token'] ?? responseData['access'];
+                      newRefreshToken = responseData['refresh_token'] ?? responseData['refresh'];
+                    }
+                  }
 
-                  // هنا نستخدم _dio الأساسية لأننا نريد اعتراض الطلب لو فشل لسبب آخر
-                  final retryResponse = await _dio?.fetch(options);
-                  return handler.resolve(retryResponse!);
+                  if (newAccessToken != null && newAccessToken.isNotEmpty) {
+                    if (newRefreshToken != null && newRefreshToken.isNotEmpty) {
+                      await AppStorage.saveTokens(
+                        accessToken: newAccessToken,
+                        refreshToken: newRefreshToken,
+                      );
+                    } else {
+                      await AppStorage.setAccessToken(newAccessToken);
+                    }
+
+                    _isRefreshing = false;
+                    _refreshCompleter?.complete(true);
+
+                    final options = error.requestOptions;
+                    options.headers['Authorization'] = 'Bearer $newAccessToken';
+                    final retryResponse = await _dio?.fetch(options);
+                    return handler.resolve(retryResponse!);
+                  }
                 }
+
+                _isRefreshing = false;
+                if (!(_refreshCompleter?.isCompleted ?? true)) {
+                  _refreshCompleter?.complete(false);
+                }
+                await _performLogout();
+                return handler.reject(error);
               } catch (e) {
-                // 💡 إذا فشل التجديد (الـ Refresh منتهي أيضاً)، يجب طرد المستخدم
+                _isRefreshing = false;
+                if (!(_refreshCompleter?.isCompleted ?? true)) {
+                  _refreshCompleter?.complete(false);
+                }
                 await _performLogout();
                 return handler.reject(error);
               }
             } else {
-              // لا يوجد Refresh Token من الأساس
               await _performLogout();
               return handler.reject(error);
             }

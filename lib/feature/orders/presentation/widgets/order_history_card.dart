@@ -1,34 +1,23 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OrderHistoryCard extends StatelessWidget {
-  final String orderNumber;
-  final String date;
-  final String price;
-  final bool isDelivery;
-  final String status;
-  final bool isDelivered;
-  final List<String> productImages;
-  final int extraProductsCount;
+  final OrderModel order;
   final VoidCallback onTap;
 
-  const OrderHistoryCard({
-    super.key,
-    required this.orderNumber,
-    required this.date,
-    required this.price,
-    required this.isDelivery,
-    required this.status,
-    required this.isDelivered,
-    required this.productImages,
-    this.extraProductsCount = 0,
-    required this.onTap,
-  });
+  const OrderHistoryCard({super.key, required this.order, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final isDelivered =
+        order.status.toLowerCase() == 'completed' ||
+        order.status.toLowerCase() == 'delivered';
+
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       padding: EdgeInsets.all(16.w),
@@ -40,20 +29,18 @@ class OrderHistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- الصف الأول: الأيقونة، رقم الطلب، التاريخ، والسعر ---
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // الأيقونة (توصيل أو استلام)
               Container(
                 width: 40.w,
                 height: 40.w,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.background,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isDelivery
+                  order.isDelivery
                       ? Icons.shopping_bag_outlined
                       : Icons.storefront_outlined,
                   color: AppColors.primary,
@@ -61,13 +48,12 @@ class OrderHistoryCard extends StatelessWidget {
                 ),
               ),
               12.horizontalSpace,
-              // رقم الطلب والتاريخ
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      orderNumber,
+                      "طلب #${order.id}",
                       style: AppTextStyle.font20.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textMain,
@@ -75,7 +61,9 @@ class OrderHistoryCard extends StatelessWidget {
                     ),
                     4.verticalSpace,
                     Text(
-                      date,
+                      order.formattedDate.isNotEmpty
+                          ? order.formattedDate
+                          : "الآن",
                       style: AppTextStyle.font12.copyWith(
                         color: AppColors.greyMedium3,
                       ),
@@ -83,9 +71,8 @@ class OrderHistoryCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // السعر
               Text(
-                price,
+                "${order.totalAmount} ل.س",
                 style: AppTextStyle.font20.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -94,11 +81,8 @@ class OrderHistoryCard extends StatelessWidget {
             ],
           ),
           16.verticalSpace,
-
-          // --- الصف الثاني: شارات الحالة وطريقة الاستلام ---
           Row(
             children: [
-              // شارة طريقة الاستلام
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
@@ -108,7 +92,7 @@ class OrderHistoryCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      isDelivery
+                      order.isDelivery
                           ? Icons.local_shipping_outlined
                           : Icons.storefront_outlined,
                       color: AppColors.greyDark,
@@ -116,7 +100,7 @@ class OrderHistoryCard extends StatelessWidget {
                     ),
                     4.horizontalSpace,
                     Text(
-                      isDelivery ? "توصيل" : "استلام من المتجر",
+                      order.isDelivery ? "توصيل" : "استلام من المتجر",
                       style: AppTextStyle.font12.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.greyDark,
@@ -126,13 +110,12 @@ class OrderHistoryCard extends StatelessWidget {
                 ),
               ),
               8.horizontalSpace,
-              // شارة الحالة (خضراء إذا تم التسليم)
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
                   color: isDelivered
                       ? const Color(0xFFE8F5E9)
-                      : AppColors.quantityBackground,
+                      : const Color(0xFFFFF3E0),
                   borderRadius: BorderRadius.circular(999.r),
                 ),
                 child: Row(
@@ -140,18 +123,20 @@ class OrderHistoryCard extends StatelessWidget {
                     Icon(
                       isDelivered
                           ? Icons.check_circle_outline
-                          : Icons.access_time,
-                      color: isDelivered ? AppColors.green : AppColors.primary,
+                          : Icons.schedule_rounded,
+                      color: isDelivered
+                          ? const Color(0xFF2E7D32)
+                          : const Color(0xFFE65100),
                       size: 14.sp,
                     ),
                     4.horizontalSpace,
                     Text(
-                      status,
+                      order.statusArabic,
                       style: AppTextStyle.font12.copyWith(
                         fontWeight: FontWeight.w700,
                         color: isDelivered
-                            ? AppColors.green
-                            : AppColors.primary,
+                            ? const Color(0xFF2E7D32)
+                            : const Color(0xFFE65100),
                       ),
                     ),
                   ],
@@ -162,14 +147,10 @@ class OrderHistoryCard extends StatelessWidget {
           16.verticalSpace,
           Divider(color: AppColors.formBorder, thickness: 1, height: 1),
           16.verticalSpace,
-
-          // --- الصف الثالث: صور المنتجات المتداخلة وزر عرض التفاصيل ---
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // صور المنتجات المتداخلة (مبنية كدالة مساعدة بالأسفل)
               _buildOverlappingImages(),
-              // زر عرض التفاصيل
               InkWell(
                 onTap: onTap,
                 child: Row(
@@ -197,17 +178,26 @@ class OrderHistoryCard extends StatelessWidget {
     );
   }
 
-  // دالة مساعدة لإنشاء تأثير تداخل الصور (Overlapping)
   Widget _buildOverlappingImages() {
     double imageSize = 32.w;
-    double overlap = 12.w; // مسافة التداخل
-    int visibleCount = productImages.length;
+    double overlap = 12.w;
+    final items = order.items;
+    int visibleCount = items.length > 3 ? 3 : items.length;
+    int extraCount = items.length > 3 ? items.length - 3 : 0;
 
-    // حساب العرض الكلي للـ Stack بناءً على عدد الصور والتداخل
     double stackWidth =
-        (imageSize * visibleCount) - (overlap * (visibleCount - 1));
-    if (extraProductsCount > 0) {
+        (imageSize * visibleCount) -
+        (overlap * (visibleCount - 1 > 0 ? visibleCount - 1 : 0));
+    if (extraCount > 0) {
       stackWidth += (imageSize - overlap);
+    }
+
+    if (items.isEmpty) {
+      return SizedBox(
+        width: imageSize,
+        height: imageSize,
+        child: Icon(Icons.shopping_bag_outlined, color: AppColors.greyMedium2),
+      );
     }
 
     return SizedBox(
@@ -217,21 +207,34 @@ class OrderHistoryCard extends StatelessWidget {
         children: [
           for (int i = 0; i < visibleCount; i++)
             Positioned(
-              right: i * (imageSize - overlap), // ترتيب من اليمين لليسار (RTL)
+              right: i * (imageSize - overlap),
               child: Container(
                 width: imageSize,
                 height: imageSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
+                  color: AppColors.formBorder,
                   border: Border.all(color: AppColors.white, width: 2),
-                  image: DecorationImage(
-                    image: AssetImage(productImages[i]),
-                    fit: BoxFit.cover,
-                  ),
                 ),
+                clipBehavior: Clip.antiAlias,
+                child: items[i].fullImageUrl != null
+                    ? Image.network(
+                        items[i].fullImageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 16.sp,
+                          color: AppColors.greyMedium2,
+                        ),
+                      )
+                    : Icon(
+                        Icons.shopping_bag_outlined,
+                        size: 16.sp,
+                        color: AppColors.greyMedium2,
+                      ),
               ),
             ),
-          if (extraProductsCount > 0)
+          if (extraCount > 0)
             Positioned(
               right: visibleCount * (imageSize - overlap),
               child: Container(
@@ -244,7 +247,7 @@ class OrderHistoryCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    "+$extraProductsCount",
+                    "+$extraCount",
                     style: AppTextStyle.font12.copyWith(
                       color: AppColors.textMain,
                       fontWeight: FontWeight.w600,

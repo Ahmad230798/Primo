@@ -50,7 +50,7 @@ class RegisterScreen extends StatelessWidget {
                 );
               } else {
                 // كإجراء احتياطي: إذا لم يطلب السيرفر OTP، نوجهه لتسجيل الدخول
-                context.pushNamedAndRemoveUntil(Routes.home);
+                context.pushNamedAndRemoveUntil(Routes.userMainLayout);
               }
             }
           },

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
@@ -17,18 +19,19 @@ class CategoryGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNet =
+        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        // قص الحواف لتكون دائرية تماماً من جميع الزوايا
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
           color: AppColors.greyBackground,
-          // إضافة ظل خفيف جداً لإبراز البطاقة (اختياري)
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -37,35 +40,58 @@ class CategoryGridCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // --- 1. صورة القسم (الخلفية) ---
-            Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
-            ),
-            
-            // --- 2. التدرج اللوني (Gradient Overlay) ---
-            // هذا التدرج يبدأ من أسود شفاف بالأسفل ليتلاشى للأعلى
-            // مما يجعل النص الأبيض مقروءاً بوضوح مهما كانت الصورة فاتحة
+            if (isNet)
+              Image.network(
+                imagePath,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Center(
+                  child: Icon(
+                    Icons.category,
+                    size: 40.sp,
+                    color: AppColors.greyMedium2,
+                  ),
+                ),
+              )
+            else if (imagePath.isNotEmpty)
+              Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Center(
+                  child: Icon(
+                    Icons.category,
+                    size: 40.sp,
+                    color: AppColors.greyMedium2,
+                  ),
+                ),
+              )
+            else
+              Center(
+                child: Icon(
+                  Icons.category,
+                  size: 40.sp,
+                  color: AppColors.greyMedium2,
+                ),
+              ),
+
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
-              height: 60.h, // ارتفاع التدرج اللوني
+              height: 60.h,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withOpacity(0.75), // أسود شفاف بالأسفل
-                      Colors.transparent, // شفاف بالأعلى
+                      Colors.black.withValues(alpha: 0.75),
+                      Colors.transparent,
                     ],
                   ),
                 ),
               ),
             ),
 
-            // --- 3. اسم القسم ---
             Positioned(
               bottom: 12.h,
               left: 8.w,
@@ -73,7 +99,7 @@ class CategoryGridCard extends StatelessWidget {
               child: Text(
                 title,
                 style: AppTextStyle.font16.copyWith(
-                  color: AppColors.white, // نص أبيض ليتناسب مع التدرج الداكن
+                  color: AppColors.white,
                   fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.center,

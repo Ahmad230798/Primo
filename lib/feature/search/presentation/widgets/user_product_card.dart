@@ -1,5 +1,8 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -11,6 +14,8 @@ class UserProductCard extends StatelessWidget {
   final String imageUrl;
   final bool isFavorite;
   final bool isOutOfStock;
+  final ProductModel? product;
+  final VoidCallback? onFavoriteTap;
 
   const UserProductCard({
     super.key,
@@ -20,15 +25,26 @@ class UserProductCard extends StatelessWidget {
     required this.imageUrl,
     this.isFavorite = false,
     this.isOutOfStock = false,
+    this.product,
+    this.onFavoriteTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // تحديد الشفافية بناءً على التوفر
     final opacity = isOutOfStock ? 0.6 : 1.0;
+    final isNet =
+        imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
 
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, Routes.productDetails),
+      onTap: () {
+        if (product != null) {
+          Navigator.pushNamed(
+            context,
+            Routes.productDetails,
+            arguments: product,
+          );
+        }
+      },
       child: Container(
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
@@ -46,11 +62,9 @@ class UserProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. قسم الصورة مع أيقونة المفضلة
             Expanded(
               child: Stack(
                 children: [
-                  // الصورة بخلفية رمادية
                   Opacity(
                     opacity: opacity,
                     child: Container(
@@ -58,30 +72,63 @@ class UserProductCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.greyBackground,
                         borderRadius: BorderRadius.circular(12.r),
-                        image: DecorationImage(
-                          image: NetworkImage(imageUrl),
-                          fit: BoxFit.cover,
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: isNet
+                          ? Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Icon(
+                                  Icons.shopping_bag_outlined,
+                                  color: AppColors.greyMedium2,
+                                  size: 36.sp,
+                                ),
+                              ),
+                            )
+                          : imageUrl.isNotEmpty
+                          ? Image.asset(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Icon(
+                                  Icons.shopping_bag_outlined,
+                                  color: AppColors.greyMedium2,
+                                  size: 36.sp,
+                                ),
+                              ),
+                            )
+                          : Center(
+                              child: Icon(
+                                Icons.shopping_bag_outlined,
+                                color: AppColors.greyMedium2,
+                                size: 36.sp,
+                              ),
+                            ),
+                    ),
+                  ),
+
+                  Positioned(
+                    top: 4.h,
+                    left: 4.w,
+                    child: GestureDetector(
+                      onTap: onFavoriteTap,
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: EdgeInsets.all(4.w),
+                        child: Icon(
+                          isFavorite
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          color: isFavorite
+                              ? AppColors.primary
+                              : AppColors.greyDark,
+                          size: 20.sp,
                         ),
                       ),
                     ),
                   ),
 
-                  // أيقونة المفضلة (في الزاوية العلوية اليسرى كما في التصميم)
-                  Positioned(
-                    top: 4.h,
-                    left: 4.w,
-                    child: Icon(
-                      isFavorite
-                          ? Icons.favorite_rounded
-                          : Icons.favorite_border_rounded,
-                      color: isFavorite
-                          ? AppColors.primary
-                          : AppColors.greyDark,
-                      size: 20.sp,
-                    ),
-                  ),
-
-                  // شارة "نفد الكمية"
                   if (isOutOfStock)
                     Positioned(
                       top: 4.h,
@@ -99,7 +146,7 @@ class UserProductCard extends StatelessWidget {
                           "نفد الكمية",
                           style: AppTextStyle.font12.copyWith(
                             color: AppColors.white,
-                            fontSize: 10.sp, // خط صغير جداً
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -110,7 +157,6 @@ class UserProductCard extends StatelessWidget {
             ),
             12.verticalSpace,
 
-            // 2. التفاصيل (العنوان والوزن)
             Opacity(
               opacity: opacity,
               child: Column(
@@ -138,39 +184,26 @@ class UserProductCard extends StatelessWidget {
             ),
             12.verticalSpace,
 
-            // 3. السعر وزر الإضافة
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Opacity(
-                  opacity: opacity,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        price,
-                        style: AppTextStyle.font18.copyWith(
-                          color: isOutOfStock
-                              ? AppColors.textMain
-                              : AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                Expanded(
+                  child: Opacity(
+                    opacity: opacity,
+                    child: Text(
+                      price,
+                      style: AppTextStyle.font16.copyWith(
+                        color: isOutOfStock
+                            ? AppColors.textMain
+                            : AppColors.primary,
+                        fontWeight: FontWeight.bold,
                       ),
-                      4.horizontalSpace,
-                      Text(
-                        "ر.س",
-                        style: AppTextStyle.font12.copyWith(
-                          color: isOutOfStock
-                              ? AppColors.textMain
-                              : AppColors.primary,
-                        ),
-                      ),
-                    ],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
 
-                // زر الإضافة الدائري
                 Container(
                   width: 32.w,
                   height: 32.w,

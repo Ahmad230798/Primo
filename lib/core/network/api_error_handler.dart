@@ -55,7 +55,7 @@ class ServerFailure extends Failure {
 
         // 2. إرجاع ServerFailure بدلاً من Failure المجرد
         return ServerFailure(
-          serverMessage?.toString() ?? "غير مصرح لك بالدخول",
+          serverMessage?.toString() ?? "انتهت جلسة تسجيل الدخول، يرجى تسجيل الدخول مجدداً",
         );
       case 403: // Forbidden
         return const ServerFailure("ليس لديك صلاحية للقيام بهذا الإجراء");

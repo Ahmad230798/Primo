@@ -1,12 +1,14 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: unnecessary_underscores, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OrderInfo extends StatelessWidget {
-  const OrderInfo({super.key});
+  final OrderModel? order;
+  const OrderInfo({super.key, this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class OrderInfo extends StatelessWidget {
           BoxShadow(
             blurRadius: 12,
             spreadRadius: 0,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
             color: AppColors.textMain.withOpacity(0.04),
           ),
         ],
@@ -38,7 +40,7 @@ class OrderInfo extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 3.h),
                 decoration: BoxDecoration(
@@ -48,13 +50,16 @@ class OrderInfo extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.access_time_rounded,
                       color: AppColors.greyDark,
                       size: 20,
                     ),
+                    4.horizontalSpace,
                     Text(
-                      "اليوم، 10:30 ص",
+                      order != null && order!.formattedDate.isNotEmpty
+                          ? order!.formattedDate
+                          : "الآن",
                       style: AppTextStyle.font12.copyWith(
                         color: AppColors.greyDark,
                       ),
@@ -65,9 +70,12 @@ class OrderInfo extends StatelessWidget {
             ],
           ),
           4.verticalSpace,
-          Text("#PRM-84920", style: AppTextStyle.font20),
+          Text(
+            order != null ? "#${order!.id}" : "#PRM-84920",
+            style: AppTextStyle.font20,
+          ),
           24.verticalSpace,
-          Divider(color: AppColors.greyLight),
+          const Divider(color: AppColors.greyLight),
           24.verticalSpace,
           Row(
             children: [
@@ -75,11 +83,26 @@ class OrderInfo extends StatelessWidget {
                 width: 94.w,
                 height: 94.h,
                 decoration: BoxDecoration(
+                  color: AppColors.formBorder,
                   borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/groceries.jpg"),
-                  ),
                 ),
+                clipBehavior: Clip.antiAlias,
+                child:
+                    order != null &&
+                        order!.items.isNotEmpty &&
+                        order!.items.first.fullImageUrl != null
+                    ? Image.network(
+                        order!.items.first.fullImageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.shopping_bag_outlined,
+                          color: AppColors.greyMedium2,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.shopping_bag_outlined,
+                        color: AppColors.greyMedium2,
+                      ),
               ),
               17.horizontalSpace,
               Expanded(
@@ -87,7 +110,9 @@ class OrderInfo extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "سلة الفواكه والخضروات والمزيد",
+                      order != null && order!.items.isNotEmpty
+                          ? order!.items.first.name
+                          : "طلب منتجات من Primo",
                       style: AppTextStyle.font16.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textMain,
@@ -97,13 +122,15 @@ class OrderInfo extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          "12 عنصر •",
+                          order != null
+                              ? "${order!.items.length} عنصر • "
+                              : "عنصر • ",
                           style: AppTextStyle.font14.copyWith(
                             color: AppColors.greyMedium2,
                           ),
                         ),
                         Text(
-                          " 245.50 ل.س",
+                          order != null ? "${order!.totalAmount} ل.س" : "0 ل.س",
                           style: AppTextStyle.font14.copyWith(
                             color: AppColors.greyMedium2,
                           ),

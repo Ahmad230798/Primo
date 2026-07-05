@@ -8,7 +8,6 @@ import '../../data/models/add_product_request_body.dart';
 import '../../data/models/variant_request_model.dart';
 import '../../domain/usecases/manage_product_usecase.dart';
 import 'admin_product_state.dart';
-import 'package:primo/feature/admin_product/domain/usecases/manage_product_usecase.dart';
 
 // كلاس مساعد للتحكم بحقول كل نوع (Variant) بشكل منفصل
 class VariantItemController {

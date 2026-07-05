@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/di/service_locator.dart';
+import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/routing/otp_enum.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/feature/admin_categories/presentation/cubit/admin_category_cubit.dart';
@@ -19,10 +20,19 @@ import 'package:primo/feature/main_layout/presentation/screen/user_main_layout.d
 import 'package:primo/feature/notifications/presentation/screen/notifications_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/change_password_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/settings_screen.dart';
+import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
 import 'package:primo/feature/search/presentation/screen/search_results_screen.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
+import 'package:primo/core/models/product_model.dart';
+import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
+import 'package:primo/feature/product/presentation/cubit/product_cubit.dart';
+import 'package:primo/feature/categories/presentation/cubit/user_categories_cubit.dart';
+import 'package:primo/feature/search/presentation/cubit/search_cubit.dart';
+import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
 
-// --- Imports (تم اختصارها للتنظيم) ---
+import 'package:primo/core/models/category_model.dart';
+import 'package:primo/feature/categories/presentation/cubit/category_products_cubit.dart';
+import 'package:primo/feature/categories/presentation/screen/category_products_screen.dart';
 import 'package:primo/feature/addresses/presentation/screen/saved_addresses_screen.dart';
 import 'package:primo/feature/categories/presentation/screen/all_categories_screen.dart';
 import 'package:primo/feature/favorites/presentation/screens/favorites_screen.dart';
@@ -75,9 +85,29 @@ class AppRoutes {
           ),
         );
       case Routes.userMainLayout:
-        return CupertinoPageRoute(builder: (_) => const UserMainLayout());
-      case Routes.changePassword:
-        return CupertinoPageRoute(builder: (_) => const ChangePasswordScreen());
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => getIt<ProfileCubit>()..getProfile(),
+              ),
+              BlocProvider(
+                create: (context) => getIt<AddressesCubit>()..getAddresses(),
+              ),
+              BlocProvider(
+                create: (context) => getIt<HomeCubit>()..fetchHomeData(),
+              ),
+              BlocProvider(
+                create: (context) =>
+                    getIt<UserCategoriesCubit>()..fetchCategories(),
+              ),
+              BlocProvider(
+                create: (context) => getIt<FavoritesCubit>()..fetchFavorites(),
+              ),
+            ],
+            child: const UserMainLayout(),
+          ),
+        );
       case Routes.forgotPassword:
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
@@ -110,15 +140,61 @@ class AppRoutes {
 
       // ================== User App ==================
       case Routes.home:
-        return CupertinoPageRoute(builder: (_) => const Home());
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<HomeCubit>()..fetchHomeData()),
+              BlocProvider.value(value: getIt<FavoritesCubit>()),
+            ],
+            child: const Home(),
+          ),
+        );
       case Routes.profile:
-        return CupertinoPageRoute(builder: (_) => const Profile());
+        return CupertinoPageRoute(
+          builder: (_) {
+            final cubit =
+                settings.arguments as ProfileCubit? ??
+                (getIt<ProfileCubit>()..getProfile());
+            return BlocProvider.value(value: cubit, child: const Profile());
+          },
+        );
       case Routes.editProfile:
-        return CupertinoPageRoute(builder: (_) => const EditProfile());
+        return CupertinoPageRoute(
+          builder: (_) {
+            final cubit =
+                settings.arguments as ProfileCubit? ??
+                (getIt<ProfileCubit>()..getProfile());
+            return BlocProvider.value(value: cubit, child: const EditProfile());
+          },
+        );
 
       // مثال احترافي لتمرير البيانات:
       case Routes.productDetails:
-        return CupertinoPageRoute(builder: (_) => ProductDetails());
+        return CupertinoPageRoute(
+          builder: (_) {
+            final arg = settings.arguments;
+            int productId = 1;
+            ProductModel? initProduct;
+            if (arg is ProductModel) {
+              initProduct = arg;
+              if (arg.id != null) productId = arg.id!;
+            } else if (arg is int) {
+              productId = arg;
+            } else if (arg is Map && arg['id'] != null) {
+              productId = arg['id'];
+            }
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) =>
+                      getIt<ProductCubit>()..getProductDetails(productId),
+                ),
+                BlocProvider.value(value: getIt<FavoritesCubit>()),
+              ],
+              child: ProductDetails(initialProduct: initProduct),
+            );
+          },
+        );
 
       case Routes.cart:
         return CupertinoPageRoute(builder: (_) => const Cart());
@@ -127,25 +203,120 @@ class AppRoutes {
       case Routes.notifications:
         return CupertinoPageRoute(builder: (_) => const NotificationsScreen());
       case Routes.searchResults:
-        return CupertinoPageRoute(builder: (_) => const SearchResultsScreen());
+        return CupertinoPageRoute(
+          builder: (_) {
+            final query = settings.arguments as String? ?? "";
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) =>
+                      getIt<SearchCubit>()..searchProducts(query),
+                ),
+                BlocProvider.value(value: getIt<FavoritesCubit>()),
+              ],
+              child: const SearchResultsScreen(),
+            );
+          },
+        );
       case Routes.settings:
-        return CupertinoPageRoute(builder: (_) => const SettingsScreen());
+        return CupertinoPageRoute(
+          builder: (_) {
+            final cubit =
+                settings.arguments as ProfileCubit? ?? getIt<ProfileCubit>();
+            return BlocProvider.value(
+              value: cubit,
+              child: const SettingsScreen(),
+            );
+          },
+        );
+      case Routes.changePassword:
+        return CupertinoPageRoute(
+          builder: (_) {
+            final cubit =
+                settings.arguments as ProfileCubit? ?? getIt<ProfileCubit>();
+            return BlocProvider.value(
+              value: cubit,
+              child: const ChangePasswordScreen(),
+            );
+          },
+        );
       case Routes.orderDetailsScreen:
-        return CupertinoPageRoute(builder: (_) => const OrderDetailsScreen());
+        final order = settings.arguments as OrderModel?; // استلام الداتا
+        return MaterialPageRoute(
+          builder: (_) => OrderDetailsScreen(orderArg: order), // تمريرها للشاشة
+        );
       case Routes.suggestProduct:
         return CupertinoPageRoute(builder: (_) => const SuggestProductPage());
       case Routes.favorites:
-        return CupertinoPageRoute(builder: (_) => const FavoritesPage());
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: getIt<FavoritesCubit>()..fetchFavorites(),
+              ),
+            ],
+            child: const FavoritesPage(),
+          ),
+        );
       case Routes.orderHistory:
         return CupertinoPageRoute(builder: (_) => const OrderHistoryScreen());
       case Routes.categories:
-        return CupertinoPageRoute(builder: (_) => const AllCategoriesScreen());
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: getIt<UserCategoriesCubit>()..fetchCategories(),
+              ),
+              BlocProvider.value(value: getIt<HomeCubit>()),
+              BlocProvider.value(value: getIt<FavoritesCubit>()),
+            ],
+            child: const AllCategoriesScreen(),
+          ),
+        );
+      case Routes.categoryProducts:
+        return CupertinoPageRoute(
+          builder: (_) {
+            final arg = settings.arguments;
+            int categoryId = 1;
+            String? categoryName;
+            if (arg is CategoryModel) {
+              categoryId = arg.id ?? 1;
+              categoryName = arg.name;
+            } else if (arg is int) {
+              categoryId = arg;
+            } else if (arg is Map) {
+              if (arg['id'] != null)
+                categoryId = int.tryParse(arg['id'].toString()) ?? 1;
+              if (arg['name'] != null) categoryName = arg['name'].toString();
+            }
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => getIt<CategoryProductsCubit>()
+                    ..fetchCategoryProducts(
+                      categoryId,
+                      categoryName: categoryName,
+                    ),
+                ),
+                BlocProvider.value(value: getIt<FavoritesCubit>()),
+              ],
+              child: CategoryProductsScreen(
+                categoryName: categoryName ?? "منتجات القسم",
+              ),
+            );
+          },
+        );
       case Routes.addresses:
         return CupertinoPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => AddressesCubit(),
-            child: const SavedAddressesScreen(),
-          ),
+          builder: (_) {
+            final cubit =
+                settings.arguments as AddressesCubit? ??
+                (getIt<AddressesCubit>()..getAddresses());
+            return BlocProvider.value(
+              value: cubit,
+              child: const SavedAddressesScreen(),
+            );
+          },
         );
 
       // ================== Admin App ==================
@@ -198,8 +369,21 @@ class AppRoutes {
       // ================== Default & Checkout ==================
       case Routes.checkoutScreen:
         return CupertinoPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => CheckoutCubit(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) {
+                  final addressesCubit = getIt<AddressesCubit>()
+                    ..getAddresses(showLoading: false);
+                  final defaultId = addressesCubit.defaultAddressId?.toString();
+                  return getIt<CheckoutCubit>()..initCheckout(defaultId);
+                },
+              ),
+              BlocProvider.value(
+                value: getIt<AddressesCubit>()
+                  ..getAddresses(showLoading: false),
+              ),
+            ],
             child: const CheckoutScreen(),
           ),
         );

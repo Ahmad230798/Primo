@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -17,7 +19,7 @@ import 'package:primo/feature/auth/presentation/cubit/reset_password_state.dart'
 
 class ResetPasswordScreen extends StatelessWidget {
   final String phoneNumber; // نستقبل رقم الهاتف من شاشة الـ OTP
-  
+
   const ResetPasswordScreen({super.key, required this.phoneNumber});
 
   @override
@@ -36,7 +38,9 @@ class ResetPasswordScreen extends StatelessWidget {
             if (state is ResetPassowrdError) {
               context.showError(state.error);
             } else if (state is ResetPasswordSuccess) {
-              context.showSuccess("تم تغيير كلمة المرور بنجاح، يرجى تسجيل الدخول.");
+              context.showSuccess(
+                "تم تغيير كلمة المرور بنجاح، يرجى تسجيل الدخول.",
+              );
               // تدمير جميع الشاشات السابقة وتوجيه المستخدم لتسجيل الدخول
               context.pushNamedAndRemoveUntil(Routes.login);
             }
@@ -81,7 +85,10 @@ class ResetPasswordScreen extends StatelessWidget {
                           40.verticalSpace,
 
                           // حقل إدخال كلمة المرور
-                          Text("كلمة المرور الجديدة", style: AppTextStyle.font16),
+                          Text(
+                            "كلمة المرور الجديدة",
+                            style: AppTextStyle.font16,
+                          ),
                           8.verticalSpace,
                           AppTextFormField(
                             controller: cubit.passwordController,
@@ -97,8 +104,8 @@ class ResetPasswordScreen extends StatelessWidget {
                             ),
                             suffixIcone: IconButton(
                               icon: Icon(
-                                cubit.isPasswordObscure 
-                                    ? Icons.visibility 
+                                cubit.isPasswordObscure
+                                    ? Icons.visibility
                                     : Icons.visibility_off,
                                 size: 20,
                                 color: AppColors.greyMedium2,
@@ -113,10 +120,13 @@ class ResetPasswordScreen extends StatelessWidget {
                           8.verticalSpace,
                           AppTextFormField(
                             controller: cubit.passwordConfirmationController,
-                            validator: (value) => AppValidators.validateConfirmPassword(
-                              value,
-                              cubit.passwordController.text, // مقارنة مع الحقل الأول
-                            ),
+                            validator: (value) =>
+                                AppValidators.validateConfirmPassword(
+                                  value,
+                                  cubit
+                                      .passwordController
+                                      .text, // مقارنة مع الحقل الأول
+                                ),
                             isObscureText: cubit.isPasswordConfirmationObscure,
                             isFilled: true,
                             fillColor: AppColors.white,
@@ -128,8 +138,8 @@ class ResetPasswordScreen extends StatelessWidget {
                             ),
                             suffixIcone: IconButton(
                               icon: Icon(
-                                cubit.isPasswordConfirmationObscure 
-                                    ? Icons.visibility 
+                                cubit.isPasswordConfirmationObscure
+                                    ? Icons.visibility
                                     : Icons.visibility_off,
                                 size: 20,
                                 color: AppColors.greyMedium2,
@@ -160,7 +170,9 @@ class ResetPasswordScreen extends StatelessWidget {
                     ),
                     child: AppButton(
                       text: "حفظ وتسجيل الدخول",
-                      isLoading: state is ResetPasswordLoading, // إظهار اللودينج من الكيوبت
+                      isLoading:
+                          state
+                              is ResetPasswordLoading, // إظهار اللودينج من الكيوبت
                       onPressed: () {
                         // التحقق من صحة المدخلات وتطابق كلمتي المرور قبل الإرسال
                         if (cubit.formKey.currentState!.validate()) {

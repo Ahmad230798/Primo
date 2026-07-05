@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:primo/core/models/order_model.dart';
 
-// استخدام sealed يغلق الكلاس ويجبر المترجم على التحقق من كل الحالات
 sealed class CheckoutState extends Equatable {
   const CheckoutState();
 
@@ -8,31 +8,34 @@ sealed class CheckoutState extends Equatable {
   List<Object?> get props => [];
 }
 
-// 1. الحالة الابتدائية
 final class CheckoutInitial extends CheckoutState {}
 
-// 2. حالة التحديث (يجب أن تحمل المتغيرات معها ليقارنها Equatable)
+final class CheckoutPriceLoading extends CheckoutState {}
+
 final class CheckoutUpdated extends CheckoutState {
   final int selectedDeliveryMethod;
-  final String selectedAddressId;
+  final String? selectedAddressId;
+  final OrderPriceModel? priceModel;
 
   const CheckoutUpdated({
     required this.selectedDeliveryMethod,
-    required this.selectedAddressId,
+    this.selectedAddressId,
+    this.priceModel,
   });
 
-  // هنا السحر: نخبر Equatable أن يقارن بناءً على هذه المتغيرات فقط
   @override
-  List<Object?> get props => [selectedDeliveryMethod, selectedAddressId];
+  List<Object?> get props => [selectedDeliveryMethod, selectedAddressId, priceModel];
 }
 
-// 3. حالة التحميل
 final class CheckoutLoading extends CheckoutState {}
 
-// 4. حالة النجاح
-final class CheckoutSuccess extends CheckoutState {}
+final class CheckoutSuccess extends CheckoutState {
+  final OrderModel? order;
+  const CheckoutSuccess({this.order});
+  @override
+  List<Object?> get props => [order];
+}
 
-// 5. حالة الخطأ (تحمل رسالة الخطأ معها)
 final class CheckoutError extends CheckoutState {
   final String message;
 

@@ -7,12 +7,18 @@ class CustomCounter extends StatelessWidget {
   final double? width;
   final double? horizontalPadding;
   final double? verticalPadding;
+  final int count;
+  final VoidCallback? onIncrement;
+  final VoidCallback? onDecrement;
 
   const CustomCounter({
     super.key,
     this.width,
     this.horizontalPadding,
     this.verticalPadding,
+    this.count = 1,
+    this.onIncrement,
+    this.onDecrement,
   });
 
   @override
@@ -31,9 +37,15 @@ class CustomCounter extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.add, color: AppColors.primary),
-          Text("1", style: AppTextStyle.font20),
-          Center(child: Icon(Icons.remove)),
+          GestureDetector(
+            onTap: onIncrement,
+            child: Icon(Icons.add, color: AppColors.primary),
+          ),
+          Text("$count", style: AppTextStyle.font20),
+          GestureDetector(
+            onTap: onDecrement,
+            child: Center(child: Icon(Icons.remove)),
+          ),
         ],
       ),
     );

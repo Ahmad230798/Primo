@@ -65,7 +65,7 @@ class LoginScreen extends StatelessWidget {
                   context.pushNamedAndRemoveUntil(Routes.adminHome);
                 } else {
                   // توجيه المستخدم العادي إلى التطبيق
-                  context.pushNamedAndRemoveUntil(Routes.home);
+                  context.pushNamedAndRemoveUntil(Routes.userMainLayout);
                 }
               }
             },

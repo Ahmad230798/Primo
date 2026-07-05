@@ -15,6 +15,8 @@ VariantModel _$VariantModelFromJson(Map<String, dynamic> json) => VariantModel(
   isActive: (json['is_active'] as num?)?.toInt(),
   hasActiveOffer: json['has_active_offer'] as bool?,
   offerId: (json['offer_id'] as num?)?.toInt(),
+  discountAmount: json['discount_amount'],
+  newPrice: json['new_price'],
 );
 
 Map<String, dynamic> _$VariantModelToJson(VariantModel instance) =>
@@ -27,4 +29,6 @@ Map<String, dynamic> _$VariantModelToJson(VariantModel instance) =>
       'is_active': instance.isActive,
       'has_active_offer': instance.hasActiveOffer,
       'offer_id': instance.offerId,
+      'discount_amount': instance.discountAmount,
+      'new_price': instance.newPrice,
     };

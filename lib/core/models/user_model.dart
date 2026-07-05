@@ -26,6 +26,18 @@ class UserModel {
     this.avatar,
   });
 
+  String? get fullAvatarUrl {
+    if (avatar == null || avatar!.isEmpty) return null;
+    if (avatar!.startsWith('http://') || avatar!.startsWith('https://')) {
+      return avatar;
+    }
+    const baseUrl = 'https://api.primo-market.cloud';
+    if (avatar!.startsWith('/')) {
+      return '$baseUrl$avatar';
+    }
+    return '$baseUrl/$avatar';
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 }

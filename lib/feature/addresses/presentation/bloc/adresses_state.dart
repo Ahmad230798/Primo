@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../data/models/address_model.dart';
 
 sealed class AddressesState extends Equatable {
   const AddressesState();
@@ -9,12 +10,43 @@ sealed class AddressesState extends Equatable {
 
 final class AddressesInitial extends AddressesState {}
 
-// حالة تحميل العناوين بنجاح (تحمل القائمة معها)
-final class AddressesLoaded extends AddressesState {
-  final List<Map<String, dynamic>> addresses;
+final class AddressesLoading extends AddressesState {}
 
-  const AddressesLoaded({required this.addresses});
+final class AddressesLoaded extends AddressesState {
+  final List<AddressModel> addresses;
+  final int? defaultAddressId;
+
+  const AddressesLoaded({required this.addresses, this.defaultAddressId});
 
   @override
-  List<Object?> get props => [addresses]; // لمراقبة أي تغيير في القائمة وإعادة الرسم
+  List<Object?> get props => [addresses, defaultAddressId];
+}
+
+final class AddressesError extends AddressesState {
+  final String message;
+
+  const AddressesError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+final class AddressActionLoading extends AddressesState {}
+
+final class AddressActionSuccess extends AddressesState {
+  final String message;
+
+  const AddressActionSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+final class AddressActionError extends AddressesState {
+  final String message;
+
+  const AddressActionError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
 }
