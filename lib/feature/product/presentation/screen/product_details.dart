@@ -17,10 +17,16 @@ import 'package:primo/feature/product/presentation/cubit/product_cubit.dart';
 import 'package:primo/feature/product/presentation/cubit/product_state.dart';
 import 'package:primo/feature/product/presentation/widgets/description_section.dart';
 
-class ProductDetails extends StatelessWidget {
+class ProductDetails extends StatefulWidget {
   final ProductModel? initialProduct;
-
   const ProductDetails({super.key, this.initialProduct});
+
+  @override
+  State<ProductDetails> createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<ProductDetails> {
+  int currentQuantity = 1; // المتغير المحلي للعداد
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +35,7 @@ class ProductDetails extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<ProductCubit, ProductState>(
           builder: (context, state) {
-            ProductModel? product = initialProduct;
+            ProductModel? product = widget.initialProduct;
             if (state is ProductLoaded) {
               product = state.product;
             }
@@ -90,7 +96,7 @@ class ProductDetails extends StatelessWidget {
                                     color: AppColors.greyBackground,
                                     borderRadius: BorderRadius.circular(16.r),
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.image_not_supported,
                                     size: 80,
                                     color: AppColors.greyMedium2,
@@ -106,7 +112,7 @@ class ProductDetails extends StatelessWidget {
                                 color: AppColors.greyBackground,
                                 borderRadius: BorderRadius.circular(16.r),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.image_not_supported,
                                 size: 80,
                                 color: AppColors.greyMedium2,
@@ -187,9 +193,19 @@ class ProductDetails extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 CustomCounter(
-                  count: cubit.quantity,
-                  onIncrement: () => cubit.incrementQuantity(),
-                  onDecrement: () => cubit.decrementQuantity(),
+                  count: currentQuantity,
+                  onIncrement: () {
+                    setState(() {
+                      currentQuantity++;
+                    });
+                  },
+                  onDecrement: () {
+                    if (currentQuantity > 1) {
+                      setState(() {
+                        currentQuantity--;
+                      });
+                    }
+                  },
                 ),
                 16.verticalSpace,
                 AppButton(
@@ -200,8 +216,10 @@ class ProductDetails extends StatelessWidget {
                         cubit.selectedVariant!.id != null) {
                       getIt<CartCubit>().addToCart(
                         cubit.selectedVariant!.id!,
-                        cubit.quantity,
+                        currentQuantity,
                       );
+                      // تحديث السلة إجبارياً بعد الإضافة
+                      getIt<CartCubit>().getCart(showLoading: false);
                       context.showSuccess("تم إضافة المنتج إلى السلة بنجاح");
                     } else {
                       context.showError("الرجاء اختيار خصائص المنتج أولاً");

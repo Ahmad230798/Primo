@@ -8,10 +8,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   final GetOrderPriceUseCase _getOrderPriceUseCase;
   final ConfirmOrderUseCase _confirmOrderUseCase;
 
-  CheckoutCubit(
-    this._getOrderPriceUseCase,
-    this._confirmOrderUseCase,
-  ) : super(CheckoutInitial());
+  CheckoutCubit(this._getOrderPriceUseCase, this._confirmOrderUseCase)
+    : super(CheckoutInitial());
 
   // 0 = توصيل للعنوان (is_delivery: 1), 1 = استلام من المتجر (is_delivery: 0)
   int selectedDeliveryMethod = 0;
@@ -19,8 +17,11 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   OrderPriceModel? currentPrice;
 
   double get subTotal => currentPrice?.itemPrice.toDouble() ?? 0.0;
-  double get deliveryFee => currentPrice?.deliveryPrice.toDouble() ?? (selectedDeliveryMethod == 0 ? 0.0 : 0.0);
-  double get total => currentPrice?.totalPrice.toDouble() ?? (subTotal + deliveryFee);
+  double get deliveryFee =>
+      currentPrice?.deliveryPrice.toDouble() ??
+      (selectedDeliveryMethod == 0 ? 0.0 : 0.0);
+  double get total =>
+      currentPrice?.totalPrice.toDouble() ?? (subTotal + deliveryFee);
 
   Future<void> initCheckout(String? defaultAddressId) async {
     selectedAddressId = defaultAddressId;
@@ -28,26 +29,46 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   }
 
   Future<void> calculatePrice() async {
-    emit(CheckoutPriceLoading());
-    final isDeliveryParam = selectedDeliveryMethod == 0 ? 1 : 0;
-    final result = await _getOrderPriceUseCase(isDeliveryParam, selectedAddressId);
-    result.fold(
-      (failure) {
-        // في حال الخطأ نعرض رسالة الخطأ لكن نحتفظ بالحالة المحدثة
-        emit(CheckoutError(failure.errorMessage));
-        emit(CheckoutUpdated(
+    // إيقاف استدعاء الـ API إذا كان التوصيل للمنزل ولم يتم اختيار عنوان بعد لتفادي 0.00
+    if (selectedDeliveryMethod == 0 &&
+        (selectedAddressId == null || selectedAddressId!.isEmpty)) {
+      currentPrice = null;
+      emit(
+        CheckoutUpdated(
           selectedDeliveryMethod: selectedDeliveryMethod,
           selectedAddressId: selectedAddressId,
-          priceModel: currentPrice,
-        ));
+          priceModel: null,
+        ),
+      );
+      return;
+    }
+
+    emit(CheckoutPriceLoading());
+    final isDeliveryParam = selectedDeliveryMethod == 0 ? 1 : 0;
+    final result = await _getOrderPriceUseCase(
+      isDeliveryParam,
+      selectedAddressId,
+    );
+    result.fold(
+      (failure) {
+        emit(CheckoutError(failure.errorMessage));
+        emit(
+          CheckoutUpdated(
+            selectedDeliveryMethod: selectedDeliveryMethod,
+            selectedAddressId: selectedAddressId,
+            priceModel: currentPrice,
+          ),
+        );
       },
       (priceModel) {
         currentPrice = priceModel;
-        emit(CheckoutUpdated(
-          selectedDeliveryMethod: selectedDeliveryMethod,
-          selectedAddressId: selectedAddressId,
-          priceModel: priceModel,
-        ));
+        emit(
+          CheckoutUpdated(
+            selectedDeliveryMethod: selectedDeliveryMethod,
+            selectedAddressId: selectedAddressId,
+            priceModel: priceModel,
+          ),
+        );
       },
     );
   }
@@ -65,22 +86,28 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   }
 
   Future<void> submitOrder() async {
-    if (selectedDeliveryMethod == 0 && (selectedAddressId == null || selectedAddressId!.isEmpty)) {
+    if (selectedDeliveryMethod == 0 &&
+        (selectedAddressId == null || selectedAddressId!.isEmpty)) {
       emit(const CheckoutError("الرجاء اختيار عنوان التوصيل أولاً"));
       return;
     }
 
     emit(CheckoutLoading());
     final isDeliveryParam = selectedDeliveryMethod == 0 ? 1 : 0;
-    final result = await _confirmOrderUseCase(isDeliveryParam, selectedAddressId);
+    final result = await _confirmOrderUseCase(
+      isDeliveryParam,
+      selectedAddressId,
+    );
     result.fold(
       (failure) {
         emit(CheckoutError(failure.errorMessage));
-        emit(CheckoutUpdated(
-          selectedDeliveryMethod: selectedDeliveryMethod,
-          selectedAddressId: selectedAddressId,
-          priceModel: currentPrice,
-        ));
+        emit(
+          CheckoutUpdated(
+            selectedDeliveryMethod: selectedDeliveryMethod,
+            selectedAddressId: selectedAddressId,
+            priceModel: currentPrice,
+          ),
+        );
       },
       (order) {
         emit(CheckoutSuccess(order: order));

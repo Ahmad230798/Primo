@@ -9,11 +9,13 @@ import 'package:primo/feature/orders/presentation/widgets/order_info.dart';
 import 'package:primo/feature/orders/presentation/widgets/order_state.dart';
 
 class OrderTracking extends StatelessWidget {
-  const OrderTracking({super.key});
+  final OrderModel? orderArg;
+  const OrderTracking({super.key, this.orderArg});
 
   @override
   Widget build(BuildContext context) {
-    final orderArg = ModalRoute.of(context)?.settings.arguments as OrderModel?;
+    final passedOrder =
+        orderArg ?? ModalRoute.of(context)?.settings.arguments as OrderModel?;
 
     return Scaffold(
       body: SafeArea(
@@ -25,7 +27,7 @@ class OrderTracking extends StatelessWidget {
               children: [
                 const CustomAppBar(title: "Primo"),
                 32.verticalSpace,
-                OrderInfo(order: orderArg),
+                OrderInfo(order: passedOrder),
                 32.verticalSpace,
                 Text(
                   "حالة الطلب",
@@ -34,7 +36,7 @@ class OrderTracking extends StatelessWidget {
                   ),
                 ),
                 24.verticalSpace,
-                OrderState(order: orderArg),
+                OrderState(order: passedOrder),
                 32.verticalSpace,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

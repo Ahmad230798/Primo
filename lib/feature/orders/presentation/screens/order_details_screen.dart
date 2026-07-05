@@ -17,12 +17,13 @@ import 'package:primo/feature/orders/presentation/widgets/order_info_card.dart';
 import 'package:primo/feature/orders/presentation/widgets/order_item_card.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
-  const OrderDetailsScreen({super.key});
+  final OrderModel? orderArg; // استقبال البيانات هنا
+  const OrderDetailsScreen({super.key, this.orderArg});
 
   @override
   Widget build(BuildContext context) {
-    final orderArg = ModalRoute.of(context)?.settings.arguments as OrderModel?;
-
+    final passedOrder =
+        orderArg ?? ModalRoute.of(context)?.settings.arguments as OrderModel?;
     return BlocProvider(
       create: (_) => getIt<OrdersCubit>(),
       child: Scaffold(
@@ -37,7 +38,7 @@ class OrderDetailsScreen extends StatelessWidget {
               }
             },
             builder: (context, state) {
-              OrderModel? order = orderArg;
+              OrderModel? order = passedOrder;
               if (state is SingleOrderLoaded) {
                 order = state.order;
               }
@@ -55,7 +56,8 @@ class OrderDetailsScreen extends StatelessWidget {
                 );
               }
 
-              final isCompleted = order.status.toLowerCase() == 'completed' ||
+              final isCompleted =
+                  order.status.toLowerCase() == 'completed' ||
                   order.status.toLowerCase() == 'delivered';
 
               return Column(
@@ -75,7 +77,10 @@ class OrderDetailsScreen extends StatelessWidget {
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.w,
+                        vertical: 20.h,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -100,10 +105,10 @@ class OrderDetailsScreen extends StatelessWidget {
                                 showRating: isCompleted,
                                 onRate: (rating) {
                                   context.read<OrdersCubit>().rateProduct(
-                                        item.id,
-                                        order!.id,
-                                        rating,
-                                      );
+                                    item.id,
+                                    order!.id,
+                                    rating,
+                                  );
                                 },
                               );
                             },
@@ -115,7 +120,9 @@ class OrderDetailsScreen extends StatelessWidget {
                               color: AppColors.white,
                               borderRadius: BorderRadius.circular(16.r),
                               border: Border.all(
-                                color: AppColors.formBorder.withValues(alpha: 0.3),
+                                color: AppColors.formBorder.withValues(
+                                  alpha: 0.3,
+                                ),
                               ),
                             ),
                             child: Column(
@@ -130,7 +137,10 @@ class OrderDetailsScreen extends StatelessWidget {
                                   value: "${order.deliveryAmount} ل.س",
                                 ),
                                 16.verticalSpace,
-                                Divider(color: AppColors.formBorder, thickness: 1),
+                                Divider(
+                                  color: AppColors.formBorder,
+                                  thickness: 1,
+                                ),
                                 16.verticalSpace,
                                 BuildSummaryRow(
                                   title: "الإجمالي",
@@ -151,7 +161,9 @@ class OrderDetailsScreen extends StatelessWidget {
                       bottom: 24.h,
                       top: 16.h,
                     ),
-                    decoration: const BoxDecoration(color: AppColors.background),
+                    decoration: const BoxDecoration(
+                      color: AppColors.background,
+                    ),
                     child: AppButton(
                       text: "إعادة طلب هذه المنتجات",
                       icon: Icons.add_shopping_cart,

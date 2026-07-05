@@ -13,6 +13,7 @@ import 'package:primo/feature/addresses/presentation/bloc/adresses_state.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/orders/presentation/bloc/checkout_cubit.dart';
 import 'package:primo/feature/orders/presentation/bloc/checkout_state.dart';
+import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/orders/presentation/widgets/adress_selection_sheet.dart';
 import 'package:primo/feature/orders/presentation/widgets/delivery_method_card.dart';
 import 'package:primo/feature/orders/presentation/widgets/summary_row.dart';
@@ -94,7 +95,8 @@ class CheckoutScreen extends StatelessWidget {
                               ),
                               InkWell(
                                 onTap: () {
-                                  final addressesCubit = context.read<AddressesCubit>();
+                                  final addressesCubit = context
+                                      .read<AddressesCubit>();
                                   showModalBottomSheet(
                                     context: context,
                                     isScrollControlled: true,
@@ -102,7 +104,9 @@ class CheckoutScreen extends StatelessWidget {
                                     builder: (_) => MultiBlocProvider(
                                       providers: [
                                         BlocProvider.value(value: cubit),
-                                        BlocProvider.value(value: addressesCubit),
+                                        BlocProvider.value(
+                                          value: addressesCubit,
+                                        ),
                                       ],
                                       child: const AddressSelectionSheet(),
                                     ),
@@ -121,10 +125,16 @@ class CheckoutScreen extends StatelessWidget {
                           16.verticalSpace,
                           BlocBuilder<AddressesCubit, AddressesState>(
                             builder: (context, addrState) {
-                              final addresses = context.read<AddressesCubit>().addresses;
-                              final selectedAddr = addresses.where(
-                                (a) => a.id.toString() == cubit.selectedAddressId,
-                              ).firstOrNull;
+                              final addresses = context
+                                  .read<AddressesCubit>()
+                                  .addresses;
+                              final selectedAddr = addresses
+                                  .where(
+                                    (a) =>
+                                        a.id.toString() ==
+                                        cubit.selectedAddressId,
+                                  )
+                                  .firstOrNull;
 
                               return Container(
                                 padding: EdgeInsets.all(16.w),
@@ -132,7 +142,9 @@ class CheckoutScreen extends StatelessWidget {
                                   color: AppColors.white,
                                   borderRadius: BorderRadius.circular(16.r),
                                   border: Border.all(
-                                    color: AppColors.formBorder.withValues(alpha: 0.3),
+                                    color: AppColors.formBorder.withValues(
+                                      alpha: 0.3,
+                                    ),
                                   ),
                                 ),
                                 child: Row(
@@ -140,10 +152,12 @@ class CheckoutScreen extends StatelessWidget {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            selectedAddr?.name ?? "لم يتم تحديد عنوان",
+                                            selectedAddr?.name ??
+                                                "لم يتم تحديد عنوان",
                                             style: AppTextStyle.font16.copyWith(
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.textMain,
@@ -151,7 +165,8 @@ class CheckoutScreen extends StatelessWidget {
                                           ),
                                           8.verticalSpace,
                                           Text(
-                                            selectedAddr?.description ?? "الرجاء النقر على (تغيير) لاختيار عنوان توصيل",
+                                            selectedAddr?.description ??
+                                                "الرجاء النقر على (تغيير) لاختيار عنوان توصيل",
                                             style: AppTextStyle.font14.copyWith(
                                               color: AppColors.greyMedium3,
                                               height: 1.5,
@@ -195,7 +210,9 @@ class CheckoutScreen extends StatelessWidget {
                             color: AppColors.white,
                             borderRadius: BorderRadius.circular(16.r),
                             border: Border.all(
-                              color: AppColors.formBorder.withValues(alpha: 0.3),
+                              color: AppColors.formBorder.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                           ),
                           child: state is CheckoutPriceLoading
@@ -209,12 +226,14 @@ class CheckoutScreen extends StatelessWidget {
                                   children: [
                                     SummaryRow(
                                       title: "المجموع الفرعي",
-                                      value: "${cubit.subTotal.toStringAsFixed(2)} ل.س",
+                                      value:
+                                          "${cubit.subTotal.toStringAsFixed(2)} ل.س",
                                     ),
                                     12.verticalSpace,
                                     SummaryRow(
                                       title: "رسوم التوصيل",
-                                      value: "${cubit.deliveryFee.toStringAsFixed(2)} ل.س",
+                                      value:
+                                          "${cubit.deliveryFee.toStringAsFixed(2)} ل.س",
                                     ),
                                     16.verticalSpace,
                                     const Divider(
@@ -224,7 +243,8 @@ class CheckoutScreen extends StatelessWidget {
                                     16.verticalSpace,
                                     SummaryRow(
                                       title: "الإجمالي",
-                                      value: "${cubit.total.toStringAsFixed(2)} ل.س",
+                                      value:
+                                          "${cubit.total.toStringAsFixed(2)} ل.س",
                                       isTotal: true,
                                     ),
                                   ],
@@ -247,22 +267,46 @@ class CheckoutScreen extends StatelessWidget {
               child: BlocConsumer<CheckoutCubit, CheckoutState>(
                 listener: (context, state) {
                   if (state is CheckoutSuccess) {
-                    getIt<CartCubit>().getCart();
+                    getIt<CartCubit>().getCart(
+                      showLoading: false,
+                    ); // تحديث السلة
+                    getIt<OrdersCubit>().getOrders(); // تحديث الطلبات
                     context.showSuccess("تم تأكيد الطلب بنجاح!");
-                    Navigator.pushReplacementNamed(context, Routes.orderHistory);
+                    Navigator.pushReplacementNamed(
+                      context,
+                      Routes.orderHistory,
+                    );
                   } else if (state is CheckoutError) {
                     context.showError(state.message);
                   }
                 },
                 builder: (context, state) {
+                  final cubit = context.read<CheckoutCubit>();
                   return AppButton(
                     text: "تأكيد الطلب",
                     icon: Icons.lock_outline_rounded,
                     isLoading: state is CheckoutLoading,
                     onPressed: () {
-                      if (state is! CheckoutLoading) {
-                        context.read<CheckoutCubit>().submitOrder();
+                      if (state is CheckoutLoading) return;
+
+                      if (cubit.selectedDeliveryMethod == 0) {
+                        final addressesCubit = context.read<AddressesCubit>();
+                        final selectedAddr = addressesCubit.addresses
+                            .where(
+                              (a) => a.id.toString() == cubit.selectedAddressId,
+                            )
+                            .firstOrNull;
+
+                        if (selectedAddr == null) {
+                          context.showError(
+                            "الرجاء اختيار عنوان التوصيل أولاً",
+                          );
+                          return;
+                        }
+                        // تم إزالة فحص الـ lat و lng ليتوافق مع الـ AddressModel الخاص بك
                       }
+
+                      cubit.submitOrder();
                     },
                   );
                 },

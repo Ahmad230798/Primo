@@ -200,11 +200,21 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<AddressesRepo>(
     () => AddressesRepoImpl(getIt<ApiConsumer>()),
   );
-  getIt.registerLazySingleton(() => GetAddressesUseCase(getIt<AddressesRepo>()));
-  getIt.registerLazySingleton(() => GetAddressByIdUseCase(getIt<AddressesRepo>()));
-  getIt.registerLazySingleton(() => CreateAddressUseCase(getIt<AddressesRepo>()));
-  getIt.registerLazySingleton(() => UpdateAddressUseCase(getIt<AddressesRepo>()));
-  getIt.registerLazySingleton(() => DeleteAddressUseCase(getIt<AddressesRepo>()));
+  getIt.registerLazySingleton(
+    () => GetAddressesUseCase(getIt<AddressesRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetAddressByIdUseCase(getIt<AddressesRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => CreateAddressUseCase(getIt<AddressesRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => UpdateAddressUseCase(getIt<AddressesRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => DeleteAddressUseCase(getIt<AddressesRepo>()),
+  );
   getIt.registerFactory(
     () => AddressesCubit(
       getIt<GetAddressesUseCase>(),
@@ -226,25 +236,39 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<ProductRepo>(
     () => ProductRepoImpl(getIt<ApiConsumer>()),
   );
-  getIt.registerLazySingleton(() => GetProductDetailsUseCase(getIt<ProductRepo>()));
+  getIt.registerLazySingleton(
+    () => GetProductDetailsUseCase(getIt<ProductRepo>()),
+  );
   getIt.registerFactory(() => ProductCubit(getIt<GetProductDetailsUseCase>()));
 
   // ================= CATEGORIES & SEARCH =================
   getIt.registerLazySingleton<UserCategoriesRepo>(
     () => UserCategoriesRepoImpl(getIt<ApiConsumer>()),
   );
-  getIt.registerLazySingleton(() => GetUserCategoriesUseCase(getIt<UserCategoriesRepo>()));
-  getIt.registerLazySingleton(() => GetCategoryProductsUseCase(getIt<UserCategoriesRepo>()));
-  getIt.registerLazySingleton(() => UserCategoriesCubit(getIt<GetUserCategoriesUseCase>()));
-  getIt.registerFactory(() => CategoryProductsCubit(getIt<GetCategoryProductsUseCase>()));
+  getIt.registerLazySingleton(
+    () => GetUserCategoriesUseCase(getIt<UserCategoriesRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetCategoryProductsUseCase(getIt<UserCategoriesRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => UserCategoriesCubit(getIt<GetUserCategoriesUseCase>()),
+  );
+  getIt.registerFactory(
+    () => CategoryProductsCubit(getIt<GetCategoryProductsUseCase>()),
+  );
   getIt.registerFactory(() => SearchCubit(getIt<GetHomeDataUseCase>()));
 
   // ================= FAVORITES =================
   getIt.registerLazySingleton<FavoritesRepo>(
     () => FavoritesRepoImpl(getIt<ApiConsumer>()),
   );
-  getIt.registerLazySingleton(() => GetFavoritesUseCase(getIt<FavoritesRepo>()));
-  getIt.registerLazySingleton(() => ToggleFavoriteUseCase(getIt<FavoritesRepo>()));
+  getIt.registerLazySingleton(
+    () => GetFavoritesUseCase(getIt<FavoritesRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => ToggleFavoriteUseCase(getIt<FavoritesRepo>()),
+  );
   getIt.registerLazySingleton(
     () => FavoritesCubit(
       getIt<GetFavoritesUseCase>(),
@@ -258,7 +282,9 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton(() => GetCartUseCase(getIt<CartRepo>()));
   getIt.registerLazySingleton(() => AddToCartUseCase(getIt<CartRepo>()));
-  getIt.registerLazySingleton(() => UpdateCartQuantityUseCase(getIt<CartRepo>()));
+  getIt.registerLazySingleton(
+    () => UpdateCartQuantityUseCase(getIt<CartRepo>()),
+  );
   getIt.registerLazySingleton(() => DeleteFromCartUseCase(getIt<CartRepo>()));
   getIt.registerLazySingleton(
     () => CartCubit(
@@ -277,7 +303,9 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(() => GetOrderByIdUseCase(getIt<OrdersRepo>()));
   getIt.registerLazySingleton(() => GetOrderPriceUseCase(getIt<OrdersRepo>()));
   getIt.registerLazySingleton(() => ConfirmOrderUseCase(getIt<OrdersRepo>()));
-  getIt.registerLazySingleton(() => RateProductInOrderUseCase(getIt<OrdersRepo>()));
+  getIt.registerLazySingleton(
+    () => RateProductInOrderUseCase(getIt<OrdersRepo>()),
+  );
 
   getIt.registerFactory(
     () => CheckoutCubit(
@@ -286,7 +314,8 @@ void setupServiceLocator() {
     ),
   );
 
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
+    // <--- يجب أن تكون LazySingleton
     () => OrdersCubit(
       getIt<GetOrdersUseCase>(),
       getIt<GetOrderByIdUseCase>(),
