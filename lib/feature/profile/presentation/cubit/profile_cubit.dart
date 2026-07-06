@@ -39,17 +39,16 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> getProfile() async {
     emit(ProfileLoading());
     final response = await _getProfileUseCase.execute();
-    response.fold(
-      (failure) => emit(ProfileError(failure.errorMessage)),
-      (data) {
-        user = data.data;
-        if (user != null) {
-          emit(ProfileLoaded(user!));
-        } else {
-          emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
-        }
-      },
-    );
+    response.fold((failure) => emit(ProfileError(failure.errorMessage)), (
+      data,
+    ) {
+      user = data.data;
+      if (user != null) {
+        emit(ProfileLoaded(user!));
+      } else {
+        emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
+      }
+    });
   }
 
   Future<void> updateProfile({
@@ -64,19 +63,23 @@ class ProfileCubit extends Cubit<ProfileState> {
       avatar: avatar ?? selectedAvatar,
     );
     final response = await _updateProfileUseCase.execute(body);
-    response.fold(
-      (failure) => emit(UpdateProfileError(failure.errorMessage)),
-      (data) {
-        if (data.data != null) {
-          user = data.data;
-          selectedAvatar = null;
-          emit(UpdateProfileSuccess(user!, data.message ?? "تم تحديث الملف الشخصي بنجاح"));
-          emit(ProfileLoaded(user!));
-        } else {
-          emit(const UpdateProfileError("فشل تحديث البيانات"));
-        }
-      },
-    );
+    response.fold((failure) => emit(UpdateProfileError(failure.errorMessage)), (
+      data,
+    ) {
+      if (data.data != null) {
+        user = data.data;
+        selectedAvatar = null;
+        emit(
+          UpdateProfileSuccess(
+            user!,
+            data.message ?? "تم تحديث الملف الشخصي بنجاح",
+          ),
+        );
+        emit(ProfileLoaded(user!));
+      } else {
+        emit(const UpdateProfileError("فشل تحديث البيانات"));
+      }
+    });
   }
 
   Future<void> changePassword({
@@ -104,12 +107,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> deleteAccount() async {
     emit(DeleteAccountLoading());
     final response = await _deleteAccountUseCase.execute();
-    response.fold(
-      (failure) => emit(DeleteAccountError(failure.errorMessage)),
-      (message) async {
-        await AppStorage.clearAllData();
-        emit(DeleteAccountSuccess(message));
-      },
-    );
+    response.fold((failure) => emit(DeleteAccountError(failure.errorMessage)), (
+      message,
+    ) async {
+      await AppStorage.clearAllData();
+      emit(DeleteAccountSuccess(message));
+    });
   }
 }

@@ -14,8 +14,8 @@ class ChangePasswordRequestBody {
   FormData toFormData() {
     return FormData.fromMap({
       'current_password': currentPassword,
-      'new_password': newPassword,
-      'new_password_confirmation': newPasswordConfirmation,
+      'password': newPassword,
+      'password_confirmation': newPasswordConfirmation,
     });
   }
 }

@@ -54,7 +54,9 @@ class DioFactory {
             ApiConstant.resendOtp,
             '/confirm-login',
           ];
-          if (authPaths.any((path) => error.requestOptions.path.contains(path))) {
+          if (authPaths.any(
+            (path) => error.requestOptions.path.contains(path),
+          )) {
             return handler.next(error);
           }
 
@@ -63,7 +65,8 @@ class DioFactory {
 
             if (refreshToken != null && refreshToken.isNotEmpty) {
               if (_isRefreshing) {
-                final success = await (_refreshCompleter?.future ?? Future.value(false));
+                final success =
+                    await (_refreshCompleter?.future ?? Future.value(false));
                 if (success) {
                   final newAccessToken = await AppStorage.getAccessToken();
                   final options = error.requestOptions;
@@ -105,8 +108,12 @@ class DioFactory {
                       newAccessToken = responseData['data']['access_token'];
                       newRefreshToken = responseData['data']['refresh_token'];
                     } else {
-                      newAccessToken = responseData['access_token'] ?? responseData['access'];
-                      newRefreshToken = responseData['refresh_token'] ?? responseData['refresh'];
+                      newAccessToken =
+                          responseData['access_token'] ??
+                          responseData['access'];
+                      newRefreshToken =
+                          responseData['refresh_token'] ??
+                          responseData['refresh'];
                     }
                   }
 

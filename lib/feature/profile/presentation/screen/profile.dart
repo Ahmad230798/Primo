@@ -97,7 +97,7 @@ class Profile extends StatelessWidget {
                       ProfileImageHolder(
                         imagePath:
                             user?.fullAvatarUrl ??
-                            user?.avatar ??
+                            user?.fullAvatarUrl ??
                             "assets/images/profile_image.jpg",
                         iconData: Icons.edit,
                         onTap: () => Navigator.pushNamed(

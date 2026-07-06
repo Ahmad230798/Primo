@@ -17,6 +17,7 @@ class UpdateProfileRequestBody {
       '_method': 'PATCH',
       'name': name,
     };
+  
     if (phone != null && phone!.isNotEmpty) {
       map['phone'] = phone;
     }
