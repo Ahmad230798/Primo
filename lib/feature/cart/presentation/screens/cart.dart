@@ -52,6 +52,7 @@ class Cart extends StatelessWidget {
                         Icons.notifications_none,
                         color: AppColors.greyMedium1,
                       ),
+                      onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
                     ),
                   ),
                   20.verticalSpace,

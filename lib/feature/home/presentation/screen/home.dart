@@ -23,7 +23,17 @@ class Home extends StatelessWidget {
             padding: EdgeInsets.only(bottom: 120.h),
             child: Column(
               children: [
-                CustomAppBar(title: "Primo", suffixsIcon: Icon(Icons.person)),
+                CustomAppBar(
+                  title: "Primo",
+                  showRightIcon: true,
+                  icon: Icon(
+                    Icons.notifications_none_rounded,
+                    color: AppColors.primary,
+                    size: 28,
+                  ),
+                  onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
+                  suffixsIcon: Icon(Icons.person, color: AppColors.primary, size: 28),
+                ),
                 8.verticalSpace,
                 // في ملف home.dart ، استبدل AppTextFormField بهذا الكود:
                 GestureDetector(

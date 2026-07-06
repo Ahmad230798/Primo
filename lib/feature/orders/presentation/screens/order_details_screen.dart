@@ -164,16 +164,38 @@ class OrderDetailsScreen extends StatelessWidget {
                     decoration: const BoxDecoration(
                       color: AppColors.background,
                     ),
-                    child: AppButton(
-                      text: "إعادة طلب هذه المنتجات",
-                      icon: Icons.add_shopping_cart,
-                      onPressed: () {
-                        for (final item in order!.items) {
-                          getIt<CartCubit>().addToCart(item.id, item.quantity);
-                        }
-                        context.showSuccess("تم إضافة المنتجات لسلة المشتريات");
-                        Navigator.pushNamed(context, Routes.cart);
-                      },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AppButton(
+                          text: "تتبع حالة الطلب",
+                          icon: Icons.map_outlined,
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              Routes.orderTracking,
+                              arguments: order,
+                            );
+                          },
+                        ),
+                        12.verticalSpace,
+                        AppButton(
+                          text: "إعادة طلب هذه المنتجات",
+                          icon: Icons.add_shopping_cart,
+                          onPressed: () {
+                            for (final item in order!.items) {
+                              getIt<CartCubit>().addToCart(
+                                item.id,
+                                item.quantity,
+                              );
+                            }
+                            context.showSuccess(
+                              "تم إضافة المنتجات لسلة المشتريات",
+                            );
+                            Navigator.pushNamed(context, Routes.cart);
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ],

@@ -37,4 +37,8 @@ abstract class ApiConstant {
   static const String orderPrice = "/user/ordar/price";
   static const String orderConfirm = "/user/ordar/confirme";
   static const String userOrders = "/user/ordars";
+
+  // --- Notifications & Suggestions ---
+  static const String userNotifications = "/user/notifications";
+  static const String userSuggestions = "/user/suggestions";
 }

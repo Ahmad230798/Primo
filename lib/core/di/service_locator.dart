@@ -79,6 +79,15 @@ import 'package:primo/feature/cart/domain/usecases/add_to_cart_usecase.dart';
 import 'package:primo/feature/cart/domain/usecases/update_cart_quantity_usecase.dart';
 import 'package:primo/feature/cart/domain/usecases/delete_from_cart_usecase.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:primo/feature/notifications/data/repos/notification_settings_repo_impl.dart';
+import 'package:primo/feature/notifications/domain/repos/notification_settings_repo.dart';
+import 'package:primo/feature/notifications/domain/usecases/get_notification_settings_usecase.dart';
+import 'package:primo/feature/notifications/domain/usecases/update_notification_settings_usecase.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
+import 'package:primo/feature/suggestions/data/repos/suggestions_repo_impl.dart';
+import 'package:primo/feature/suggestions/domain/repos/suggestions_repo.dart';
+import 'package:primo/feature/suggestions/domain/usecases/send_suggestion_usecase.dart';
+import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.dart';
 import '../network/api_consumer.dart';
 import '../network/dio_factory.dart';
 
@@ -321,5 +330,27 @@ void setupServiceLocator() {
       getIt<GetOrderByIdUseCase>(),
       getIt<RateProductInOrderUseCase>(),
     ),
+  );
+
+  // --- Notifications Settings ---
+  getIt.registerLazySingleton<NotificationSettingsRepo>(
+    () => NotificationSettingsRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => GetNotificationSettingsUseCase(getIt<NotificationSettingsRepo>()));
+  getIt.registerLazySingleton(() => UpdateNotificationSettingsUseCase(getIt<NotificationSettingsRepo>()));
+  getIt.registerFactory(
+    () => NotificationSettingsCubit(
+      getIt<GetNotificationSettingsUseCase>(),
+      getIt<UpdateNotificationSettingsUseCase>(),
+    ),
+  );
+
+  // --- Suggestions ---
+  getIt.registerLazySingleton<SuggestionsRepo>(
+    () => SuggestionsRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(() => SendSuggestionUseCase(getIt<SuggestionsRepo>()));
+  getIt.registerFactory(
+    () => SuggestionsCubit(getIt<SendSuggestionUseCase>()),
   );
 }

@@ -10,7 +10,7 @@ import 'package:primo/feature/categories/presentation/cubit/user_categories_stat
 import 'package:primo/feature/categories/presentation/widgets/category_grid_card.dart';
 
 class AllCategoriesScreen extends StatelessWidget {
-    final bool isFromBottomNav;
+  final bool isFromBottomNav;
   const AllCategoriesScreen({super.key, required this.isFromBottomNav});
 
   @override
@@ -24,17 +24,13 @@ class AllCategoriesScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: CustomAppBar(
                 title: "تصفح أقسام Primo",
-               suffixsIcon: isFromBottomNav ? const SizedBox() : null,
-                // showRightIcon: true,
-                icon: InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, Routes.searchResults);
-                  },
-                  child: Icon(
-                    Icons.search,
-                    color: AppColors.textMain,
-                    size: 26.sp,
-                  ),
+                showRightIcon: true,
+                onRightIconTap: () =>
+                    Navigator.pushNamed(context, Routes.searchResults),
+                icon: Icon(
+                  Icons.search,
+                  color: AppColors.textMain,
+                  size: 26.sp,
                 ),
               ),
             ),

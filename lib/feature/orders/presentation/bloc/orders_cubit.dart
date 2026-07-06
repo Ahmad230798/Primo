@@ -18,14 +18,33 @@ class OrdersCubit extends Cubit<OrdersState> {
     this._rateProductInOrderUseCase,
   ) : super(OrdersInitial());
 
+  String activeStatus = 'all';
+
   Future<void> getOrders({String? status}) async {
+    if (status != null) {
+      activeStatus = status;
+    }
     emit(OrdersLoading());
-    final result = await _getOrdersUseCase(status: status);
+    final result = await _getOrdersUseCase(status: activeStatus);
     result.fold(
       (failure) => emit(OrdersError(failure.errorMessage)),
       (orders) {
-        currentOrders = orders;
-        emit(OrdersLoaded(orders));
+        List<OrderModel> filtered = orders;
+        if (activeStatus != 'all' && activeStatus.isNotEmpty) {
+          if (activeStatus == 'completed') {
+            filtered = orders
+                .where((o) =>
+                    o.status.toLowerCase() == 'completed' ||
+                    o.status.toLowerCase() == 'delivered')
+                .toList();
+          } else {
+            filtered = orders
+                .where((o) => o.status.toLowerCase() == activeStatus.toLowerCase())
+                .toList();
+          }
+        }
+        currentOrders = filtered;
+        emit(OrdersLoaded(filtered));
       },
     );
   }
