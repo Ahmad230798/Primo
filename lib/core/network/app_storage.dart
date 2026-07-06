@@ -21,20 +21,18 @@ class AppStorage {
   static const String _refreshTokenKey = 'refresh_token';
   static const String _deviceIdKey = 'device_id';
   static const String _roleKey = 'user_role';
-  static const String _isFirstTimeKey = 'is_first_time';static const String _lastOtpTimeKey = 'last_otp_time';
+  static const String _isFirstTimeKey = 'is_first_time';
+  static const String _lastOtpTimeKey = 'last_otp_time';
 
   // حفظ وقت آخر محاولة إرسال
   static Future<void> saveLastOtpTime() async {
-  
     final currentTime = DateTime.now().toIso8601String();
-    await _secureStorage.write(key: _lastOtpTimeKey, value: currentTime); 
-   
+    await _secureStorage.write(key: _lastOtpTimeKey, value: currentTime);
   }
 
   // جلب وقت آخر محاولة
   static Future<String?> getLastOtpTime() async {
     return await _secureStorage.read(key: _lastOtpTimeKey);
-  
   }
 
   // =====================================
@@ -47,7 +45,8 @@ class AppStorage {
     await _secureStorage.write(key: _accessTokenKey, value: accessToken);
     await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
   }
-static Future<void> setAccessToken(String token) async {
+
+  static Future<void> setAccessToken(String token) async {
     await _secureStorage.write(key: _accessTokenKey, value: token);
   }
 
@@ -105,5 +104,26 @@ static Future<void> setAccessToken(String token) async {
 
   static int getUserRole() {
     return _prefs?.getInt(_roleKey) ?? 0;
+  }
+
+  // داخل ملف AppStorage
+  static const String _defaultAddressKey = 'default_address_id';
+
+  // دالة حفظ العنوان الافتراضي
+  static Future<void> saveDefaultAddressId(int addressId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_defaultAddressKey, addressId);
+  }
+
+  // دالة جلب العنوان الافتراضي
+  static Future<int?> getDefaultAddressId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_defaultAddressKey);
+  }
+
+  // دالة مسح العنوان الافتراضي (عند تسجيل الخروج مثلاً)
+  static Future<void> removeDefaultAddressId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_defaultAddressKey);
   }
 }

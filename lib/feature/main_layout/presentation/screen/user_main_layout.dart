@@ -25,20 +25,22 @@ class _UserMainLayoutState extends State<UserMainLayout> {
 
   // قائمة الشاشات التي سيتم التنقل بينها
   final List<Widget> _screens = [
-    const Profile(), // Index 0 (حسابي)
-    const OrderHistoryScreen(), // Index 1 (الطلبات)
-    const Cart(), // Index 2 (السلة)
-    const AllCategoriesScreen(), // Index 3 (الأقسام)
+    const Profile(isFromBottomNav: true,), // Index 0 (حسابي)
+    const OrderHistoryScreen(isFromBottomNav: true,), // Index 1 (الطلبات)
+    const Cart(isFromBottomNav: true,), // Index 2 (السلة)
+    const AllCategoriesScreen(isFromBottomNav: true,), // Index 3 (الأقسام)
     const Home(), // Index 4 (الرئيسية)
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      extendBody: true, // مهمة جداً لجعل الشريط يطفو فوق المحتوى
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: _buildFloatingBottomNavBar(),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        extendBody: true, // مهمة جداً لجعل الشريط يطفو فوق المحتوى
+        body: IndexedStack(index: _currentIndex, children: _screens),
+        bottomNavigationBar: _buildFloatingBottomNavBar(),
+      ),
     );
   }
 

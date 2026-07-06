@@ -87,12 +87,8 @@ class SettingsScreen extends StatelessWidget {
                       color: AppColors.primary,
                       size: 26.sp,
                     ),
+
                     // أيقونة الموقع (يمين)
-                    suffixsIcon: Icon(
-                      Icons.location_on_outlined,
-                      color: AppColors.primary,
-                      size: 26.sp,
-                    ),
                     showRightIcon: true,
                   ),
                 ),

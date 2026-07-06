@@ -11,7 +11,8 @@ import 'package:primo/feature/orders/presentation/bloc/orders_state.dart';
 import 'package:primo/feature/orders/presentation/widgets/order_history_card.dart';
 
 class OrderHistoryScreen extends StatelessWidget {
-  const OrderHistoryScreen({super.key});
+  final bool isFromBottomNav;
+  const OrderHistoryScreen({super.key, required this.isFromBottomNav});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +27,7 @@ class OrderHistoryScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
                 child: CustomAppBar(
                   title: "Primo",
+                  suffixsIcon: isFromBottomNav ? const SizedBox() : null,
                   showRightIcon: true,
                   icon: Icon(
                     Icons.notifications_none,
@@ -83,12 +85,15 @@ class OrderHistoryScreen extends StatelessWidget {
                           children: [
                             Text(
                               state.errorMessage,
-                              style: AppTextStyle.font16.copyWith(color: Colors.red),
+                              style: AppTextStyle.font16.copyWith(
+                                color: Colors.red,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                             16.verticalSpace,
                             ElevatedButton(
-                              onPressed: () => context.read<OrdersCubit>().getOrders(),
+                              onPressed: () =>
+                                  context.read<OrdersCubit>().getOrders(),
                               child: const Text("إعادة المحاولة"),
                             ),
                           ],
@@ -163,7 +168,9 @@ class OrderHistoryScreen extends StatelessWidget {
             children: [
               Text(
                 "تصفية حسب الحالة",
-                style: AppTextStyle.font18.copyWith(fontWeight: FontWeight.bold),
+                style: AppTextStyle.font18.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               16.verticalSpace,
               ListTile(

@@ -155,7 +155,10 @@ class AppRoutes {
             final cubit =
                 settings.arguments as ProfileCubit? ??
                 (getIt<ProfileCubit>()..getProfile());
-            return BlocProvider.value(value: cubit, child: const Profile());
+            return BlocProvider.value(
+              value: cubit,
+              child: const Profile(isFromBottomNav: false),
+            );
           },
         );
       case Routes.editProfile:
@@ -197,7 +200,9 @@ class AppRoutes {
         );
 
       case Routes.cart:
-        return CupertinoPageRoute(builder: (_) => const Cart());
+        return CupertinoPageRoute(
+          builder: (_) => const Cart(isFromBottomNav: false),
+        );
       case Routes.orderTracking:
         return CupertinoPageRoute(builder: (_) => const OrderTracking());
       case Routes.notifications:
@@ -259,7 +264,9 @@ class AppRoutes {
           ),
         );
       case Routes.orderHistory:
-        return CupertinoPageRoute(builder: (_) => const OrderHistoryScreen());
+        return CupertinoPageRoute(
+          builder: (_) => const OrderHistoryScreen(isFromBottomNav: false),
+        );
       case Routes.categories:
         return CupertinoPageRoute(
           builder: (_) => MultiBlocProvider(
@@ -270,7 +277,7 @@ class AppRoutes {
               BlocProvider.value(value: getIt<HomeCubit>()),
               BlocProvider.value(value: getIt<FavoritesCubit>()),
             ],
-            child: const AllCategoriesScreen(),
+            child: const AllCategoriesScreen(isFromBottomNav: false),
           ),
         );
       case Routes.categoryProducts:
@@ -367,25 +374,27 @@ class AppRoutes {
         );
 
       // ================== Default & Checkout ==================
+      // في ملف AppRoutes.dart
       case Routes.checkoutScreen:
         return CupertinoPageRoute(
-          builder: (_) => MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (context) {
-                  final addressesCubit = getIt<AddressesCubit>()
-                    ..getAddresses(showLoading: false);
-                  final defaultId = addressesCubit.defaultAddressId?.toString();
-                  return getIt<CheckoutCubit>()..initCheckout(defaultId);
-                },
-              ),
-              BlocProvider.value(
-                value: getIt<AddressesCubit>()
-                  ..getAddresses(showLoading: false),
-              ),
-            ],
-            child: const CheckoutScreen(),
-          ),
+          builder: (_) {
+            // 1. 💡 إنشاء نسخة واحدة فقط من الكيوبت هنا
+            final addressesCubit = getIt<AddressesCubit>()
+              ..getAddresses(showLoading: false);
+            final defaultId = addressesCubit.defaultAddressId?.toString();
+
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) =>
+                      getIt<CheckoutCubit>()..initCheckout(defaultId),
+                ),
+                // 2. 💡 تمرير نفس النسخة التي أنشأناها لواجهة المستخدم
+                BlocProvider.value(value: addressesCubit),
+              ],
+              child: const CheckoutScreen(),
+            );
+          },
         );
 
       default:
