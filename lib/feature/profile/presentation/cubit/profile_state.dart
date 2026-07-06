@@ -23,7 +23,7 @@ class ProfileAvatarPicked extends ProfileState {
 }
 
 class ProfileLoaded extends ProfileState {
-  final ProfileData user;
+  final UserModel user;
   const ProfileLoaded(this.user);
 
   @override
@@ -41,7 +41,7 @@ class ProfileError extends ProfileState {
 class UpdateProfileLoading extends ProfileState {}
 
 class UpdateProfileSuccess extends ProfileState {
-  final ProfileData user;
+  final UserModel user;
   final String message;
   const UpdateProfileSuccess(this.user, this.message);
 

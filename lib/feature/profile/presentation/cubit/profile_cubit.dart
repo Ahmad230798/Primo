@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:primo/core/models/user_model.dart';
 import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/auth/domain/usecases/delete_account_usecase.dart';
-import 'package:primo/feature/profile/data/models/profile_response.dart';
 import '../../data/models/update_profile_request_body.dart';
 import '../../data/models/change_password_request_body.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
@@ -18,7 +17,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ChangePasswordUseCase _changePasswordUseCase;
   final DeleteAccountUseCase _deleteAccountUseCase;
 
-  ProfileData? user;
+  UserModel? user;
   File? selectedAvatar;
   final ImagePicker _picker = ImagePicker();
 
