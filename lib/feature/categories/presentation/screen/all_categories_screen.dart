@@ -24,15 +24,11 @@ class AllCategoriesScreen extends StatelessWidget {
               child: CustomAppBar(
                 title: "تصفح أقسام Primo",
                 showRightIcon: true,
-                icon: InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, Routes.searchResults);
-                  },
-                  child: Icon(
-                    Icons.search,
-                    color: AppColors.textMain,
-                    size: 26.sp,
-                  ),
+                onRightIconTap: () => Navigator.pushNamed(context, Routes.searchResults),
+                icon: Icon(
+                  Icons.search,
+                  color: AppColors.textMain,
+                  size: 26.sp,
                 ),
               ),
             ),

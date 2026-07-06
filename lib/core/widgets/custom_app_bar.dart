@@ -45,7 +45,11 @@ class CustomAppBar extends StatelessWidget {
             // 1. الأيقونة اليسرى (غالباً الرجوع أو الإشعارات)
             InkWell(
               onTap: () {
-                if (Navigator.canPop(context)) {
+                if (onBackTap != null) {
+                  onBackTap!();
+                } else if (onTap != null) {
+                  onTap!();
+                } else if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }
               },
@@ -68,11 +72,12 @@ class CustomAppBar extends StatelessWidget {
             // 3. الأيقونة اليمنى (زر القائمة Menu)
             showRightIcon
                 ? InkWell(
-                    // إذا لم نمرر دالة، سيقوم بفتح الـ Drawer افتراضياً
                     onTap:
                         onRightIconTap ??
                         () {
-                          Scaffold.of(context).openDrawer();
+                          if (Scaffold.maybeOf(context)?.hasDrawer ?? false) {
+                            Scaffold.of(context).openDrawer();
+                          }
                         },
                     borderRadius: BorderRadius.circular(99.r),
                     child: icon ?? SizedBox(width: 30.w),

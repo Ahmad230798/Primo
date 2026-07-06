@@ -9,6 +9,8 @@ class SearchCubit extends Cubit<SearchState> {
 
   SearchCubit(this._getHomeDataUseCase) : super(SearchInitial());
 
+  String activeFilter = "الكل";
+
   Future<void> searchProducts(String query) async {
     if (query.trim().isEmpty) {
       emit(SearchInitial());
@@ -20,8 +22,33 @@ class SearchCubit extends Cubit<SearchState> {
       (failure) => emit(SearchError(failure.errorMessage)),
       (data) {
         products = data.products;
-        emit(SearchLoaded(products));
+        applyFilter(activeFilter);
       },
     );
+  }
+
+  void applyFilter(String filter) {
+    activeFilter = filter;
+    if (products.isEmpty) {
+      emit(SearchLoaded(products));
+      return;
+    }
+    List<ProductModel> sorted = List.from(products);
+    if (filter == "الأعلى تقييماً") {
+      sorted.sort((a, b) {
+        final rateA = double.tryParse(a.ratings?.toString() ?? '0') ?? 0;
+        final rateB = double.tryParse(b.ratings?.toString() ?? '0') ?? 0;
+        return rateB.compareTo(rateA);
+      });
+    } else if (filter == "الأقل سعراً") {
+      sorted.sort((a, b) {
+        final priceA = double.tryParse(a.displayPrice) ?? 0;
+        final priceB = double.tryParse(b.displayPrice) ?? 0;
+        return priceA.compareTo(priceB);
+      });
+    } else if (filter == "وصل حديثاً") {
+      sorted.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
+    }
+    emit(SearchLoaded(sorted));
   }
 }

@@ -32,6 +32,7 @@ class OrderHistoryScreen extends StatelessWidget {
                     color: AppColors.textMain,
                     size: 26.sp,
                   ),
+                  onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
                 ),
               ),
               Padding(
@@ -150,6 +151,7 @@ class OrderHistoryScreen extends StatelessWidget {
   }
 
   void _showFilterOptions(BuildContext context) {
+    final currentStatus = context.read<OrdersCubit>().activeStatus;
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -168,6 +170,9 @@ class OrderHistoryScreen extends StatelessWidget {
               16.verticalSpace,
               ListTile(
                 title: const Text("الكل"),
+                trailing: currentStatus == 'all'
+                    ? const Icon(Icons.check_circle, color: AppColors.primary)
+                    : null,
                 onTap: () {
                   Navigator.pop(context);
                   context.read<OrdersCubit>().getOrders(status: 'all');
@@ -175,6 +180,9 @@ class OrderHistoryScreen extends StatelessWidget {
               ),
               ListTile(
                 title: const Text("تم التسليم / مكتمل"),
+                trailing: currentStatus == 'completed'
+                    ? const Icon(Icons.check_circle, color: AppColors.primary)
+                    : null,
                 onTap: () {
                   Navigator.pop(context);
                   context.read<OrdersCubit>().getOrders(status: 'completed');
@@ -182,6 +190,9 @@ class OrderHistoryScreen extends StatelessWidget {
               ),
               ListTile(
                 title: const Text("قيد التجهيز"),
+                trailing: currentStatus == 'processing'
+                    ? const Icon(Icons.check_circle, color: AppColors.primary)
+                    : null,
                 onTap: () {
                   Navigator.pop(context);
                   context.read<OrdersCubit>().getOrders(status: 'processing');
@@ -189,6 +200,9 @@ class OrderHistoryScreen extends StatelessWidget {
               ),
               ListTile(
                 title: const Text("قيد الانتظار"),
+                trailing: currentStatus == 'pending'
+                    ? const Icon(Icons.check_circle, color: AppColors.primary)
+                    : null,
                 onTap: () {
                   Navigator.pop(context);
                   context.read<OrdersCubit>().getOrders(status: 'pending');

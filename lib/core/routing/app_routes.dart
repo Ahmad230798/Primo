@@ -17,7 +17,9 @@ import 'package:primo/feature/auth/presentation/screens/forgot_password_screen.d
 import 'package:primo/feature/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/reset_password_screen.dart';
 import 'package:primo/feature/main_layout/presentation/screen/user_main_layout.dart';
-import 'package:primo/feature/notifications/presentation/screen/notifications_screen.dart';
+import 'package:primo/feature/notifications/presentation/screen/notification_settings_screen.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
+import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.dart';
 import 'package:primo/feature/profile/presentation/screen/change_password_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/settings_screen.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
@@ -201,7 +203,12 @@ class AppRoutes {
       case Routes.orderTracking:
         return CupertinoPageRoute(builder: (_) => const OrderTracking());
       case Routes.notifications:
-        return CupertinoPageRoute(builder: (_) => const NotificationsScreen());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<NotificationSettingsCubit>(),
+            child: const NotificationSettingsScreen(),
+          ),
+        );
       case Routes.searchResults:
         return CupertinoPageRoute(
           builder: (_) {
@@ -246,7 +253,12 @@ class AppRoutes {
           builder: (_) => OrderDetailsScreen(orderArg: order), // تمريرها للشاشة
         );
       case Routes.suggestProduct:
-        return CupertinoPageRoute(builder: (_) => const SuggestProductPage());
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<SuggestionsCubit>(),
+            child: const SuggestProductPage(),
+          ),
+        );
       case Routes.favorites:
         return CupertinoPageRoute(
           builder: (_) => MultiBlocProvider(
