@@ -87,14 +87,16 @@ class SettingsScreen extends StatelessWidget {
                       color: AppColors.primary,
                       size: 26.sp,
                     ),
-                    onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
+                    onRightIconTap: () =>
+                        Navigator.pushNamed(context, Routes.notifications),
                     // أيقونة الموقع (يمين)
                     suffixsIcon: Icon(
                       Icons.location_on_outlined,
                       color: AppColors.primary,
                       size: 26.sp,
                     ),
-                    onBackTap: () => Navigator.pushNamed(context, Routes.addresses),
+                    onBackTap: () =>
+                        Navigator.pushNamed(context, Routes.addresses),
                     showRightIcon: true,
                   ),
                 ),

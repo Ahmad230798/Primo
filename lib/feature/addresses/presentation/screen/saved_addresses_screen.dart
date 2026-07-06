@@ -58,10 +58,10 @@ class SavedAddressesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Column(
           children: [
             const CustomAppBar(title: "العناوين", showRightIcon: false),
 
@@ -70,15 +70,24 @@ class SavedAddressesScreen extends StatelessWidget {
                 listener: (context, state) {
                   if (state is AddressActionSuccess) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message), backgroundColor: Colors.green),
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: Colors.green,
+                      ),
                     );
                   } else if (state is AddressActionError) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   } else if (state is AddressesError) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 },
@@ -95,11 +104,17 @@ class SavedAddressesScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.location_off_outlined, size: 64.sp, color: AppColors.greyMedium3),
+                          Icon(
+                            Icons.location_off_outlined,
+                            size: 64.sp,
+                            color: AppColors.greyMedium3,
+                          ),
                           16.verticalSpace,
                           Text(
                             "لا توجد عناوين محفوظة حالياً",
-                            style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium3),
+                            style: AppTextStyle.font16.copyWith(
+                              color: AppColors.greyMedium3,
+                            ),
                           ),
                         ],
                       ),
@@ -121,9 +136,12 @@ class SavedAddressesScreen extends StatelessWidget {
                         icon: address.icon,
                         isDefault: address.isDefault,
                         onTap: () {
-                          context.read<AddressesCubit>().setDefaultAddress(address.id);
+                          context.read<AddressesCubit>().setDefaultAddress(
+                            address.id,
+                          );
                         },
-                        onEditTap: () => _showAddEditSheet(context, address: address),
+                        onEditTap: () =>
+                            _showAddEditSheet(context, address: address),
                         onDeleteTap: () => _showDeleteDialog(context, address),
                       );
                     },

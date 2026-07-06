@@ -10,7 +10,8 @@ import 'package:primo/feature/categories/presentation/cubit/user_categories_stat
 import 'package:primo/feature/categories/presentation/widgets/category_grid_card.dart';
 
 class AllCategoriesScreen extends StatelessWidget {
-  const AllCategoriesScreen({super.key});
+  final bool isFromBottomNav;
+  const AllCategoriesScreen({super.key, required this.isFromBottomNav});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,8 @@ class AllCategoriesScreen extends StatelessWidget {
               child: CustomAppBar(
                 title: "تصفح أقسام Primo",
                 showRightIcon: true,
-                onRightIconTap: () => Navigator.pushNamed(context, Routes.searchResults),
+                onRightIconTap: () =>
+                    Navigator.pushNamed(context, Routes.searchResults),
                 icon: Icon(
                   Icons.search,
                   color: AppColors.textMain,
@@ -35,9 +37,12 @@ class AllCategoriesScreen extends StatelessWidget {
             Expanded(
               child: BlocBuilder<UserCategoriesCubit, UserCategoriesState>(
                 builder: (context, state) {
-                  if (state is UserCategoriesLoading || state is UserCategoriesInitial) {
+                  if (state is UserCategoriesLoading ||
+                      state is UserCategoriesInitial) {
                     return const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     );
                   } else if (state is UserCategoriesLoaded) {
                     final categories = state.categories;
@@ -45,13 +50,18 @@ class AllCategoriesScreen extends StatelessWidget {
                       return Center(
                         child: Text(
                           "لا يوجد أقسام حالياً",
-                          style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium2),
+                          style: AppTextStyle.font16.copyWith(
+                            color: AppColors.greyMedium2,
+                          ),
                         ),
                       );
                     }
                     return GridView.builder(
                       physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.w,
+                        vertical: 20.h,
+                      ),
                       itemCount: categories.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,

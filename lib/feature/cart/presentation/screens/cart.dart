@@ -12,7 +12,8 @@ import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 import 'package:primo/feature/cart/presentation/widgets/cart_item_list.dart';
 
 class Cart extends StatelessWidget {
-  const Cart({super.key});
+  final bool isFromBottomNav;
+  const Cart({super.key, required this.isFromBottomNav});
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +47,7 @@ class Cart extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
                     child: CustomAppBar(
                       title: "Primo",
+                      suffixsIcon: isFromBottomNav ? const SizedBox() : null,
                       icon: Icon(
                         Icons.notifications_none,
                         color: AppColors.greyMedium1,
@@ -54,9 +56,7 @@ class Cart extends StatelessWidget {
                     ),
                   ),
                   20.verticalSpace,
-                  Expanded(
-                    child: _buildBody(context, state),
-                  ),
+                  Expanded(child: _buildBody(context, state)),
                 ],
               );
             },
@@ -69,7 +69,8 @@ class Cart extends StatelessWidget {
   Widget _buildBody(BuildContext context, CartState state) {
     if (state is CartLoading) {
       return const Center(child: CircularProgressIndicator());
-    } else if (state is CartError && context.read<CartCubit>().currentItems.isEmpty) {
+    } else if (state is CartError &&
+        context.read<CartCubit>().currentItems.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -126,10 +127,7 @@ class Cart extends StatelessWidget {
               Text("عربة التسوق", style: AppTextStyle.font20),
               const Spacer(),
               Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 4.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                 decoration: BoxDecoration(
                   color: AppColors.formBorder,
                   borderRadius: BorderRadius.circular(999),

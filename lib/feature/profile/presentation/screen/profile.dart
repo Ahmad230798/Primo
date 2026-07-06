@@ -15,7 +15,8 @@ import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({super.key});
+  final bool isFromBottomNav;
+  const Profile({super.key, required this.isFromBottomNav});
 
   void _showDeleteAccountDialog(BuildContext context) {
     showDialog(
@@ -89,7 +90,10 @@ class Profile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CustomAppBar(title: "Primo"),
+                    CustomAppBar(
+                      title: "Primo",
+                      suffixsIcon: isFromBottomNav ? const SizedBox() : null,
+                    ),
                     32.verticalSpace,
                     if (isLoading && user == null)
                       const Center(child: CircularProgressIndicator())
