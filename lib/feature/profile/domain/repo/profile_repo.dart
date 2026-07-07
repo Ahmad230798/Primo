@@ -8,4 +8,5 @@ abstract class ProfileRepo {
   Future<Either<Failure, ProfileResponse>> getProfile();
   Future<Either<Failure, ProfileResponse>> updateProfile(UpdateProfileRequestBody body);
   Future<Either<Failure, String>> changePassword(ChangePasswordRequestBody body);
+
 }

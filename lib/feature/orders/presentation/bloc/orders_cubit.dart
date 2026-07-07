@@ -27,24 +27,31 @@ class OrdersCubit extends Cubit<OrdersState> {
     emit(OrdersLoading());
     final result = await _getOrdersUseCase(status: activeStatus);
     result.fold(
-      (failure) => emit(OrdersError(failure.errorMessage)),
+      (failure) {
+        // 💡 حماية الكيوبت في حال تم إغلاقه
+        if (!isClosed) emit(OrdersError(failure.errorMessage));
+      },
       (orders) {
         List<OrderModel> filtered = orders;
         if (activeStatus != 'all' && activeStatus.isNotEmpty) {
           if (activeStatus == 'completed') {
             filtered = orders
-                .where((o) =>
-                    o.status.toLowerCase() == 'completed' ||
-                    o.status.toLowerCase() == 'delivered')
+                .where(
+                  (o) =>
+                      o.status.toLowerCase() == 'completed' ||
+                      o.status.toLowerCase() == 'delivered',
+                )
                 .toList();
           } else {
             filtered = orders
-                .where((o) => o.status.toLowerCase() == activeStatus.toLowerCase())
+                .where(
+                  (o) => o.status.toLowerCase() == activeStatus.toLowerCase(),
+                )
                 .toList();
           }
         }
         currentOrders = filtered;
-        emit(OrdersLoaded(filtered));
+        if (!isClosed) emit(OrdersLoaded(filtered));
       },
     );
   }
@@ -53,8 +60,12 @@ class OrdersCubit extends Cubit<OrdersState> {
     emit(OrdersLoading());
     final result = await _getOrderByIdUseCase(id);
     result.fold(
-      (failure) => emit(OrdersError(failure.errorMessage)),
-      (order) => emit(SingleOrderLoaded(order)),
+      (failure) {
+        if (!isClosed) emit(OrdersError(failure.errorMessage)); // 💡 حماية
+      },
+      (order) {
+        if (!isClosed) emit(SingleOrderLoaded(order)); // 💡 حماية
+      },
     );
   }
 
@@ -62,10 +73,15 @@ class OrdersCubit extends Cubit<OrdersState> {
     emit(OrdersLoading());
     final result = await _rateProductInOrderUseCase(productId, orderId, rating);
     result.fold(
-      (failure) => emit(OrdersError(failure.errorMessage)),
+      (failure) {
+        if (!isClosed) emit(OrdersError(failure.errorMessage)); // 💡 حماية
+      },
       (msg) {
-        emit(OrderRatingSuccess(msg));
-        getOrders(); // إعادة جلب القائمة بعد التقييم
+        if (!isClosed) {
+          // 💡 حماية
+          emit(OrderRatingSuccess(msg));
+          getOrders(); // إعادة جلب القائمة بعد التقييم
+        }
       },
     );
   }

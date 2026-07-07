@@ -12,6 +12,7 @@ abstract class ApiConstant {
   static const String confirmLogin = "/confirm-login";
   static const String deleteAccount = "/account/delete";
   static const String refreshToken = "/refresh";
+  static const String logOut = "/logout";
 
   // --- User Profile & Addresses ---
   static const String profile = "/user/profile";

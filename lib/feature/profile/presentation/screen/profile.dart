@@ -3,10 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:primo/core/network/app_storage.dart';
+import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/core/widgets/profile_image_holder.dart';
 import 'package:primo/feature/profile/presentation/widgets/info_card.dart';
@@ -51,31 +53,17 @@ class Profile extends StatelessWidget {
         child: BlocConsumer<ProfileCubit, ProfileState>(
           listener: (context, state) {
             if (state is DeleteAccountSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                Routes.login,
-                (route) => false,
-              );
+              context.showSuccess(state.message);
+              context.pushNamedAndRemoveUntil(Routes.login);
             } else if (state is DeleteAccountError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              context.showError(state.message);
             } else if (state is ProfileError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              context.showError(state.message);
+            } else if (state is LogoutSuccess) {
+              context.showSuccess(state.message);
+              context.pushNamedAndRemoveUntil(Routes.login);
+            } else if (state is LogoutError) {
+              context.showError(state.message);
             }
           },
           builder: (context, state) {
@@ -104,8 +92,7 @@ class Profile extends StatelessWidget {
                             user?.fullAvatarUrl ??
                             "assets/images/profile_image.jpg",
                         iconData: Icons.edit,
-                        onTap: () => Navigator.pushNamed(
-                          context,
+                        onTap: () => context.pushNamed(
                           Routes.editProfile,
                           arguments: cubit,
                         ),
@@ -129,8 +116,7 @@ class Profile extends StatelessWidget {
                     InfoCard(
                       text: "تعديل الملف الشخصي",
                       iconData: Icons.person_outline,
-                      onTap: () => Navigator.pushNamed(
-                        context,
+                      onTap: () => context.pushNamed(
                         Routes.editProfile,
                         arguments: cubit,
                       ),
@@ -144,8 +130,7 @@ class Profile extends StatelessWidget {
                         try {
                           addressesCubit = context.read<AddressesCubit>();
                         } catch (_) {}
-                        Navigator.pushNamed(
-                          context,
+                        context.pushNamed(
                           Routes.addresses,
                           arguments: addressesCubit,
                         );
@@ -155,18 +140,14 @@ class Profile extends StatelessWidget {
                     InfoCard(
                       text: "سجل المشتريات",
                       iconData: Icons.receipt_long_outlined,
-                      onTap: () =>
-                          Navigator.pushNamed(context, Routes.orderHistory),
+                      onTap: () => context.pushNamed(Routes.orderHistory),
                     ),
                     8.verticalSpace,
                     InfoCard(
                       text: "الإعدادات",
                       iconData: Icons.settings_outlined,
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        Routes.settings,
-                        arguments: cubit,
-                      ),
+                      onTap: () =>
+                          context.pushNamed(Routes.settings, arguments: cubit),
                     ),
                     8.verticalSpace,
                     InfoCard(
@@ -175,33 +156,21 @@ class Profile extends StatelessWidget {
                       onTap: () {},
                     ),
                     32.verticalSpace,
-                    InfoCard(
+                    AppButton(
+                      isLoading: state is LogoutLoading,
                       text: "تسجيل الخروج",
-                      iconData: Icons.logout,
-                      iconContainerColor: AppColors.quantityBackground,
-                      textColor: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                      borderColor: AppColors.quantityBackground,
-                      onTap: () async {
-                        await AppStorage.clearAllData();
-                        if (context.mounted) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            Routes.login,
-                            (route) => false,
-                          );
-                        }
+                      icon: Icons.logout,
+
+                      onPressed: () {
+                        context.read<ProfileCubit>().logout();
                       },
                     ),
                     8.verticalSpace,
-                    InfoCard(
+                    AppButton(
+                      isLoading: state is DeleteAccountLoading,
                       text: "حذف الحساب نهائياً",
-                      iconData: Icons.delete_forever,
-                      iconContainerColor: Colors.red.withOpacity(0.1),
-                      textColor: Colors.red,
-                      fontWeight: FontWeight.w700,
-                      borderColor: Colors.red.withOpacity(0.3),
-                      onTap: () => _showDeleteAccountDialog(context),
+
+                      onPressed: () => _showDeleteAccountDialog(context),
                     ),
                     30.verticalSpace,
                   ],

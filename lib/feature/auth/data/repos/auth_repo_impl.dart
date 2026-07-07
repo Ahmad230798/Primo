@@ -177,4 +177,17 @@ class AuthRepoImpl implements AuthRepo {
       return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
     }
   }
+  
+  @override
+  Future<Either<Failure, String>> logout() async {
+    try {
+      final response = await _apiConsumer.post(path: ApiConstant.logOut);
+      final message = response['data']['message'].toString();
+      return Right(message);
+    } on ServerFailure catch (error) {
+      return Left(error);
+    } catch (e) {
+      return Left(ServerFailure("حدث خطأ  غير  متوقع $e"));
+    }
+  }
 }

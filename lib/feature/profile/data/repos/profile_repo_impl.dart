@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_error_handler.dart';
@@ -60,4 +61,5 @@ class ProfileRepoImpl implements ProfileRepo {
       return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
     }
   }
+
 }

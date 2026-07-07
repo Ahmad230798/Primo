@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -31,8 +32,16 @@ class Home extends StatelessWidget {
                     color: AppColors.primary,
                     size: 28,
                   ),
-                  onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
-                  suffixsIcon: Icon(Icons.person, color: AppColors.primary, size: 28),
+                  onRightIconTap: () =>
+                      Navigator.pushNamed(context, Routes.notifications),
+                  suffixsIcon: Icon(
+                    Icons.person,
+                    color: AppColors.primary,
+                    size: 28,
+                  ),
+                  onTap: () {
+                    context.pushNamed(Routes.profile);
+                  },
                 ),
                 8.verticalSpace,
                 // في ملف home.dart ، استبدل AppTextFormField بهذا الكود:

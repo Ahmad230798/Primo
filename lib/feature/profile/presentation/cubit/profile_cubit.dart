@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:primo/core/models/user_model.dart';
 import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/auth/domain/usecases/delete_account_usecase.dart';
+import 'package:primo/feature/auth/domain/usecases/log_out_usecase.dart';
 import '../../data/models/update_profile_request_body.dart';
 import '../../data/models/change_password_request_body.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
@@ -16,6 +17,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   final UpdateProfileUseCase _updateProfileUseCase;
   final ChangePasswordUseCase _changePasswordUseCase;
   final DeleteAccountUseCase _deleteAccountUseCase;
+  final LogoutUseCase _logoutUseCase; // 💡 2. أضف هذا السطر هنا
 
   UserModel? user;
   File? selectedAvatar;
@@ -26,6 +28,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     this._updateProfileUseCase,
     this._changePasswordUseCase,
     this._deleteAccountUseCase,
+    this._logoutUseCase,
   ) : super(ProfileInitial());
 
   Future<void> pickAvatar() async {
@@ -39,16 +42,23 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> getProfile() async {
     emit(ProfileLoading());
     final response = await _getProfileUseCase.execute();
-    response.fold((failure) => emit(ProfileError(failure.errorMessage)), (
-      data,
-    ) {
-      user = data.data;
-      if (user != null) {
-        emit(ProfileLoaded(user!));
-      } else {
-        emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
-      }
-    });
+
+    response.fold(
+      (failure) {
+        if (!isClosed) emit(ProfileError(failure.errorMessage)); // 💡 حماية
+      },
+      (data) {
+        user = data.data;
+        if (!isClosed) {
+          // 💡 حماية
+          if (user != null) {
+            emit(ProfileLoaded(user!));
+          } else {
+            emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
+          }
+        }
+      },
+    );
   }
 
   Future<void> updateProfile({
@@ -113,5 +123,20 @@ class ProfileCubit extends Cubit<ProfileState> {
       await AppStorage.clearAllData();
       emit(DeleteAccountSuccess(message));
     });
+  }
+
+  Future<void> logout() async {
+    emit(LogoutLoading()); // هنا لا مشكلة لأنها قبل الـ await
+    final response = await _logoutUseCase.execute();
+
+    response.fold(
+      (failure) {
+        if (!isClosed) emit(LogoutError(failure.errorMessage)); // 💡 حماية
+      },
+      (message) async {
+        await AppStorage.clearAllData();
+        if (!isClosed) emit(LogoutSuccess(message)); // 💡 حماية
+      },
+    );
   }
 }
