@@ -8,20 +8,29 @@ class UserCategoriesCubit extends Cubit<UserCategoriesState> {
   List<CategoryModel> categories = [];
 
   UserCategoriesCubit(this._getUserCategoriesUseCase)
-      : super(UserCategoriesInitial());
+    : super(UserCategoriesInitial());
 
   Future<void> fetchCategories() async {
     if (categories.isNotEmpty) {
-      emit(UserCategoriesLoaded(categories));
-      return;
+      if (!isClosed) {
+        emit(UserCategoriesLoaded(categories));
+        return;
+      }
     }
     emit(UserCategoriesLoading());
     final result = await _getUserCategoriesUseCase.execute();
     result.fold(
-      (failure) => emit(UserCategoriesError(failure.errorMessage)),
+      (failure) {
+        // 💡 حماية الكيوبت في حال تم إغلاقه قبل وصول رسالة الخطأ
+        if (!isClosed) {
+          emit(UserCategoriesError(failure.errorMessage));
+        }
+      },
       (list) {
         categories = list;
-        emit(UserCategoriesLoaded(list));
+        if (!isClosed) {
+          emit(UserCategoriesLoaded(list));
+        }
       },
     );
   }

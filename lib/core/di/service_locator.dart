@@ -16,6 +16,7 @@ import 'package:primo/feature/admin_product/presentation/cubit/admin_product_cub
 import 'package:primo/feature/auth/data/repos/auth_repo_impl.dart';
 import 'package:primo/feature/auth/domain/repo/auth_repo.dart';
 import 'package:primo/feature/auth/domain/usecases/forgot_password_usecase.dart';
+import 'package:primo/feature/auth/domain/usecases/log_out_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/login_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/register_usecase.dart';
 import 'package:primo/feature/auth/domain/usecases/resend_otp_usecase.dart';
@@ -196,12 +197,14 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => ChangePasswordUseCase(getIt<ProfileRepo>()),
   );
+  getIt.registerLazySingleton(() => LogoutUseCase(getIt<AuthRepo>()));
   getIt.registerFactory(
     () => ProfileCubit(
       getIt<GetProfileUseCase>(),
       getIt<UpdateProfileUseCase>(),
       getIt<ChangePasswordUseCase>(),
       getIt<DeleteAccountUseCase>(),
+      getIt<LogoutUseCase>(),
     )..getProfile(),
   );
 
@@ -239,7 +242,8 @@ void setupServiceLocator() {
     () => HomeRepoImpl(getIt<ApiConsumer>()),
   );
   getIt.registerLazySingleton(() => GetHomeDataUseCase(getIt<HomeRepo>()));
-  getIt.registerLazySingleton(() => HomeCubit(getIt<GetHomeDataUseCase>()));
+  // استبدل السطر القديم بهذا:
+  getIt.registerFactory(() => HomeCubit(getIt<GetHomeDataUseCase>()));
 
   // ================= PRODUCTS =================
   getIt.registerLazySingleton<ProductRepo>(
@@ -260,7 +264,8 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => GetCategoryProductsUseCase(getIt<UserCategoriesRepo>()),
   );
-  getIt.registerLazySingleton(
+  // استبدل السطر القديم بهذا:
+  getIt.registerFactory(
     () => UserCategoriesCubit(getIt<GetUserCategoriesUseCase>()),
   );
   getIt.registerFactory(
@@ -278,7 +283,8 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => ToggleFavoriteUseCase(getIt<FavoritesRepo>()),
   );
-  getIt.registerLazySingleton(
+  // استبدل السطر القديم بهذا:
+  getIt.registerFactory(
     () => FavoritesCubit(
       getIt<GetFavoritesUseCase>(),
       getIt<ToggleFavoriteUseCase>(),
@@ -295,7 +301,8 @@ void setupServiceLocator() {
     () => UpdateCartQuantityUseCase(getIt<CartRepo>()),
   );
   getIt.registerLazySingleton(() => DeleteFromCartUseCase(getIt<CartRepo>()));
-  getIt.registerLazySingleton(
+  // استبدل السطر القديم بهذا:
+  getIt.registerFactory(
     () => CartCubit(
       getIt<GetCartUseCase>(),
       getIt<AddToCartUseCase>(),
@@ -323,8 +330,8 @@ void setupServiceLocator() {
     ),
   );
 
-  getIt.registerLazySingleton(
-    // <--- يجب أن تكون LazySingleton
+  // استبدل الكتلة القديمة بالكامل بهذه (مع إزالة التعليق الخاطئ):
+  getIt.registerFactory(
     () => OrdersCubit(
       getIt<GetOrdersUseCase>(),
       getIt<GetOrderByIdUseCase>(),
@@ -336,8 +343,12 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<NotificationSettingsRepo>(
     () => NotificationSettingsRepoImpl(getIt<ApiConsumer>()),
   );
-  getIt.registerLazySingleton(() => GetNotificationSettingsUseCase(getIt<NotificationSettingsRepo>()));
-  getIt.registerLazySingleton(() => UpdateNotificationSettingsUseCase(getIt<NotificationSettingsRepo>()));
+  getIt.registerLazySingleton(
+    () => GetNotificationSettingsUseCase(getIt<NotificationSettingsRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => UpdateNotificationSettingsUseCase(getIt<NotificationSettingsRepo>()),
+  );
   getIt.registerFactory(
     () => NotificationSettingsCubit(
       getIt<GetNotificationSettingsUseCase>(),
@@ -349,8 +360,8 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<SuggestionsRepo>(
     () => SuggestionsRepoImpl(getIt<ApiConsumer>()),
   );
-  getIt.registerLazySingleton(() => SendSuggestionUseCase(getIt<SuggestionsRepo>()));
-  getIt.registerFactory(
-    () => SuggestionsCubit(getIt<SendSuggestionUseCase>()),
+  getIt.registerLazySingleton(
+    () => SendSuggestionUseCase(getIt<SuggestionsRepo>()),
   );
+  getIt.registerFactory(() => SuggestionsCubit(getIt<SendSuggestionUseCase>()));
 }

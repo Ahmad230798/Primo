@@ -1,14 +1,21 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/screens/cart.dart';
+import 'package:primo/feature/categories/presentation/cubit/user_categories_cubit.dart';
 import 'package:primo/feature/categories/presentation/screen/all_categories_screen.dart';
+import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
 
 // استدعاء شاشة الـ Home القديمة الخاصة بك
 import 'package:primo/feature/home/presentation/screen/home.dart';
+import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/orders/presentation/screens/order_history_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/profile.dart';
 
@@ -25,10 +32,19 @@ class _UserMainLayoutState extends State<UserMainLayout> {
 
   // قائمة الشاشات التي سيتم التنقل بينها
   final List<Widget> _screens = [
-    const Profile(isFromBottomNav: true,), // Index 0 (حسابي)
-    const OrderHistoryScreen(isFromBottomNav: true,), // Index 1 (الطلبات)
-    const Cart(isFromBottomNav: true,), // Index 2 (السلة)
-    const AllCategoriesScreen(isFromBottomNav: true,), // Index 3 (الأقسام)
+    BlocProvider(
+      create: (context) => getIt<OrdersCubit>()..getOrders(),
+      child: const Profile(isFromBottomNav: true),
+    ), // Index 0 (حسابي)
+    BlocProvider(
+      create: (context) => getIt<OrdersCubit>()..getOrders(),
+      child: const OrderHistoryScreen(isFromBottomNav: true),
+    ), // Index 1 (الطلبات)
+    BlocProvider(
+      create: (_) => getIt<CartCubit>()..getCart(),
+      child: const Cart(isFromBottomNav: true),
+    ), // Index 2 (السلة)
+    const AllCategoriesScreen(isFromBottomNav: true), // Index 3 (الأقسام)
     const Home(), // Index 4 (الرئيسية)
   ];
 

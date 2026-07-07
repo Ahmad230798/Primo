@@ -17,50 +17,47 @@ class Cart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<CartCubit>()..getCart(),
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(
-          child: BlocConsumer<CartCubit, CartState>(
-            listener: (context, state) {
-              if (state is CartLoaded && state.actionMessage != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.actionMessage!),
-                    backgroundColor: AppColors.primary,
-                  ),
-                );
-              } else if (state is CartError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.errorMessage),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            builder: (context, state) {
-              return Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    child: CustomAppBar(
-                      title: "Primo",
-                      suffixsIcon: isFromBottomNav ? const SizedBox() : null,
-                      icon: Icon(
-                        Icons.notifications_none,
-                        color: AppColors.greyMedium1,
-                      ),
-                      onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
-                    ),
-                  ),
-                  20.verticalSpace,
-                  Expanded(child: _buildBody(context, state)),
-                ],
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: BlocConsumer<CartCubit, CartState>(
+          listener: (context, state) {
+            if (state is CartLoaded && state.actionMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.actionMessage!),
+                  backgroundColor: AppColors.primary,
+                ),
               );
-            },
-          ),
+            } else if (state is CartError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: CustomAppBar(
+                    title: "Primo",
+                    suffixsIcon: isFromBottomNav ? const SizedBox() : null,
+                    icon: Icon(
+                      Icons.notifications_none,
+                      color: AppColors.greyMedium1,
+                    ),
+                    onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
+                  ),
+                ),
+                20.verticalSpace,
+                Expanded(child: _buildBody(context, state)),
+              ],
+            );
+          },
         ),
       ),
     );

@@ -16,9 +16,11 @@ import 'package:primo/feature/auth/presentation/cubit/reset_password_cubit.dart'
 import 'package:primo/feature/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/reset_password_screen.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/main_layout/presentation/screen/user_main_layout.dart';
 import 'package:primo/feature/notifications/presentation/screen/notification_settings_screen.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
+import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.dart';
 import 'package:primo/feature/profile/presentation/screen/change_password_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/settings_screen.dart';
@@ -203,7 +205,10 @@ class AppRoutes {
 
       case Routes.cart:
         return CupertinoPageRoute(
-          builder: (_) => const Cart(isFromBottomNav: false),
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<CartCubit>()..getCart(),
+            child: const Cart(isFromBottomNav: false),
+          ),
         );
       case Routes.orderTracking:
         return CupertinoPageRoute(builder: (_) => const OrderTracking());
@@ -277,7 +282,10 @@ class AppRoutes {
         );
       case Routes.orderHistory:
         return CupertinoPageRoute(
-          builder: (_) => const OrderHistoryScreen(isFromBottomNav: false),
+          builder: (_) => BlocProvider(
+            create: (context) => getIt<OrdersCubit>()..getOrders(),
+            child: const OrderHistoryScreen(isFromBottomNav: false),
+          ),
         );
       case Routes.categories:
         return CupertinoPageRoute(

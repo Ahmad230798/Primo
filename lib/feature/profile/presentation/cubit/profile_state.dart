@@ -92,3 +92,15 @@ class DeleteAccountError extends ProfileState {
   @override
   List<Object?> get props => [message];
 }
+
+class LogoutLoading extends ProfileState {}
+
+class LogoutSuccess extends ProfileState {
+  final String message;
+  const LogoutSuccess(this.message);
+}
+
+class LogoutError extends ProfileState {
+  final String message;
+  const LogoutError(this.message);
+}
