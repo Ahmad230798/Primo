@@ -17,6 +17,7 @@ import 'package:primo/feature/auth/presentation/screens/forgot_password_screen.d
 import 'package:primo/feature/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:primo/feature/auth/presentation/screens/reset_password_screen.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:primo/feature/main_layout/presentation/cubit/main_layout_cubit.dart';
 import 'package:primo/feature/main_layout/presentation/screen/user_main_layout.dart';
 import 'package:primo/feature/notifications/presentation/screen/notification_settings_screen.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
@@ -108,8 +109,10 @@ class AppRoutes {
               BlocProvider(
                 create: (context) => getIt<FavoritesCubit>()..fetchFavorites(),
               ),
+              // في AppRoutes.dart
+              BlocProvider(create: (context) => MainLayoutCubit()),
             ],
-            child: const UserMainLayout(),
+            child: UserMainLayout(),
           ),
         );
       case Routes.forgotPassword:
@@ -242,7 +245,7 @@ class AppRoutes {
                 settings.arguments as ProfileCubit? ?? getIt<ProfileCubit>();
             return BlocProvider.value(
               value: cubit,
-              child: const SettingsScreen(),
+              child: const SettingsScreen(isFromBottomNav: false),
             );
           },
         );
