@@ -10,6 +10,7 @@ import 'package:primo/feature/addresses/data/models/address_model.dart';
 import 'package:primo/feature/addresses/presentation/screen/map_picker_screen.dart';
 import '../bloc/adresses_cubit.dart';
 import '../bloc/adresses_state.dart';
+import 'package:latlong2/latlong.dart';
 
 class AddEditAddressSheet extends StatefulWidget {
   final AddressModel? address;
@@ -221,7 +222,9 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
                             ),
                           ),
                         );
-                        if (selectedLatLng != null) {
+                        if (selectedLatLng != null &&
+                            selectedLatLng is LatLng) {
+                          // <-- التأكد من النوع
                           setState(() {
                             _latController.text = selectedLatLng.latitude
                                 .toString();
