@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
@@ -13,8 +14,8 @@ class MapPickerScreen extends StatefulWidget {
 
   const MapPickerScreen({
     super.key,
-    this.initialLat = 24.7136,
-    this.initialLng = 46.6753,
+    this.initialLat = 34.7706, // الحواش كمركز افتراضي
+    this.initialLng = 36.3206,
   });
 
   @override
@@ -22,7 +23,7 @@ class MapPickerScreen extends StatefulWidget {
 }
 
 class _MapPickerScreenState extends State<MapPickerScreen> {
-  GoogleMapController? _mapController;
+  final MapController _mapController = MapController();
   late LatLng _currentPosition;
   bool _isLoadingLocation = false;
 
@@ -67,9 +68,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           _currentPosition = LatLng(position.latitude, position.longitude);
           _isLoadingLocation = false;
         });
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(_currentPosition, 15.0),
-        );
+        _mapController.move(_currentPosition, 15.0); // تحريك الكاميرا لموقعك
       }
     } catch (e) {
       if (mounted) {
@@ -95,38 +94,47 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             Expanded(
               child: Stack(
                 children: [
-                  GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: _currentPosition,
-                      zoom: 15.0,
+                  // --- الخريطة المجانية (OpenStreetMap) ---
+                  FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: _currentPosition,
+                      initialZoom: 15.0,
+                      onTap: (tapPosition, point) {
+                        setState(() {
+                          _currentPosition = point; // تغيير مكان الدبوس عند النقر
+                        });
+                      },
                     ),
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                    },
-                    onTap: (point) {
-                      setState(() {
-                        _currentPosition = point;
-                      });
-                    },
-                    markers: {
-                      Marker(
-                        markerId: const MarkerId('selected_location'),
-                        position: _currentPosition,
+                    children: [
+                      TileLayer(
+                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.example.primo',
                       ),
-                    },
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    zoomControlsEnabled: false,
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: _currentPosition,
+                            width: 60.w,
+                            height: 60.h,
+                            child: Icon(
+                              Icons.location_on,
+                              color: AppColors.primary,
+                              size: 40.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                  
+                  // --- صندوق الإرشادات العلوي ---
                   Positioned(
                     top: 16.h,
                     right: 16.w,
                     left: 16.w,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(12.r),
@@ -140,11 +148,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.touch_app,
-                            color: AppColors.primary,
-                            size: 22.sp,
-                          ),
+                          Icon(Icons.touch_app, color: AppColors.primary, size: 22.sp),
                           8.horizontalSpace,
                           Expanded(
                             child: Text(
@@ -159,21 +163,19 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       ),
                     ),
                   ),
+
+                  // --- زر تحديد موقعي (GPS) ---
                   Positioned(
                     bottom: 16.h,
                     left: 16.w,
                     child: FloatingActionButton(
                       backgroundColor: AppColors.white,
-                      onPressed: _isLoadingLocation
-                          ? null
-                          : _checkAndGetCurrentLocation,
+                      onPressed: _isLoadingLocation ? null : _checkAndGetCurrentLocation,
                       child: _isLoadingLocation
                           ? SizedBox(
                               width: 24.w,
                               height: 24.h,
-                              child: const CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                              ),
+                              child: const CircularProgressIndicator(strokeWidth: 2.5),
                             )
                           : Icon(
                               Icons.my_location,
@@ -185,6 +187,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 ],
               ),
             ),
+            
+            // --- اللوحة السفلية للتأكيد ---
             Container(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
               decoration: BoxDecoration(
@@ -202,18 +206,12 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.location_city,
-                        color: AppColors.greyMedium3,
-                        size: 20.sp,
-                      ),
+                      Icon(Icons.location_city, color: AppColors.greyMedium3, size: 20.sp),
                       8.horizontalSpace,
                       Expanded(
                         child: Text(
                           "الإحداثيات: Lat ${_currentPosition.latitude.toStringAsFixed(5)}, Lng ${_currentPosition.longitude.toStringAsFixed(5)}",
-                          style: AppTextStyle.font12.copyWith(
-                            color: AppColors.greyMedium2,
-                          ),
+                          style: AppTextStyle.font12.copyWith(color: AppColors.greyMedium2),
                           textDirection: TextDirection.ltr,
                         ),
                       ),
@@ -221,10 +219,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                   ),
                   16.verticalSpace,
                   AppButton(
-                    text: "تأكيد الموقع هذا",
+                    text: "تأكيد هذا الموقع",
                     icon: Icons.check,
                     onPressed: () {
-                      Navigator.pop(context, _currentPosition);
+                      Navigator.pop(context, _currentPosition); // إرجاع القيمة للشيت
                     },
                   ),
                 ],
