@@ -16,7 +16,11 @@ class ProductCubit extends Cubit<ProductState> {
     emit(ProductLoading());
     final result = await _getProductDetailsUseCase.execute(productId);
     result.fold(
-      (failure) => emit(ProductError(failure.errorMessage)),
+      (failure) {
+        if (!isClosed) {
+          emit(ProductError(failure.errorMessage));
+        }
+      },
       (product) {
         currentProduct = product;
         quantity = 1;
@@ -25,7 +29,15 @@ class ProductCubit extends Cubit<ProductState> {
         } else {
           selectedVariant = null;
         }
-        emit(ProductLoaded(product, selectedVariant: selectedVariant, quantity: quantity));
+        if (!isClosed) {
+          emit(
+            ProductLoaded(
+              product,
+              selectedVariant: selectedVariant,
+              quantity: quantity,
+            ),
+          );
+        }
       },
     );
   }
@@ -33,21 +45,39 @@ class ProductCubit extends Cubit<ProductState> {
   void selectVariant(VariantModel variant) {
     if (currentProduct != null) {
       selectedVariant = variant;
-      emit(ProductLoaded(currentProduct!, selectedVariant: selectedVariant, quantity: quantity));
+      emit(
+        ProductLoaded(
+          currentProduct!,
+          selectedVariant: selectedVariant,
+          quantity: quantity,
+        ),
+      );
     }
   }
 
   void incrementQuantity() {
     if (currentProduct != null) {
       quantity++;
-      emit(ProductLoaded(currentProduct!, selectedVariant: selectedVariant, quantity: quantity));
+      emit(
+        ProductLoaded(
+          currentProduct!,
+          selectedVariant: selectedVariant,
+          quantity: quantity,
+        ),
+      );
     }
   }
 
   void decrementQuantity() {
     if (currentProduct != null && quantity > 1) {
       quantity--;
-      emit(ProductLoaded(currentProduct!, selectedVariant: selectedVariant, quantity: quantity));
+      emit(
+        ProductLoaded(
+          currentProduct!,
+          selectedVariant: selectedVariant,
+          quantity: quantity,
+        ),
+      );
     }
   }
 }

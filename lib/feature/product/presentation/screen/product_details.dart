@@ -62,7 +62,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     CustomAppBar(
+                    CustomAppBar(
                       title: "Primo",
                       showRightIcon: true,
                       onRightIconTap: () {
@@ -71,9 +71,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         }
                       },
                       icon: Icon(
-                        isFav
-                            ? Icons.favorite
-                            : Icons.favorite_border_outlined,
+                        isFav ? Icons.favorite : Icons.favorite_border_outlined,
                         color: AppColors.primary,
                       ),
                     ),
@@ -217,8 +215,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         currentQuantity,
                       );
                       // تحديث السلة إجبارياً بعد الإضافة
-                      getIt<CartCubit>().getCart(showLoading: false);
-                      context.showSuccess("تم إضافة المنتج إلى السلة بنجاح");
+                      getIt<CartCubit>().getCart(showLoading: true);
                     } else {
                       context.showError("الرجاء اختيار خصائص المنتج أولاً");
                     }

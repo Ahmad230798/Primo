@@ -14,7 +14,8 @@ import '../widgets/settings_link_item.dart';
 import '../widgets/settings_toggle_item.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final bool isFromBottomNav;
+  const SettingsScreen({super.key, required this.isFromBottomNav});
 
   void _showDeleteAccountDialog(BuildContext context) {
     showDialog(
@@ -90,13 +91,13 @@ class SettingsScreen extends StatelessWidget {
                     onRightIconTap: () =>
                         Navigator.pushNamed(context, Routes.notifications),
                     // أيقونة الموقع (يمين)
-                    suffixsIcon: Icon(
-                      Icons.location_on_outlined,
-                      color: AppColors.primary,
-                      size: 26.sp,
-                    ),
-                    onBackTap: () =>
-                        Navigator.pushNamed(context, Routes.addresses),
+                    suffixsIcon: isFromBottomNav
+                        ? const SizedBox()
+                        : Icon(
+                            Icons.arrow_back,
+                            color: AppColors.primary,
+                            size: 26.sp,
+                          ),
                     showRightIcon: true,
                   ),
                 ),
