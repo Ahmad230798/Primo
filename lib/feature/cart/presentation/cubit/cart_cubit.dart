@@ -34,18 +34,43 @@ class CartCubit extends Cubit<CartState> {
       emit(CartLoading());
     }
     final result = await _getCartUseCase();
-    result.fold((failure) => emit(CartError(failure.errorMessage)), (items) {
-      currentItems = items;
-      emit(CartLoaded(items: items, totalPrice: calculateTotal(items)));
-    });
+    result.fold(
+      (failure) {
+        if (!isClosed) emit(CartError(failure.errorMessage)); // 💡 حماية
+      },
+      (items) {
+        currentItems = items;
+        if (!isClosed) {
+          // 💡 حماية
+          emit(CartLoaded(items: items, totalPrice: calculateTotal(items)));
+        }
+      },
+    );
   }
 
   Future<void> addToCart(int variantId, int count) async {
+    if (!isClosed) emit(CartLoading());
     final result = await _addToCartUseCase(variantId, count);
-    result.fold((failure) => emit(CartError(failure.errorMessage)), (msg) {
-      // بعد الإضافة نعيد جلب السلة
-      getCart();
-    });
+    result.fold(
+      (failure) {
+        if (!isClosed) emit(CartError(failure.errorMessage)); // 💡 حماية
+      },
+      (msg) {
+        // 2. إرسال حالة النجاح مع تمرير رسالة السيرفر (msg) للواجهة
+        if (!isClosed) {
+          emit(
+            CartLoaded(
+              items: currentItems,
+              totalPrice: calculateTotal(currentItems),
+              actionMessage:
+                  msg, // 💡 رسالة السيرفر الحقيقية ("تمت الإضافة بنجاح" مثلاً)
+            ),
+          );
+        }
+        // 3. تحديث السلة في الخلفية بصمت
+        if (!isClosed) getCart(showLoading: false);
+      },
+    );
   }
 
   Future<void> updateQuantity(int cartId, int newCount) async {

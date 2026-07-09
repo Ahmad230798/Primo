@@ -188,6 +188,8 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:primo/feature/favorites/presentation/screens/favorites_screen.dart';
 import 'package:primo/feature/main_layout/widgets/floating_circular_nav_bar.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
 import 'package:primo/feature/notifications/presentation/screen/notification_settings_screen.dart';
@@ -232,6 +234,12 @@ class UserMainLayout extends StatelessWidget {
       create: (context) => getIt<ProfileCubit>(),
       child: const SettingsScreen(isFromBottomNav: true),
     ), // Index 6 (الإعدادات)
+    BlocProvider(
+      create: (context) => getIt<FavoritesCubit>(),
+      child: const FavoritesPage(isFromBottomNav: true),
+    ), // Index 6 (الإعدادات)
+
+
   ];
 
   @override

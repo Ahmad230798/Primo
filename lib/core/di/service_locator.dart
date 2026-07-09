@@ -284,7 +284,7 @@ void setupServiceLocator() {
     () => ToggleFavoriteUseCase(getIt<FavoritesRepo>()),
   );
   // استبدل السطر القديم بهذا:
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
     () => FavoritesCubit(
       getIt<GetFavoritesUseCase>(),
       getIt<ToggleFavoriteUseCase>(),

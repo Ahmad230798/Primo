@@ -93,23 +93,21 @@ class AppRoutes {
         return CupertinoPageRoute(
           builder: (_) => MultiBlocProvider(
             providers: [
-              BlocProvider(
-                create: (context) => getIt<ProfileCubit>()..getProfile(),
-              ),
-              BlocProvider(
-                create: (context) => getIt<AddressesCubit>()..getAddresses(),
-              ),
+              // 💡 تم إزالة دوال الجلب لتخفيف الضغط عند فتح التطبيق
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
+              BlocProvider(create: (context) => getIt<AddressesCubit>()),
+              BlocProvider(create: (context) => getIt<UserCategoriesCubit>()),
+              BlocProvider(create: (context) => getIt<OrdersCubit>()),
+
+              // 💡 هذه الـ Cubits فقط التي نحتاجها فوراً في الشاشة الرئيسية:
               BlocProvider(
                 create: (context) => getIt<HomeCubit>()..fetchHomeData(),
               ),
-              BlocProvider(
-                create: (context) =>
-                    getIt<UserCategoriesCubit>()..fetchCategories(),
-              ),
-              BlocProvider(
-                create: (context) => getIt<FavoritesCubit>()..fetchFavorites(),
-              ),
-              // في AppRoutes.dart
+              BlocProvider.value(value: getIt<FavoritesCubit>()),
+              BlocProvider.value(
+                value: getIt<CartCubit>()..getCart(),
+              ), // لأجل أيقونة الإشعارات
+
               BlocProvider(create: (context) => MainLayoutCubit()),
             ],
             child: UserMainLayout(),
@@ -150,7 +148,7 @@ class AppRoutes {
         return CupertinoPageRoute(
           builder: (_) => MultiBlocProvider(
             providers: [
-              BlocProvider.value(value: getIt<HomeCubit>()..fetchHomeData()),
+              BlocProvider(create: (_) => getIt<HomeCubit>()..fetchHomeData()),
               BlocProvider.value(value: getIt<FavoritesCubit>()),
             ],
             child: const Home(),
@@ -208,8 +206,9 @@ class AppRoutes {
 
       case Routes.cart:
         return CupertinoPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => getIt<CartCubit>()..getCart(),
+          // 💡 تم التعديل إلى .value لأننا نستعير السلة العامة ولا ننشئ واحدة جديدة
+          builder: (_) => BlocProvider.value(
+            value: getIt<CartCubit>()..getCart(),
             child: const Cart(isFromBottomNav: false),
           ),
         );
@@ -280,7 +279,7 @@ class AppRoutes {
                 value: getIt<FavoritesCubit>()..fetchFavorites(),
               ),
             ],
-            child: const FavoritesPage(),
+            child: const FavoritesPage(isFromBottomNav: false),
           ),
         );
       case Routes.orderHistory:
@@ -294,10 +293,11 @@ class AppRoutes {
         return CupertinoPageRoute(
           builder: (_) => MultiBlocProvider(
             providers: [
-              BlocProvider.value(
-                value: getIt<UserCategoriesCubit>()..fetchCategories(),
+              BlocProvider(
+                create: (_) => getIt<UserCategoriesCubit>()..fetchCategories(),
               ),
-              BlocProvider.value(value: getIt<HomeCubit>()),
+              BlocProvider(create: (_) => getIt<HomeCubit>()),
+              // 💡 Singleton نستخدم value
               BlocProvider.value(value: getIt<FavoritesCubit>()),
             ],
             child: const AllCategoriesScreen(isFromBottomNav: false),

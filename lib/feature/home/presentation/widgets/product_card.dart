@@ -2,11 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:primo/core/models/product_model.dart';
+import 'package:primo/core/di/service_locator.dart';
+import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/helper/snack_bar_helper.dart';
+import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel? product;
@@ -17,11 +20,7 @@ class ProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (product != null) {
-          Navigator.pushNamed(
-            context,
-            Routes.productDetails,
-            arguments: product,
-          );
+          context.pushNamed(Routes.productDetails, arguments: product);
         }
       },
       child: Container(
@@ -96,29 +95,43 @@ class ProductCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // Container(
-                //   width: 40.w,
-                //   height: 40.h,
-                //   decoration: BoxDecoration(
-                //     boxShadow: [
-                //       BoxShadow(
-                //         color: AppColors.primary.withValues(alpha: 0.23),
-                //         blurRadius: 12,
-                //         offset: const Offset(0, 4),
-                //         spreadRadius: 0,
-                //       ),
-                //     ],
-                //     shape: BoxShape.circle,
-                //     color: AppColors.primary,
-                //   ),
-                //   child: IconButton(
-                //     icon: const Icon(Icons.add),
-                //     color: AppColors.white,
-                //     onPressed: () {
-                //       context.showSuccess("تم إضافة المنتج إلى السلة بنجاح");
-                //     },
-                //   ),
-                // ),
+                Container(
+                  width: 40.w,
+                  height: 40.h,
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.23),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                    shape: BoxShape.circle,
+                    color: AppColors.primary,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.add),
+                    color: AppColors.white,
+                    onPressed: () {
+                      // 💡 3. الكود الحقيقي للإضافة إلى السلة
+                      if (product != null) {
+                        final variantId =
+                            (product!.variants != null &&
+                                product!.variants!.isNotEmpty)
+                            ? product!.variants!.first.id
+                            : product!.id;
+
+                        if (variantId != null) {
+                          // إرسال الطلب للكيوبت ليتخاطب مع السيرفر (الكمية 1)
+                          getIt<CartCubit>().addToCart(variantId, 1);
+                        } else {
+                          context.showError("لا يمكن إضافة هذا المنتج حالياً");
+                        }
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ],
