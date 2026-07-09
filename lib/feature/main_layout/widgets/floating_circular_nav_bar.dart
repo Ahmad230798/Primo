@@ -161,12 +161,15 @@ class _FloatingCircularNavBarState extends State<FloatingCircularNavBar>
               ),
               _buildMenuItem(
                 context,
-                icon: Icons.percent,
-                title: "العروض",
+                icon: Icons.favorite,
+                title: "المفضلة",
                 angle: math.pi * 0.36,
                 radius: radius * 0.60,
                 bgColor: Colors.purple.withValues(alpha: 0.15),
                 iconColor: Colors.purple,
+                onTap: () => context.read<MainLayoutCubit>().changeIndex(
+                  7,
+                ), // الانتقال إلى صفحة المفضلة
               ),
               _buildMenuItem(
                 context,
@@ -237,7 +240,7 @@ class _FloatingCircularNavBarState extends State<FloatingCircularNavBar>
 
   Widget _buildBottomBar(BuildContext context, int currentIndex) {
     return Container(
-      height: 50.h,
+      height: 80.h,
       decoration: BoxDecoration(
         color: AppColors.white,
         boxShadow: [

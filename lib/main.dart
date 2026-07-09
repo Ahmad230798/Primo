@@ -6,6 +6,6 @@ import 'package:primo/my_app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupServiceLocator(); // تفعيل حاقن التبعيات
-  await AppStorage.init(); // تهيئة التخزين
+  await AppStorage.init(); // تهيئة التخزينش
   runApp(const MyApp());
 }

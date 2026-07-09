@@ -11,37 +11,59 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   final Map<int, bool> favoriteStatusMap = {};
 
   FavoritesCubit(this._getFavoritesUseCase, this._toggleFavoriteUseCase)
-      : super(FavoritesInitial());
+    : super(FavoritesInitial());
 
-  Future<void> fetchFavorites() async {
+  Future<void> fetchFavorites({bool showLoading = true}) async {
     emit(FavoritesLoading());
     final result = await _getFavoritesUseCase.execute();
     result.fold(
-      (failure) => emit(FavoritesError(failure.errorMessage)),
+      (failure) {
+        if (!isClosed) emit(FavoritesError(failure.errorMessage)); // 💡 حماية
+      },
       (list) {
         favorites = list;
+        favoriteStatusMap.clear();
         for (var prod in list) {
           if (prod.id != null) {
             favoriteStatusMap[prod.id!] = true;
           }
         }
-        emit(FavoritesLoaded(list));
+        if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
       },
     );
   }
 
   Future<void> toggleFavorite(int productId) async {
+    final bool isCurrentlyFav = favoriteStatusMap[productId] ?? false;
+    favoriteStatusMap[productId] = !isCurrentlyFav;
+    if (isCurrentlyFav) {
+      favorites = favorites.where((item) => item.id != productId).toList();
+    }
+    if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
     final result = await _toggleFavoriteUseCase.execute(productId);
     result.fold(
-      (failure) => emit(FavoritesError(failure.errorMessage)),
+      (failure) {
+        // التراجع عن التغيير إذا فشل السيرفر
+        favoriteStatusMap[productId] = isCurrentlyFav;
+        fetchFavorites(showLoading: false);
+        if (!isClosed) emit(FavoritesError(failure.errorMessage));
+      },
       (isFavorited) {
         favoriteStatusMap[productId] = isFavorited;
+
         if (!isFavorited) {
-          favorites.removeWhere((item) => item.id == productId);
+          favorites = favorites.where((item) => item.id != productId).toList();
+        } else {
+          // 💡 السّر هنا: عندما نضيف منتجاً، يجب جلب بياناته الكاملة (صورته واسمه) من السيرفر بصمت
+          fetchFavorites(showLoading: false);
         }
-        final msg = isFavorited ? "تم إضافة المنتج إلى المفضلة" : "تم حذف المنتج من المفضلة";
-        emit(FavoriteToggleSuccess(productId, isFavorited, msg));
-        emit(FavoritesLoaded(favorites));
+
+        final msg = isFavorited
+            ? "تم إضافة المنتج إلى المفضلة"
+            : "تم حذف المنتج من المفضلة";
+        if (!isClosed) emit(FavoriteToggleSuccess(productId, isFavorited, msg));
+
+        if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
       },
     );
   }
