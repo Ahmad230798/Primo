@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:primo/core/models/user_model.dart';
-import 'package:primo/feature/profile/data/models/profile_response.dart';
 
 abstract class ProfileState extends Equatable {
   const ProfileState();

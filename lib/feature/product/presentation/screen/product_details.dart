@@ -231,8 +231,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                             cubit.selectedVariant!.id!,
                             currentQuantity,
                           );
-                          // // تحديث السلة إجبارياً بعد الإضافة
-                          // getIt<CartCubit>().getCart(showLoading: true);
                         }
                       },
                     );
