@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:primo/core/models/order_model.dart';
@@ -5,6 +6,9 @@ import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_error_handler.dart';
 import 'package:primo/feature/orders/domain/repos/orders_repo.dart';
+
+List<OrderModel> _parseOrdersList(List<dynamic> dataList) =>
+    dataList.map((e) => OrderModel.fromJson(e as Map<String, dynamic>)).toList();
 
 class OrdersRepoImpl implements OrdersRepo {
   final ApiConsumer _apiConsumer;
@@ -22,10 +26,8 @@ class OrdersRepoImpl implements OrdersRepo {
         path: ApiConstant.userOrders,
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
-      final list = (response['data'] as List<dynamic>?)
-              ?.map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [];
+      final rawList = response['data'] as List<dynamic>? ?? [];
+      final list = await compute(_parseOrdersList, rawList);
       return Right(list);
     } on ServerFailure catch (failure) {
       return Left(failure);

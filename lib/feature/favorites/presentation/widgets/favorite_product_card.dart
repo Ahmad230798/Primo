@@ -5,6 +5,7 @@ import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class FavoriteProductCard extends StatelessWidget {
   final String title;
@@ -28,8 +29,7 @@ class FavoriteProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isNet =
-        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+    final isNet = !imagePath.startsWith('assets/');
 
     return GestureDetector(
       onTap: () {
@@ -62,10 +62,10 @@ class FavoriteProductCard extends StatelessWidget {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: isNet
-                      ? Image.network(
-                          imagePath,
+                      ? AppCachedNetworkImage(
+                          imageUrl: imagePath,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Center(
+                          errorWidget: Center(
                             child: Icon(
                               Icons.favorite,
                               color: AppColors.greyMedium2,

@@ -2,14 +2,28 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OrderStatusTracker extends StatelessWidget {
-  const OrderStatusTracker({super.key});
+  final OrderModel? order;
+  final void Function(String newStatus)? onUpdateStatus;
+
+  const OrderStatusTracker({
+    super.key,
+    this.order,
+    this.onUpdateStatus,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final status = order?.status.toLowerCase() ?? 'pending';
+    final isPending = status == 'pending' || order?.status == 'قيد الانتظار';
+    final isProcessing = status == 'processing' || order?.status == 'قيد التجهيز';
+    final isCompleted = status == 'completed' || order?.status == 'مكتمل' || order?.status == 'تم التسليم';
+    final isCancelled = status == 'canceled' || status == 'cancelled' || order?.status == 'ملغي';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,91 +52,61 @@ class OrderStatusTracker extends StatelessWidget {
           child: Column(
             children: [
               // الـ Stepper (المتتبع)
-              Stack(
-                alignment: Alignment.center,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // الخط الواصل بين النقاط
-                  Divider(color: AppColors.formBorder, thickness: 2),
-                  // النقاط الثلاث
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStep(
-                        Icons.check_rounded,
-                        "تم الاستلام",
-                        true,
-                        true,
-                      ),
-                      _buildStep(
-                        Icons.sync_rounded,
-                        "قيد التجهيز",
-                        true,
-                        false,
-                      ),
-                      _buildStep(
-                        Icons.local_shipping_outlined,
-                        "قيد التوصيل",
-                        false,
-                        false,
-                      ),
-                    ],
+                  _buildStep(
+                    Icons.schedule_rounded,
+                    "قيد الانتظار",
+                    true,
+                    isPending,
+                  ),
+                  _buildStep(
+                    Icons.sync_rounded,
+                    "قيد التجهيز",
+                    isProcessing || isCompleted,
+                    isProcessing,
+                  ),
+                  _buildStep(
+                    Icons.check_circle_outline_rounded,
+                    "مكتمل",
+                    isCompleted,
+                    isCompleted,
                   ),
                 ],
               ),
-              24.verticalSpace,
+              20.verticalSpace,
+              Divider(color: AppColors.formBorder, height: 1),
+              16.verticalSpace,
 
-              // القائمة المنسدلة وزر التحديث
-              Row(
+              // أزرار تغيير الحالة السريعة والواضحة
+              Wrap(
+                spacing: 8.w,
+                runSpacing: 8.h,
                 children: [
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.greyBackground,
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "قيد التجهيز",
-                            style: AppTextStyle.font14.copyWith(
-                              color: AppColors.textMain,
-                            ),
-                          ),
-                          Icon(
-                            Icons.expand_more_rounded,
-                            color: AppColors.greyDark,
-                            size: 20.sp,
-                          ),
-                        ],
-                      ),
-                    ),
+                  _buildActionButton(
+                    "قيد الانتظار",
+                    'pending',
+                    isPending,
+                    AppColors.primary,
                   ),
-                  12.horizontalSpace,
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      elevation: 0,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.w,
-                        vertical: 14.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                    ),
-                    child: Text(
-                      "تحديث الحالة",
-                      style: AppTextStyle.font14.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  _buildActionButton(
+                    "قيد التجهيز",
+                    'processing',
+                    isProcessing,
+                    Colors.orange.shade700,
+                  ),
+                  _buildActionButton(
+                    "مكتمل / تم التسليم",
+                    'completed',
+                    isCompleted,
+                    Colors.green.shade700,
+                  ),
+                  _buildActionButton(
+                    "ملغي / مرفوض",
+                    'canceled',
+                    isCancelled,
+                    Colors.red.shade700,
                   ),
                 ],
               ),
@@ -133,22 +117,64 @@ class OrderStatusTracker extends StatelessWidget {
     );
   }
 
-  // ودجت مساعد لرسم خطوة في المتتبع
+  Widget _buildActionButton(
+    String label,
+    String value,
+    bool isCurrent,
+    Color color,
+  ) {
+    return InkWell(
+      onTap: () {
+        if (!isCurrent && onUpdateStatus != null) {
+          onUpdateStatus!(value);
+        }
+      },
+      borderRadius: BorderRadius.circular(12.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+        decoration: BoxDecoration(
+          color: isCurrent ? color : color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: isCurrent ? color : color.withOpacity(0.3),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isCurrent) ...[
+              Icon(Icons.check_circle_rounded, color: AppColors.white, size: 16.sp),
+              6.horizontalSpace,
+            ],
+            Text(
+              label,
+              style: AppTextStyle.font14.copyWith(
+                color: isCurrent ? AppColors.white : color,
+                fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStep(
     IconData icon,
     String title,
-    bool isActive,
     bool isCompleted,
+    bool isCurrent,
   ) {
     Color bgColor;
     Color iconColor;
     Color borderColor = Colors.transparent;
 
-    if (isCompleted) {
+    if (isCurrent) {
       bgColor = AppColors.primary;
       iconColor = AppColors.white;
-    } else if (isActive) {
-      bgColor = AppColors.white;
+    } else if (isCompleted) {
+      bgColor = AppColors.primary.withOpacity(0.15);
       iconColor = AppColors.primary;
       borderColor = AppColors.primary;
     } else {
@@ -157,10 +183,8 @@ class OrderStatusTracker extends StatelessWidget {
     }
 
     return Container(
-      color: AppColors.white, // لخفاء الخط الذي يمر تحت الدائرة
-      padding: EdgeInsets.symmetric(
-        horizontal: 8.w,
-      ), // إبعاد الخط عن الدائرة قليلاً
+      color: AppColors.white,
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         children: [
           Container(
@@ -177,8 +201,8 @@ class OrderStatusTracker extends StatelessWidget {
           Text(
             title,
             style: AppTextStyle.font12.copyWith(
-              color: isActive ? AppColors.primary : AppColors.greyDark,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+              color: (isCurrent || isCompleted) ? AppColors.primary : AppColors.greyDark,
+              fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
             ),
           ),
         ],

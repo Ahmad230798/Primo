@@ -7,6 +7,7 @@ import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/core/widgets/custom_counter.dart';
@@ -80,12 +81,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                       child: product?.fullImageUrl != null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(16.r),
-                              child: Image.network(
-                                product!.fullImageUrl!,
+                              child: AppCachedNetworkImage(
+                                imageUrl: product!.fullImageUrl!,
                                 height: 250.h,
                                 width: 1.sw,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                errorWidget: Container(
                                   height: 250.h,
                                   width: 1.sw,
                                   alignment: Alignment.center,

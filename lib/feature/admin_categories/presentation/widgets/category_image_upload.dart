@@ -39,15 +39,20 @@ class CategoryImageUpload extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(16.r),
-                // إذا تم اختيار صورة، اجعلها خلفية للصندوق
                 image: image != null
                     ? DecorationImage(
                         image: FileImage(image),
                         fit: BoxFit.cover,
                       )
-                    : null,
+                    : (cubit.existingImageUrl != null &&
+                            cubit.existingImageUrl!.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(cubit.existingImageUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null),
               ),
-              child: image == null
+              child: (image == null && cubit.existingImageUrl == null)
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

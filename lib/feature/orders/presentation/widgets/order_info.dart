@@ -5,6 +5,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class OrderInfo extends StatelessWidget {
   final OrderModel? order;
@@ -91,10 +92,10 @@ class OrderInfo extends StatelessWidget {
                     order != null &&
                         order!.items.isNotEmpty &&
                         order!.items.first.fullImageUrl != null
-                    ? Image.network(
-                        order!.items.first.fullImageUrl!,
+                    ? AppCachedNetworkImage(
+                        imageUrl: order!.items.first.fullImageUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Icon(
+                        errorWidget: const Icon(
                           Icons.shopping_bag_outlined,
                           color: AppColors.greyMedium2,
                         ),

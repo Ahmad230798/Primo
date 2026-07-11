@@ -4,12 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/models/order_model.dart';
 
 class CostSummaryCard extends StatelessWidget {
-  const CostSummaryCard({super.key});
+  final OrderModel? order;
+  const CostSummaryCard({super.key, this.order});
 
   @override
   Widget build(BuildContext context) {
+    final amount = order?.amount ?? 0;
+    final delivery = order?.deliveryAmount ?? 0;
+    final total = order?.totalAmount ?? (amount + delivery);
+
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
@@ -37,7 +43,7 @@ class CostSummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                "210.00 ر.س",
+                "$amount ل.س",
                 style: AppTextStyle.font14.copyWith(
                   color: AppColors.greyMedium3,
                 ),
@@ -56,7 +62,7 @@ class CostSummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                "15.00 ر.س",
+                "$delivery ل.س",
                 style: AppTextStyle.font14.copyWith(
                   color: AppColors.greyMedium3,
                 ),
@@ -71,15 +77,15 @@ class CostSummaryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "الإجمالي",
-                style: AppTextStyle.font20.copyWith(
+                "الإجمالي المطلوب",
+                style: AppTextStyle.font16.copyWith(
                   color: AppColors.textMain,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                "225.00 ر.س",
-                style: AppTextStyle.font24.copyWith(
+                "$total ل.س",
+                style: AppTextStyle.font18.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
                 ),

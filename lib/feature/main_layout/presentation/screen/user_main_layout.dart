@@ -238,8 +238,6 @@ class UserMainLayout extends StatelessWidget {
       create: (context) => getIt<FavoritesCubit>(),
       child: const FavoritesPage(isFromBottomNav: true),
     ), // Index 6 (الإعدادات)
-
-
   ];
 
   @override

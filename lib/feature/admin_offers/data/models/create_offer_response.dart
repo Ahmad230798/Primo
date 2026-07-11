@@ -12,6 +12,8 @@ class CreateOfferResponse {
 
   factory CreateOfferResponse.fromJson(Map<String, dynamic> json) =>
       _$CreateOfferResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CreateOfferResponseToJson(this);
 }
 
 @JsonSerializable()
@@ -37,4 +39,6 @@ class OfferData {
 
   factory OfferData.fromJson(Map<String, dynamic> json) =>
       _$OfferDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OfferDataToJson(this);
 }

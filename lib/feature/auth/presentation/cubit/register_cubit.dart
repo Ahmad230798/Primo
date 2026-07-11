@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:primo/core/di/service_locator.dart';
+import 'package:primo/core/services/firebase_messaging_service.dart';
 import 'package:primo/feature/auth/data/models/register_request_body.dart';
 import 'package:primo/feature/auth/domain/usecases/register_usecase.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_state.dart';
@@ -54,12 +56,13 @@ class RegisterCubit extends Cubit<RegisterState> {
     // 1. إخبار الواجهة أن تبدأ بعرض دائرة التحميل
     emit(RegisterLoading());
 
-    // 2. تجهيز البيانات للإرسال
+    final fcmToken = await getIt<FirebaseCloudMessagingService>().getDeviceToken();
     final requestBody = RegisterRequestBody(
       name: nameController.text,
       phone: phoneController.text,
       password: passwordController.text,
       passwordConfirmation: passwordConfirmationController.text,
+      fcmToken: fcmToken,
     );
 
     // 3. استدعاء السيرفر عبر الـ Repo

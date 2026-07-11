@@ -4,12 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/models/order_model.dart';
 
 class CustomerInfoCard extends StatelessWidget {
-  const CustomerInfoCard({super.key});
+  final OrderModel? order;
+  const CustomerInfoCard({super.key, this.order});
 
   @override
   Widget build(BuildContext context) {
+    final fullName = order?.user?.name ?? order?.address?.name ?? "عميل بريمو #${order?.userId ?? ''}";
+    final phone = order?.user?.phone ?? "غير متوفر";
+    final addressLine = order?.address?.description ?? order?.address?.name ?? "عنوان العميل";
+    final isDelivery = order?.isDelivery ?? true;
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -33,27 +40,29 @@ class CustomerInfoCard extends StatelessWidget {
             children: [
               Text(
                 "بيانات العميل",
-                style: AppTextStyle.font18.copyWith(
-                  color: AppColors.textMain,
+                style: AppTextStyle.font16.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: AppColors.textMain,
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                 decoration: BoxDecoration(
                   color: AppColors.greyBackground,
-                  borderRadius: BorderRadius.circular(99.r),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.local_shipping_outlined,
+                      isDelivery
+                          ? Icons.local_shipping_outlined
+                          : Icons.storefront_outlined,
                       size: 16.sp,
                       color: AppColors.textMain,
                     ),
                     4.horizontalSpace,
                     Text(
-                      "توصيل للعنوان",
+                      isDelivery ? "توصيل للعنوان" : "استلام من الفرع",
                       style: AppTextStyle.font12.copyWith(
                         color: AppColors.textMain,
                       ),
@@ -68,7 +77,7 @@ class CustomerInfoCard extends StatelessWidget {
           // الاسم
           _buildInfoRow(
             Icons.person_outline_rounded,
-            "أحمد محمد",
+            fullName,
             isLink: false,
           ),
           8.verticalSpace,
@@ -76,7 +85,7 @@ class CustomerInfoCard extends StatelessWidget {
           8.verticalSpace,
 
           // رقم الهاتف (بلون أحمر)
-          _buildInfoRow(Icons.call_outlined, "050 123 4567", isLink: true),
+          _buildInfoRow(Icons.call_outlined, phone, isLink: true),
           8.verticalSpace,
           Divider(color: AppColors.formBorder, height: 1),
           8.verticalSpace,
@@ -93,7 +102,7 @@ class CustomerInfoCard extends StatelessWidget {
               8.horizontalSpace,
               Expanded(
                 child: Text(
-                  "شارع التحلية، حي العليا، الرياض 12241، المملكة العربية السعودية. بالقرب من برج المملكة.",
+                  addressLine,
                   style: AppTextStyle.font14.copyWith(
                     color: AppColors.greyMedium3,
                     height: 1.5,
@@ -112,13 +121,17 @@ class CustomerInfoCard extends StatelessWidget {
       children: [
         Icon(icon, size: 20.sp, color: AppColors.greyDark),
         8.horizontalSpace,
-        Text(
-          text,
-          style: AppTextStyle.font14.copyWith(
-            color: isLink ? AppColors.primary : AppColors.textMain,
-            fontWeight: isLink ? FontWeight.bold : FontWeight.w500,
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.font14.copyWith(
+              color: isLink ? AppColors.primary : AppColors.textMain,
+              fontWeight: isLink ? FontWeight.bold : FontWeight.w500,
+            ),
+            textDirection: isLink ? TextDirection.ltr : null,
           ),
-          textDirection: isLink ? TextDirection.ltr : null, // لضبط رقم الهاتف
         ),
       ],
     );

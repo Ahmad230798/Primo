@@ -11,7 +11,12 @@ final class AdminCategoryInitial extends AdminCategoryState {}
 
 final class AdminCategoryLoading extends AdminCategoryState {}
 
-final class AdminCategorySuccess extends AdminCategoryState {}
+final class AdminCategorySuccess extends AdminCategoryState {
+  final String message;
+  const AdminCategorySuccess([this.message = "تمت العملية بنجاح"]);
+  @override
+  List<Object?> get props => [message];
+}
 
 final class AdminCategoryError extends AdminCategoryState {
   final String error;

@@ -2,20 +2,40 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:primo/core/models/category_model.dart';
 import '../../data/models/add_category_request_body.dart';
-import '../../domain/usecases/add_category_usecase.dart';
+import '../../data/models/update_category_request_body.dart';
+import '../../domain/usecases/manage_category_usecase.dart';
 import 'admin_category_state.dart';
 
 class AdminCategoryCubit extends Cubit<AdminCategoryState> {
-  final AddCategoryUseCase _addCategoryUseCase;
+  final ManageCategoryUseCase _manageCategoryUseCase;
 
-  AdminCategoryCubit(this._addCategoryUseCase) : super(AdminCategoryInitial());
+  AdminCategoryCubit(this._manageCategoryUseCase)
+      : super(AdminCategoryInitial());
 
   TextEditingController nameController = TextEditingController();
   File? selectedImage;
+  String? existingImageUrl;
+  int? editingCategoryId;
   final ImagePicker _picker = ImagePicker();
 
-  // دالة التقاط الصورة
+  void initForEdit(CategoryModel category) {
+    editingCategoryId = category.id;
+    nameController.text = category.name ?? "";
+    existingImageUrl = category.image;
+    selectedImage = null;
+    emit(AdminCategoryInitial());
+  }
+
+  void clearForAdd() {
+    editingCategoryId = null;
+    nameController.clear();
+    existingImageUrl = null;
+    selectedImage = null;
+    emit(AdminCategoryInitial());
+  }
+
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
@@ -24,7 +44,6 @@ class AdminCategoryCubit extends Cubit<AdminCategoryState> {
     }
   }
 
-  // دالة الإرسال للسيرفر
   void addCategory() async {
     if (nameController.text.trim().isEmpty) {
       emit(const AdminCategoryError("يرجى إدخال اسم القسم"));
@@ -42,16 +61,44 @@ class AdminCategoryCubit extends Cubit<AdminCategoryState> {
       image: selectedImage!,
     );
 
-    final response = await _addCategoryUseCase.execute(requestBody);
+    final response = await _manageCategoryUseCase.addCategory(requestBody);
 
-    response.fold((failure) => emit(AdminCategoryError(failure.errorMessage)), (
-      success,
-    ) {
-      // تفريغ الحقول بعد النجاح
-      nameController.clear();
-      selectedImage = null;
-      emit(AdminCategorySuccess());
-    });
+    response.fold(
+      (failure) => emit(AdminCategoryError(failure.errorMessage)),
+      (success) {
+        nameController.clear();
+        selectedImage = null;
+        emit(const AdminCategorySuccess("تمت إضافة القسم بنجاح"));
+      },
+    );
+  }
+
+  void updateCategory() async {
+    if (editingCategoryId == null) return;
+    if (nameController.text.trim().isEmpty) {
+      emit(const AdminCategoryError("يرجى إدخال اسم القسم"));
+      return;
+    }
+
+    emit(AdminCategoryLoading());
+
+    // NOTE: image is optional per mandatory user rule!
+    final requestBody = UpdateCategoryRequestBody(
+      name: nameController.text.trim(),
+      image: selectedImage,
+    );
+
+    final response = await _manageCategoryUseCase.updateCategory(
+      editingCategoryId!,
+      requestBody,
+    );
+
+    response.fold(
+      (failure) => emit(AdminCategoryError(failure.errorMessage)),
+      (success) {
+        emit(const AdminCategorySuccess("تم تعديل القسم بنجاح"));
+      },
+    );
   }
 
   @override

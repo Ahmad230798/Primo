@@ -1,42 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/routing/routes.dart';
+import 'package:primo/core/utils/appcolor/app_colors.dart';
+import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'section_header.dart';
 import 'order_card.dart';
 
 class IncomingOrdersSection extends StatelessWidget {
-  const IncomingOrdersSection({super.key});
+  final List<OrderModel>? orders;
+
+  const IncomingOrdersSection({super.key, this.orders});
 
   @override
   Widget build(BuildContext context) {
+    final list = orders ?? [];
     return Column(
       children: [
         SectionHeader(
           title: "الطلبات الواردة",
           actionText: "عرض الكل",
           onActionTap: () {
-            // الانتقال لشاشة الطلبات الكلية
             context.pushNamed(Routes.adminOrders);
           },
         ),
         16.verticalSpace,
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: 2, // بناءً على التصميم
-          separatorBuilder: (context, index) => 12.verticalSpace,
-          itemBuilder: (context, index) {
-            // بيانات وهمية مؤقتة للتصميم
-            return OrderCard(
-              customerName: index == 0 ? "أحمد المحمد" : "سارة عبدالله",
-              orderId: index == 0 ? "#4902" : "#4901",
-              itemCount: index == 0 ? "4" : "12",
-              price: index == 0 ? "240" : "850",
-              onAccept: () {},
-            );
-          },
-        ),
+        if (list.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 32.h),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: AppColors.formBorder),
+            ),
+            child: Center(
+              child: Text(
+                "لا توجد طلبات معلقة حالياً",
+                style: AppTextStyle.font16.copyWith(
+                  color: AppColors.greyDark,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: list.length > 5 ? 5 : list.length,
+            separatorBuilder: (context, index) => 12.verticalSpace,
+            itemBuilder: (context, index) {
+              final order = list[index];
+              return OrderCard(
+                customerName: order.address?.name ?? "عميل #${order.userId}",
+                orderId: "#${order.id}",
+                itemCount: order.items.length.toString(),
+                price: order.totalAmount.toString(),
+                onAccept: () {
+                  context.pushNamed(Routes.adminOrders);
+                },
+                onReject: () {
+                  context.pushNamed(Routes.adminOrders);
+                },
+              );
+            },
+          ),
       ],
     );
   }

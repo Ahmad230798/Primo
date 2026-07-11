@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class CategoryGridCard extends StatelessWidget {
   final String title;
@@ -19,8 +20,7 @@ class CategoryGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isNet =
-        imagePath.startsWith('http://') || imagePath.startsWith('https://');
+    final isNet = !imagePath.startsWith('assets/');
 
     return GestureDetector(
       onTap: onTap,
@@ -41,10 +41,10 @@ class CategoryGridCard extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             if (isNet)
-              Image.network(
-                imagePath,
+              AppCachedNetworkImage(
+                imageUrl: imagePath,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Center(
+                errorWidget: Center(
                   child: Icon(
                     Icons.category,
                     size: 40.sp,

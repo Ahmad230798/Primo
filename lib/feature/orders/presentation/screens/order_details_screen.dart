@@ -58,7 +58,9 @@ class OrderDetailsScreen extends StatelessWidget {
 
               final isCompleted =
                   order.status.toLowerCase() == 'completed' ||
-                  order.status.toLowerCase() == 'delivered';
+                  order.status.toLowerCase() == 'delivered' ||
+                  order.status == 'مكتمل' ||
+                  order.status == 'تم التوصيل';
 
               return Column(
                 children: [

@@ -5,6 +5,8 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
+import 'package:primo/core/widgets/app_cached_network_image.dart';
+
 import 'custom_status_switch.dart';
 
 class InventoryProductCard extends StatelessWidget {
@@ -15,6 +17,8 @@ class InventoryProductCard extends StatelessWidget {
   final int quantity;
   final bool isAvailable;
   final String imagePath;
+  final VoidCallback? onToggle;
+  final VoidCallback? onTap;
 
   const InventoryProductCard({
     super.key,
@@ -25,11 +29,16 @@ class InventoryProductCard extends StatelessWidget {
     required this.quantity,
     required this.isAvailable,
     required this.imagePath,
+    this.onToggle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16.r),
+      child: Container(
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -64,25 +73,14 @@ class InventoryProductCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // صورة المنتج
-                      Container(
-                        width: 80.w,
-                        height: 80.w,
-                        decoration: BoxDecoration(
+                      Opacity(
+                        opacity: isAvailable ? 1.0 : 0.5,
+                        child: AppCachedNetworkImage(
+                          imageUrl: imagePath,
+                          width: 80.w,
+                          height: 80.w,
+                          fit: BoxFit.cover,
                           borderRadius: BorderRadius.circular(8.r),
-                          color: AppColors.greyBackground,
-                          image: DecorationImage(
-                            image: AssetImage(
-                              'assets/images/product_image.png',
-                            ),
-                            fit: BoxFit.cover,
-                            // تطبيق تأثير بهتان خفيف للصورة إذا كان غير متوفر
-                            colorFilter: isAvailable
-                                ? null
-                                : ColorFilter.mode(
-                                    Colors.black.withOpacity(0.2),
-                                    BlendMode.dstATop,
-                                  ),
-                          ),
                         ),
                       ),
                       16.horizontalSpace,
@@ -130,23 +128,28 @@ class InventoryProductCard extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      price,
-                                      style: AppTextStyle.font20.copyWith(
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          price,
+                                          style: AppTextStyle.font20.copyWith(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        4.horizontalSpace,
+                                        Text(
+                                          "ل.س",
+                                          style: AppTextStyle.font12.copyWith(
+                                            color: AppColors.greyMedium3,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    4.horizontalSpace,
-                                    Text(
-                                      "ر.س",
-                                      style: AppTextStyle.font12.copyWith(
-                                        color: AppColors.greyMedium3,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                                 // شريحة الكمية (تتغير بناءً على التوفر)
                                 Container(
@@ -211,7 +214,10 @@ class InventoryProductCard extends StatelessWidget {
                             ),
                           ),
                           12.horizontalSpace,
-                          CustomStatusSwitch(isAvailable: isAvailable),
+                          CustomStatusSwitch(
+                            isAvailable: isAvailable,
+                            onChanged: (_) => onToggle?.call(),
+                          ),
                         ],
                       ),
                     ],
@@ -222,6 +228,7 @@ class InventoryProductCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

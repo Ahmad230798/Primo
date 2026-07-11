@@ -9,6 +9,8 @@ class RegisterResponseBody {
   RegisterResponseBody({this.success, this.message, this.data});
   factory RegisterResponseBody.fromJson(Map<String, dynamic> json) =>
       _$RegisterResponseBodyFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RegisterResponseBodyToJson(this);
 }
 
 @JsonSerializable()
@@ -25,4 +27,6 @@ class RegisterData {
 
   factory RegisterData.fromJson(Map<String, dynamic> json) =>
       _$RegisterDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RegisterDataToJson(this);
 }

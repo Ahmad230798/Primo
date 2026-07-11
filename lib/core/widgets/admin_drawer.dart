@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class AdminDrawer extends StatelessWidget {
   final String currentRoute; // لمعرفة أي صفحة نشطة حالياً لتمييزها
@@ -13,6 +15,10 @@ class AdminDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final adminName = AppStorage.getUserName();
+    final adminSubtext = AppStorage.getUserPhone();
+    final adminAvatar = AppStorage.getUserAvatar();
+
     return Drawer(
       backgroundColor: AppColors.white,
       child: SafeArea(
@@ -24,31 +30,49 @@ class AdminDrawer extends StatelessWidget {
               padding: EdgeInsets.all(24.w),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 30.r,
-                    backgroundColor: AppColors.greyBackground,
-                    backgroundImage: const NetworkImage(
-                      "https://lh3.googleusercontent.com/aida-public/AB6AXuBXXnftMUVM8RLpgQ7IhugjdJYj3Wu-mjS5jBYUbyc9NsHLYFl0iCCQf47j7flikfgdMbLmLe8aD3gzFlrK-MiKvLTEG7pbEviejLMy3YzSUEvBf6I_mQ4XUPvULG5wGlvnOgGtPnFXyUl9qv7VxIHeZ995OSMD3qvTWITREsRFXdQJeqi7tDHwP6kThM6JH0O0-P9HdtwcORzvpLk6Qet67GPmdcJWb1txTgbjjjNx9ly7ajJyWVODeyj-0BDdWoQC1Y1BjAJ83C6J",
-                    ), // مسار الصورة
-                  ),
-                  12.horizontalSpace,
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "أحمد المحمد",
-                        style: AppTextStyle.font18.copyWith(
-                          color: AppColors.textMain,
+                  if (adminAvatar != null && adminAvatar.trim().isNotEmpty)
+                    AppCachedNetworkImage(
+                      imageUrl: adminAvatar,
+                      width: 60.r,
+                      height: 60.r,
+                      borderRadius: BorderRadius.circular(30.r),
+                    )
+                  else
+                    CircleAvatar(
+                      radius: 30.r,
+                      backgroundColor: AppColors.primary,
+                      child: Text(
+                        adminName.isNotEmpty ? adminName.trim()[0] : "م",
+                        style: AppTextStyle.font20.copyWith(
+                          color: AppColors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(
-                        "مدير النظام",
-                        style: AppTextStyle.font14.copyWith(
-                          color: AppColors.primary,
+                    ),
+                  12.horizontalSpace,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          adminName,
+                          style: AppTextStyle.font18.copyWith(
+                            color: AppColors.textMain,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                        Text(
+                          adminSubtext,
+                          style: AppTextStyle.font14.copyWith(
+                            color: AppColors.primary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -96,6 +120,12 @@ class AdminDrawer extends StatelessWidget {
                       title: "مقترحات الزبائن",
                       icon: Icons.lightbulb_outline_rounded,
                       route: Routes.adminSuggestions,
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      title: "إعدادات المتجر",
+                      icon: Icons.storefront_rounded,
+                      route: Routes.adminSettings,
                     ),
                   ],
                 ),

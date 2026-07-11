@@ -5,6 +5,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class OrderHistoryCard extends StatelessWidget {
   final OrderModel order;
@@ -14,9 +15,12 @@ class OrderHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDelivered =
+    final isCompleted =
         order.status.toLowerCase() == 'completed' ||
-        order.status.toLowerCase() == 'delivered';
+        order.status.toLowerCase() == 'delivered' ||
+        order.status == 'مكتمل' ||
+        order.status == 'تم التوصيل';
+    final isDelivered = isCompleted;
 
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
@@ -218,10 +222,10 @@ class OrderHistoryCard extends StatelessWidget {
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: items[i].fullImageUrl != null
-                    ? Image.network(
-                        items[i].fullImageUrl!,
+                    ? AppCachedNetworkImage(
+                        imageUrl: items[i].fullImageUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
+                        errorWidget: Icon(
                           Icons.shopping_bag_outlined,
                           size: 16.sp,
                           color: AppColors.greyMedium2,

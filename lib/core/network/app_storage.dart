@@ -106,6 +106,26 @@ class AppStorage {
     return _prefs?.getInt(_roleKey) ?? 0;
   }
 
+  static const String _userNameKey = 'user_name';
+  static const String _userPhoneKey = 'user_phone';
+  static const String _userAvatarKey = 'user_avatar';
+
+  static Future<void> saveUserData({
+    String? name,
+    String? phone,
+    String? avatar,
+  }) async {
+    if (name != null) await _prefs?.setString(_userNameKey, name);
+    if (phone != null) await _prefs?.setString(_userPhoneKey, phone);
+    if (avatar != null) await _prefs?.setString(_userAvatarKey, avatar);
+  }
+
+  static String getUserName() =>
+      _prefs?.getString(_userNameKey) ?? 'مدير النظام';
+  static String getUserPhone() =>
+      _prefs?.getString(_userPhoneKey) ?? 'الإدارة الرئيسية';
+  static String? getUserAvatar() => _prefs?.getString(_userAvatarKey);
+
   // داخل ملف AppStorage
   static const String _defaultAddressKey = 'default_address_id';
 
@@ -125,5 +145,15 @@ class AppStorage {
   static Future<void> removeDefaultAddressId() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_defaultAddressKey);
+  }
+
+  static Future<void> cacheData(String key, String jsonString) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, jsonString);
+  }
+
+  static Future<String?> getCachedData(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
   }
 }

@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'category_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class CategoryModel {
   final int? id;
   final String? name;
@@ -22,8 +22,22 @@ class CategoryModel {
     return '$baseUrl/$image';
   }
 
-  factory CategoryModel.fromJson(Map<String, dynamic> json) =>
-      _$CategoryModelFromJson(json);
+  factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    int? parsedId;
+    final rawId = json['id'];
+    if (rawId is int) {
+      parsedId = rawId;
+    } else if (rawId is num) {
+      parsedId = rawId.toInt();
+    } else if (rawId != null) {
+      parsedId = int.tryParse(rawId.toString());
+    }
+    return CategoryModel(
+      id: parsedId,
+      name: json['name']?.toString(),
+      image: json['image']?.toString(),
+    );
+  }
 
   Map<String, dynamic> toJson() => _$CategoryModelToJson(this);
 }
