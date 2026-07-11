@@ -9,7 +9,6 @@ import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
-import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 // استدعاءات السلة
 import 'package:primo/core/di/service_locator.dart';
