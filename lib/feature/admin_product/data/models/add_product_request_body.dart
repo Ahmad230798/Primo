@@ -18,26 +18,28 @@ class AddProductRequestBody {
   });
 
   Future<FormData> toFormData() async {
-    final Map<String, dynamic> map = {
-      'category_id': categoryId,
-      'name': name,
-      'description': description,
-    };
+    final formData = FormData();
+
+    formData.fields.add(MapEntry('category_id', categoryId));
+    formData.fields.add(MapEntry('name', name));
+    formData.fields.add(MapEntry('description', description));
 
     if (image != null) {
-      map['image'] = await MultipartFile.fromFile(
-        image!.path,
-        filename: image!.path.split('/').last,
-      );
+      formData.files.add(MapEntry(
+        'image',
+        await MultipartFile.fromFile(
+          image!.path,
+          filename: image!.path.split('/').last,
+        ),
+      ));
     }
 
-    // خدعة التعامل مع المصفوفات في الـ FormData لـ Laravel
     for (int i = 0; i < variants.length; i++) {
-      map['variants[$i][property]'] = variants[i].property;
-      map['variants[$i][price]'] = variants[i].price;
-      map['variants[$i][stock]'] = variants[i].stock;
+      formData.fields.add(MapEntry('variants[$i][property]', variants[i].property));
+      formData.fields.add(MapEntry('variants[$i][price]', variants[i].price));
+      formData.fields.add(MapEntry('variants[$i][stock]', variants[i].stock.toString()));
     }
 
-    return FormData.fromMap(map);
+    return formData;
   }
 }

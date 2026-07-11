@@ -102,7 +102,6 @@ class ProfileImageHolder extends StatelessWidget {
 
     return CachedNetworkImage(
       imageUrl: networkUrl,
-      cacheKey: networkUrl + DateTime.now().toString(),
       fit: BoxFit.cover,
       width: w,
       height: h,

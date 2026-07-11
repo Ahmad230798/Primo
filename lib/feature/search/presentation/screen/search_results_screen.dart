@@ -124,46 +124,48 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               ),
             ),
 
-            // 2. محتوى الصفحة القابل للتمرير
+            // 2. محتوى الصفحة القابل للتمرير بـ CustomScrollView (Virtualization)
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // شريط الفلاتر (الكل، الأعلى تقييماً...)
-                    const SearchFilterChips(),
-                    16.verticalSpace,
-
-                    // شبكة المنتجات (Grid)
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
-                      child: BlocBuilder<SearchCubit, SearchState>(
-                        builder: (context, state) {
-                          if (state is SearchLoading) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40.h),
-                              child: const Center(
-                                child: CircularProgressIndicator(color: AppColors.primary),
-                              ),
-                            );
-                          } else if (state is SearchLoaded && state.products.isNotEmpty) {
-                            final products = state.products;
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: products.length,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 16.w,
-                                mainAxisSpacing: 16.h,
-                                childAspectRatio: 0.65,
-                              ),
-                              itemBuilder: (context, index) {
+              child: BlocBuilder<SearchCubit, SearchState>(
+                builder: (context, state) {
+                  return CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            const SearchFilterChips(),
+                            16.verticalSpace,
+                          ],
+                        ),
+                      ),
+                      if (state is SearchLoading)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 40.h),
+                            child: const Center(
+                              child: CircularProgressIndicator(color: AppColors.primary),
+                            ),
+                          ),
+                        )
+                      else if (state is SearchLoaded && state.products.isNotEmpty)
+                        SliverPadding(
+                          padding: EdgeInsets.symmetric(horizontal: 24.w),
+                          sliver: SliverGrid(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16.w,
+                              mainAxisSpacing: 16.h,
+                              childAspectRatio: 0.65,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final products = state.products;
                                 final product = products[index];
                                 final favCubit = context.watch<FavoritesCubit>();
                                 final isFav = favCubit.isProductFavorited(product.id ?? 0, defaultVal: product.isFavorite);
                                 return UserProductCard(
                                   title: product.title ?? product.name ?? "منتج",
-                                  weight: "${product.unit ?? 'قطعة'}",
+                                  weight: product.unit ?? 'قطعة',
                                   price: "${product.displayPrice} ل.س",
                                   imageUrl: product.fullImageUrl ?? "",
                                   isFavorite: isFav,
@@ -176,21 +178,29 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                   },
                                 );
                               },
-                            );
-                          } else if (state is SearchError) {
-                            return Center(child: Text(state.errorMessage));
-                          } else if (state is SearchLoaded && state.products.isEmpty) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40.h),
-                              child: Center(
-                                child: Text(
-                                  "لم يتم العثور على منتجات مطابقة",
-                                  style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium2),
-                                ),
+                              childCount: state.products.length,
+                            ),
+                          ),
+                        )
+                      else if (state is SearchError)
+                        SliverToBoxAdapter(
+                          child: Center(child: Text(state.errorMessage)),
+                        )
+                      else if (state is SearchLoaded && state.products.isEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 40.h),
+                            child: Center(
+                              child: Text(
+                                "لم يتم العثور على منتجات مطابقة",
+                                style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium2),
                               ),
-                            );
-                          }
-                          return Padding(
+                            ),
+                          ),
+                        )
+                      else
+                        SliverToBoxAdapter(
+                          child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 40.h),
                             child: Center(
                               child: Text(
@@ -198,15 +208,20 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                 style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium2),
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        ),
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            32.verticalSpace,
+                            const RequestProductSection(),
+                            40.verticalSpace,
+                          ],
+                        ),
                       ),
-                    ),
-                    32.verticalSpace,
-                    const RequestProductSection(),
-                    40.verticalSpace,
-                  ],
-                ),
+                    ],
+                  );
+                },
               ),
             ),
           ],

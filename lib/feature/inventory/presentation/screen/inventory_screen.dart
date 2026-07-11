@@ -1,29 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
+import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_state.dart';
 
 import '../widgets/inventory_product_card.dart';
 import '../widgets/search_and_filter_widget.dart';
 
-class InventoryScreen extends StatelessWidget {
+class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
+
+  @override
+  State<InventoryScreen> createState() => _InventoryScreenState();
+}
+
+class _InventoryScreenState extends State<InventoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminProductsListCubit>().getProducts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: const AdminDrawer(currentRoute: Routes.adminInventory),
-
-      // زر الإضافة العائم (FAB) -> يذهب لصفحة إضافة منتج
       floatingActionButton: SizedBox(
         height: 56.h,
         child: FloatingActionButton.extended(
           onPressed: () {
-            // إضافة منتج جديد
             Navigator.pushNamed(context, Routes.addProducts);
           },
           backgroundColor: AppColors.primary,
@@ -48,15 +61,21 @@ class InventoryScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: CustomAppBar(
                 title: "Primo",
-                // أيقونة الإشعارات (تظهر يميناً)
-                suffixsIcon: InkWell(
-                  onTap: () {
-                    // الانتقال لصفحة الإشعارات
-                    Navigator.pushNamed(context, Routes.notifications);
-                  },
-                  borderRadius: BorderRadius.circular(99.r),
-                  child: Padding(
-                    padding: EdgeInsets.all(4.w),
+                suffixsIcon: Container(
+                  width: 44.w,
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
                     child: Icon(
                       Icons.notifications_none_rounded,
                       color: AppColors.textMain,
@@ -64,70 +83,163 @@ class InventoryScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // أيقونة فتح القائمة الجانبية
-                icon: Builder(
-                  builder: (ctx) => InkWell(
-                    onTap: () => Scaffold.of(ctx).openDrawer(),
-                    child: Padding(
-                      padding: EdgeInsets.all(4.w),
-                      child: Icon(
-                        Icons.menu_rounded,
-                        color: AppColors.textMain,
-                        size: 28.sp,
-                      ),
-                    ),
-                  ),
+                icon: Icon(
+                  Icons.menu_rounded,
+                  color: AppColors.textMain,
+                  size: 28.sp,
                 ),
                 showRightIcon: true,
               ),
             ),
-
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    16.verticalSpace,
-                    Text(
-                      "إدارة المخزون",
-                      style: AppTextStyle.font30.copyWith(
-                        color: AppColors.textMain,
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  await context.read<AdminProductsListCubit>().getProducts();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      16.verticalSpace,
+                      Text(
+                        "إدارة المخزون",
+                        style: AppTextStyle.font30.copyWith(
+                          color: AppColors.textMain,
+                        ),
                       ),
-                    ),
-                    4.verticalSpace,
-                    Text(
-                      "تحكم في توافر المنتجات وتحديث الكميات",
-                      style: AppTextStyle.font14.copyWith(
-                        color: AppColors.greyMedium3,
+                      4.verticalSpace,
+                      Text(
+                        "تحكم في توافر المنتجات وتحديث الكميات",
+                        style: AppTextStyle.font14.copyWith(
+                          color: AppColors.greyMedium3,
+                        ),
                       ),
-                    ),
-                    24.verticalSpace,
-                    const SearchAndFilterWidget(),
-                    24.verticalSpace,
+                      24.verticalSpace,
+                      const SearchAndFilterWidget(),
+                      24.verticalSpace,
 
-                    // قائمة المنتجات
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _dummyProducts.length,
-                      separatorBuilder: (context, index) => 16.verticalSpace,
-                      itemBuilder: (context, index) {
-                        final product = _dummyProducts[index];
-                        return InkWell(
-                          onTap: () {
-                            // الذهاب لصفحة تعديل المنتج
-                            Navigator.pushNamed(context, Routes.editProduct);
+                      BlocBuilder<
+                        AdminProductsListCubit,
+                        AdminProductsListState
+                      >(
+                        builder: (context, state) {
+                          if (state is AdminProductsListLoading) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(32.h),
+                                child: const CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            );
+                          } else if (state is AdminProductsListError) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(32.h),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline_rounded,
+                                      size: 48.sp,
+                                      color: AppColors.primary,
+                                    ),
+                                    12.verticalSpace,
+                                    Text(
+                                      state.message,
+                                      style: AppTextStyle.font16.copyWith(
+                                        color: AppColors.primary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    16.verticalSpace,
+                                    ElevatedButton.icon(
+                                      onPressed: () => context.read<AdminProductsListCubit>().getProducts(),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primary,
+                                        foregroundColor: AppColors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12.r),
+                                        ),
+                                      ),
+                                      icon: const Icon(Icons.refresh_rounded),
+                                      label: const Text("إعادة المحاولة"),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+
+                        final products =
+                            context
+                                .read<AdminProductsListCubit>()
+                                .currentProducts;
+
+                        if (products.isEmpty) {
+                          return Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40.h),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 64.sp,
+                                    color: AppColors.greyMedium3,
+                                  ),
+                                  16.verticalSpace,
+                                  Text(
+                                    "لا توجد منتجات في المخزون حالياً",
+                                    style: AppTextStyle.font16.copyWith(
+                                      color: AppColors.textMain,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: products.length,
+                          separatorBuilder:
+                              (context, index) => 16.verticalSpace,
+                          itemBuilder: (context, index) {
+                            final product = products[index];
+                            final priceStr = product.lowestPrice;
+                            final totalStock = product.totalStock;
+
+                            return InventoryProductCard(
+                              category: product.category?.name ?? "عام",
+                              name: product.name ?? "منتج",
+                              sku: product.skuCode?.isNotEmpty == true
+                                  ? product.skuCode!
+                                  : "SKU-#${product.id ?? ''}",
+                              price: priceStr,
+                              quantity: totalStock,
+                              isAvailable: product.isActiveBool,
+                              imagePath: product.image ?? "assets/images/honey.png",
+                              onToggle: () {
+                                if (product.id != null) {
+                                  context
+                                      .read<AdminProductsListCubit>()
+                                      .toggleProductStatus(product.id!);
+                                }
+                              },
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  Routes.editProduct,
+                                  arguments: product,
+                                );
+                              },
+                            );
                           },
-                          child: InventoryProductCard(
-                            category: product['category'],
-                            name: product['name'],
-                            sku: product['sku'],
-                            price: product['price'],
-                            quantity: product['quantity'],
-                            isAvailable: product['isAvailable'],
-                            imagePath: product['imagePath'],
-                          ),
                         );
                       },
                     ),
@@ -136,49 +248,10 @@ class InventoryScreen extends StatelessWidget {
                 ),
               ),
             ),
+            ),
           ],
         ),
       ),
     );
   }
 }
-
-// بيانات وهمية مؤقتة مطابقة للتصميم للاختبار
-final List<Map<String, dynamic>> _dummyProducts = [
-  {
-    'category': 'الزيوت والبهارات',
-    'name': 'زيت زيتون بكر ممتاز - عصرة أولى',
-    'sku': 'SKU: PR-10042',
-    'price': '145',
-    'quantity': 42,
-    'isAvailable': true,
-    'imagePath': 'assets/images/olive_oil.png', // استبدلها بصورتك
-  },
-  {
-    'category': 'عسل ومربى',
-    'name': 'عسل سدر طبيعي فاخر 500 جرام',
-    'sku': 'SKU: PR-10089',
-    'price': '280',
-    'quantity': 0,
-    'isAvailable': false,
-    'imagePath': 'assets/images/honey.png', // استبدلها بصورتك
-  },
-  {
-    'category': 'مشروبات',
-    'name': 'قهوة عربية مختصة محمصة بالهيل',
-    'sku': 'SKU: PR-10112',
-    'price': '85',
-    'quantity': 18,
-    'isAvailable': true,
-    'imagePath': 'assets/images/coffee.png', // استبدلها بصورتك
-  },
-  {
-    'category': 'الزيوت والبهارات',
-    'name': 'زعفران سوبر نقيل درجة أولى 5 جرام',
-    'sku': 'SKU: PR-10023',
-    'price': '120',
-    'quantity': 0,
-    'isAvailable': false,
-    'imagePath': 'assets/images/saffron.png', // استبدلها بصورتك
-  },
-];

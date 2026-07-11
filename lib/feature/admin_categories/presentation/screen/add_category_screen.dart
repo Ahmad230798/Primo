@@ -5,9 +5,9 @@ import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_text_form_field.dart';
-
 import '../cubit/admin_category_cubit.dart';
 import '../cubit/admin_category_state.dart';
+import '../cubit/admin_categories_list_cubit.dart';
 import '../widgets/category_image_upload.dart';
 
 class AddCategoryScreen extends StatelessWidget {
@@ -16,6 +16,7 @@ class AddCategoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AdminCategoryCubit>();
+    final isEditing = cubit.editingCategoryId != null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -27,14 +28,16 @@ class AddCategoryScreen extends StatelessWidget {
             if (state is AdminCategoryError) {
               context.showError(state.error);
             } else if (state is AdminCategorySuccess) {
-              context.showSuccess("تم إضافة القسم بنجاح");
-              Navigator.pop(context); // العودة للشاشة السابقة بعد النجاح
+              context.showSuccess(state.message);
+              try {
+                context.read<AdminCategoriesListCubit>().getCategories();
+              } catch (_) {}
+              Navigator.pop(context);
             }
           },
           builder: (context, state) {
             return Column(
               children: [
-                // 1. شريط التنقل (كما هو)
                 Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 24.w,
@@ -56,58 +59,57 @@ class AddCategoryScreen extends StatelessWidget {
                       ),
                       8.horizontalSpace,
                       Text(
-                        "إضافة قسم جديد",
+                        isEditing ? "تعديل القسم" : "إضافة قسم جديد",
                         style: AppTextStyle.font20.copyWith(
-                          color: AppColors.primary,
+                          color: AppColors.textMain,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                // 2. محتوى الشاشة
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        24.verticalSpace,
+                        16.verticalSpace,
                         Text(
                           "صورة القسم",
-                          style: AppTextStyle.font12.copyWith(
-                            color: AppColors.greyDark,
+                          style: AppTextStyle.font16.copyWith(
+                            color: AppColors.textMain,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         8.verticalSpace,
                         const CategoryImageUpload(),
-                        32.verticalSpace,
-
+                        24.verticalSpace,
                         Text(
                           "اسم القسم",
-                          style: AppTextStyle.font12.copyWith(
-                            color: AppColors.greyDark,
+                          style: AppTextStyle.font16.copyWith(
+                            color: AppColors.textMain,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         8.verticalSpace,
                         AppTextFormField(
-                          controller:
-                              cubit.nameController, // ربط الـ Controller
-                          hinttText: "أدخل اسم القسم هنا...",
-                          isFilled: true,
-                          fillColor: AppColors.white,
+                          controller: cubit.nameController,
+                          hinttText: "أدخل اسم القسم (مثال: الخضار والفواكه)",
                         ),
-
                         40.verticalSpace,
                         Divider(color: AppColors.formBorder, height: 1),
                         24.verticalSpace,
-
-                        // زر الحفظ
                         ElevatedButton(
                           onPressed: state is AdminCategoryLoading
-                              ? null // تعطيل الزر أثناء التحميل
-                              : () => cubit.addCategory(),
+                              ? null
+                              : () {
+                                  if (isEditing) {
+                                    cubit.updateCategory();
+                                  } else {
+                                    cubit.addCategory();
+                                  }
+                                },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             elevation: 0,
@@ -121,7 +123,9 @@ class AddCategoryScreen extends StatelessWidget {
                                   color: AppColors.white,
                                 )
                               : Text(
-                                  "حفظ القسم الجديد",
+                                  isEditing
+                                      ? "حفظ التعديلات"
+                                      : "حفظ القسم الجديد",
                                   style: AppTextStyle.font18.copyWith(
                                     color: AppColors.white,
                                     fontWeight: FontWeight.bold,
@@ -129,8 +133,6 @@ class AddCategoryScreen extends StatelessWidget {
                                 ),
                         ),
                         16.verticalSpace,
-
-                        // زر الإلغاء
                         OutlinedButton(
                           onPressed: () => Navigator.pop(context),
                           style: OutlinedButton.styleFrom(

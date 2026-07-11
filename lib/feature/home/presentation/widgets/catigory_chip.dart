@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class CatigoryChip extends StatelessWidget {
   final IconData? iconData;
@@ -26,12 +27,12 @@ class CatigoryChip extends StatelessWidget {
     Widget content;
     if (imageUrl != null && imageUrl!.trim().isNotEmpty) {
       content = ClipOval(
-        child: Image.network(
-          imageUrl!,
+        child: AppCachedNetworkImage(
+          imageUrl: imageUrl!,
           width: 64.w,
           height: 64.h,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) =>
+          errorWidget:
               icon ??
               Icon(iconData ?? Icons.category, color: AppColors.greyMedium2),
         ),

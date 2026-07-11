@@ -47,25 +47,32 @@ class StatCard extends StatelessWidget {
             ),
           ),
           8.verticalSpace,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: AppTextStyle.font30.copyWith(color: AppColors.primary),
-              ),
-              if (currency != null) ...[
-                4.horizontalSpace,
-                Text(
-                  currency!,
-                  style: AppTextStyle.font12.copyWith(
-                    color: AppColors.greyMedium3,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    value,
+                    key: ValueKey<String>(value),
+                    style: AppTextStyle.font30.copyWith(color: AppColors.primary),
                   ),
                 ),
+                if (currency != null) ...[
+                  4.horizontalSpace,
+                  Text(
+                    currency!,
+                    style: AppTextStyle.font12.copyWith(
+                      color: AppColors.greyMedium3,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),

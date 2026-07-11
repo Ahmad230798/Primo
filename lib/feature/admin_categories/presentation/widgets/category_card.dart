@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class CategoryCard extends StatelessWidget {
   final String title;
@@ -44,7 +45,16 @@ class CategoryCard extends StatelessWidget {
               borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
               child: Container(
                 color: AppColors.greyBackground,
-                child: Image.asset(imagePath, fit: BoxFit.cover),
+                child: imagePath.startsWith('assets/')
+                    ? Image.asset(imagePath, fit: BoxFit.cover)
+                    : AppCachedNetworkImage(
+                        imageUrl: imagePath,
+                        fit: BoxFit.cover,
+                        errorWidget: Image.asset(
+                          'assets/images/honey.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
               ),
             ),
           ),

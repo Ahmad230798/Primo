@@ -89,7 +89,7 @@ class CategoryProductsScreen extends StatelessWidget {
                         );
                         return UserProductCard(
                           title: product.title ?? product.name ?? "منتج",
-                          weight: "${product.unit ?? 'قطعة'}",
+                          weight: product.unit ?? 'قطعة',
                           price: "${product.displayPrice} ل.س",
                           imageUrl: product.fullImageUrl ?? "",
                           isFavorite: isFav,

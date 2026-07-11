@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 import 'package:primo/core/widgets/custom_counter.dart';
 import 'package:primo/feature/cart/data/models/cart_item_model.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
@@ -52,10 +53,10 @@ class CartItemCard extends StatelessWidget {
               ),
               clipBehavior: Clip.antiAlias,
               child: item.fullImageUrl != null
-                  ? Image.network(
-                      item.fullImageUrl!,
+                  ? AppCachedNetworkImage(
+                      imageUrl: item.fullImageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
+                      errorWidget: Icon(
                         Icons.image_not_supported_outlined,
                         color: AppColors.greyMedium2,
                         size: 30.sp,

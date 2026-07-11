@@ -14,7 +14,6 @@ class ProductVariantsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AdminProductCubit, AdminProductState>(
-      buildWhen: (prev, current) => current is AdminProductUIChanged,
       builder: (context, state) {
         final cubit = context.read<AdminProductCubit>();
 

@@ -23,38 +23,40 @@ class UpdateProductRequestBody {
   });
 
   Future<FormData> toFormData() async {
-    final Map<String, dynamic> map = {
-      '_method': 'PUT', // ضروري جداً لـ Laravel عند رفع صور مع التعديل
-      'category_id': categoryId,
-      'name': name,
-      'description': description,
-      'is_active': isActive.toString(),
-    };
+    final formData = FormData();
+
+    formData.fields.add(const MapEntry('_method', 'PUT'));
+    formData.fields.add(MapEntry('category_id', categoryId));
+    formData.fields.add(MapEntry('name', name));
+    formData.fields.add(MapEntry('description', description));
+    formData.fields.add(MapEntry('is_active', isActive.toString()));
 
     if (image != null) {
-      map['image'] = await MultipartFile.fromFile(
-        image!.path,
-        filename: image!.path.split('/').last,
-      );
+      formData.files.add(MapEntry(
+        'image',
+        await MultipartFile.fromFile(
+          image!.path,
+          filename: image!.path.split('/').last,
+        ),
+      ));
     }
 
-    // 1. إضافة الأنواع المراد تحديثها
     for (int i = 0; i < updateVariants.length; i++) {
-      map['update_variants[$i][id]'] = updateVariants[i].id.toString();
-      map['update_variants[$i][property]'] = updateVariants[i].property;
-      map['update_variants[$i][price]'] = updateVariants[i].price;
-      map['update_variants[$i][stock]'] = updateVariants[i].stock;
-      map['update_variants[$i][is_active]'] = updateVariants[i].isActive
-          .toString();
+      if (updateVariants[i].id != null) {
+        formData.fields.add(MapEntry('update_variants[$i][id]', updateVariants[i].id.toString()));
+      }
+      formData.fields.add(MapEntry('update_variants[$i][property]', updateVariants[i].property));
+      formData.fields.add(MapEntry('update_variants[$i][price]', updateVariants[i].price));
+      formData.fields.add(MapEntry('update_variants[$i][stock]', updateVariants[i].stock.toString()));
+      formData.fields.add(MapEntry('update_variants[$i][is_active]', updateVariants[i].isActive.toString()));
     }
 
-    // 2. إضافة الأنواع الجديدة
     for (int i = 0; i < addVariants.length; i++) {
-      map['add_variants[$i][property]'] = addVariants[i].property;
-      map['add_variants[$i][price]'] = addVariants[i].price;
-      map['add_variants[$i][stock]'] = addVariants[i].stock;
+      formData.fields.add(MapEntry('add_variants[$i][property]', addVariants[i].property));
+      formData.fields.add(MapEntry('add_variants[$i][price]', addVariants[i].price));
+      formData.fields.add(MapEntry('add_variants[$i][stock]', addVariants[i].stock.toString()));
     }
 
-    return FormData.fromMap(map);
+    return formData;
   }
 }

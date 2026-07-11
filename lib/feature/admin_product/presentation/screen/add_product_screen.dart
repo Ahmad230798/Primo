@@ -10,6 +10,7 @@ import 'package:primo/core/widgets/custom_app_bar.dart';
 
 import '../cubit/admin_product_cubit.dart';
 import '../cubit/admin_product_state.dart';
+import '../cubit/admin_products_list_cubit.dart';
 import '../widgets/image_upload_widget.dart';
 import '../widgets/product_form_section.dart';
 import '../widgets/product_variants_section.dart';
@@ -30,6 +31,9 @@ class AddProductScreen extends StatelessWidget {
               context.showError(state.error);
             } else if (state is AdminProductSuccess) {
               context.showSuccess(state.message);
+              try {
+                context.read<AdminProductsListCubit>().getProducts();
+              } catch (_) {}
               Navigator.pop(context); // عودة لقائمة المخزون بعد النجاح
             }
           },

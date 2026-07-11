@@ -39,6 +39,8 @@ class Routes {
   static const String adminCategories = '/adminCategories';
   static const String addCategory = '/addCategory';
   static const String adminOffers = '/adminOffers'; // تم التوحيد مع الـ Drawer
+  static const String createOffer = '/createOffer';
   static const String adminSuggestions = '/adminSuggestions';
+  static const String adminSettings = '/adminSettings';
   static const String checkoutScreen = '/checkoutScreen';
 }

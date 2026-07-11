@@ -3,7 +3,16 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'stat_card.dart';
 
 class AdminStatsSection extends StatelessWidget {
-  const AdminStatsSection({super.key});
+  final num? totalAmount;
+  final int? pendingOrdersCount;
+  final int? productsCount;
+
+  const AdminStatsSection({
+    super.key,
+    this.totalAmount,
+    this.pendingOrdersCount,
+    this.productsCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,18 +23,25 @@ class AdminStatsSection extends StatelessWidget {
             Expanded(
               child: StatCard(
                 title: "إجمالي المبيعات",
-                value: "12,450",
-                currency: "ر.س",
+                value: totalAmount != null ? totalAmount.toString() : "0",
+                currency: "ل.س",
               ),
             ),
             16.horizontalSpace,
             Expanded(
-              child: StatCard(title: "طلبات جديدة", value: "48"),
+              child: StatCard(
+                title: "طلبات معلقة",
+                value: pendingOrdersCount != null ? pendingOrdersCount.toString() : "0",
+              ),
             ),
           ],
         ),
         16.verticalSpace,
-        StatCard(title: "إجمالي المنتجات", value: "312", isFullWidth: true),
+        StatCard(
+          title: "إجمالي المنتجات",
+          value: productsCount != null ? productsCount.toString() : "0",
+          isFullWidth: true,
+        ),
       ],
     );
   }

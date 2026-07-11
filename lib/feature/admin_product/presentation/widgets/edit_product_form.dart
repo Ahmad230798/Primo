@@ -1,143 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
-
-import 'stock_status_toggle.dart';
+import 'package:primo/core/widgets/app_text_form_field.dart';
+import '../cubit/admin_product_cubit.dart';
+import '../cubit/admin_product_state.dart';
+import 'product_variants_section.dart';
 
 class EditProductForm extends StatelessWidget {
   const EditProductForm({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // تنسيق موحد للحدود (بدون حدود مع خلفية رمادية فاتحة)
-    final inputBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8.r),
-      borderSide: BorderSide.none,
+    final cubit = context.read<AdminProductCubit>();
+    final borderStyle = OutlineInputBorder(
+      borderSide: const BorderSide(color: AppColors.formBorder, width: 1),
+      borderRadius: BorderRadius.circular(12.r),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 1. الاسم
-        _buildLabel("الاسم"),
-        8.verticalSpace,
-        TextFormField(
-          initialValue: "عسل سدر جبلي فاخر",
-          style: AppTextStyle.font16.copyWith(color: AppColors.textMain),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.greyBackground,
-            border: inputBorder,
-            enabledBorder: inputBorder,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: AppColors.primary, width: 1),
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
-            ),
-          ),
-        ),
-        16.verticalSpace,
-
-        // 2. السعر
-        _buildLabel("السعر (ر.س)"),
-        8.verticalSpace,
-        TextFormField(
-          initialValue: "185.00",
-          textDirection:
-              TextDirection.ltr, // لضبط الأرقام من اليسار كما في الصورة
-          textAlign: TextAlign.right, // لكن النص يظهر على اليمين
-          style: AppTextStyle.font16.copyWith(color: AppColors.textMain),
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.greyBackground,
-            border: inputBorder,
-            enabledBorder: inputBorder,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: AppColors.primary, width: 1),
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
-            ),
-          ),
-        ),
-        16.verticalSpace,
-
-        // 3. القسم (القائمة المنسدلة)
-        _buildLabel("القسم"),
-        8.verticalSpace,
-        DropdownButtonFormField<String>(
-          // ignore: deprecated_member_use
-          value: "honey",
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.greyBackground,
-            border: inputBorder,
-            enabledBorder: inputBorder,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: AppColors.primary, width: 1),
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
-            ),
-          ),
-          icon: Icon(
-            Icons.expand_more_rounded,
-            color: AppColors.greyDark,
-            size: 24.sp,
-          ),
-          items: [
-            DropdownMenuItem(
-              value: "honey",
-              child: Text(
-                "العسل والمربى",
-                style: AppTextStyle.font16.copyWith(color: AppColors.textMain),
+    return BlocBuilder<AdminProductCubit, AdminProductState>(
+      buildWhen: (prev, current) => current is AdminProductUIChanged,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLabel("الاسم"),
+            8.verticalSpace,
+            AppTextFormField(
+              controller: cubit.nameController,
+              hinttText: "اسم المنتج",
+              isFilled: true,
+              fillColor: AppColors.greyBackground,
+              enabledBorder: borderStyle,
+              focusedBorder: borderStyle.copyWith(
+                borderSide: const BorderSide(color: AppColors.primary, width: 1),
               ),
             ),
+            16.verticalSpace,
+
+            _buildLabel("القسم"),
+            8.verticalSpace,
+            DropdownButtonFormField<String>(
+              initialValue: cubit.selectedCategoryId,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.greyBackground,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 14.h,
+                ),
+                border: borderStyle,
+                enabledBorder: borderStyle,
+                focusedBorder: borderStyle.copyWith(
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1,
+                  ),
+                ),
+              ),
+              hint: Text(
+                "اختر القسم",
+                style: AppTextStyle.font14.copyWith(color: AppColors.greyDark),
+              ),
+              icon: Icon(
+                Icons.expand_more_rounded,
+                color: AppColors.textMain,
+                size: 24.sp,
+              ),
+              items: cubit.categories.map((cat) {
+                return DropdownMenuItem<String>(
+                  value: cat.id?.toString(),
+                  child: Text(
+                    cat.name ?? "",
+                    style: AppTextStyle.font14.copyWith(
+                      color: AppColors.textMain,
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (val) {
+                cubit.selectedCategoryId = val;
+              },
+            ),
+            16.verticalSpace,
+
+            _buildLabel("الوصف"),
+            8.verticalSpace,
+            AppTextFormField(
+              controller: cubit.descController,
+              hinttText: "وصف المنتج",
+              isFilled: true,
+              fillColor: AppColors.greyBackground,
+              enabledBorder: borderStyle,
+              focusedBorder: borderStyle.copyWith(
+                borderSide: const BorderSide(color: AppColors.primary, width: 1),
+              ),
+            ),
+            24.verticalSpace,
+
+            const ProductVariantsSection(),
           ],
-          onChanged: (val) {},
-        ),
-        16.verticalSpace,
-
-        // 4. الوصف
-        _buildLabel("الوصف"),
-        8.verticalSpace,
-        TextFormField(
-          initialValue:
-              "عسل سدر طبيعي 100% مستخرج من أفضل المناحل الجبلية. يتميز بطعمه الغني وقوامه الكثيف. مثالي للاستخدام اليومي وكبديل صحي للسكر.",
-          style: AppTextStyle.font14.copyWith(
-            color: AppColors.textMain,
-            height: 1.6,
-          ),
-          maxLines: 4,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.greyBackground,
-            border: inputBorder,
-            enabledBorder: inputBorder,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: BorderSide(color: AppColors.primary, width: 1),
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 16.h,
-            ),
-          ),
-        ),
-        24.verticalSpace,
-
-        // 5. حالة المخزون مع الـ Toggle
-        const StockStatusToggle(),
-      ],
+        );
+      },
     );
   }
 

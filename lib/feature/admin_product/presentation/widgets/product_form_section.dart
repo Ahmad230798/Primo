@@ -44,7 +44,7 @@ class ProductFormSection extends StatelessWidget {
             _buildLabel("القسم"),
             8.verticalSpace,
             DropdownButtonFormField<String>(
-              value: cubit.selectedCategoryId,
+              initialValue: cubit.selectedCategoryId,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,

@@ -1,8 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'product_model.dart';
 
 part 'variant_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class VariantModel {
   final int? id;
   @JsonKey(name: 'product_id')
@@ -20,6 +21,7 @@ class VariantModel {
   final dynamic discountAmount;
   @JsonKey(name: 'new_price')
   final dynamic newPrice;
+  final ProductModel? product;
 
   VariantModel({
     this.id,
@@ -32,10 +34,44 @@ class VariantModel {
     this.offerId,
     this.discountAmount,
     this.newPrice,
+    this.product,
   });
 
-  factory VariantModel.fromJson(Map<String, dynamic> json) =>
-      _$VariantModelFromJson(json);
+  bool get isActiveBool =>
+      isActive == 1 || isActive.toString().toLowerCase() == 'true';
+
+  factory VariantModel.fromJson(Map<String, dynamic> json) {
+    int? parseInt(dynamic val) {
+      if (val == null) return null;
+      if (val is int) return val;
+      if (val is num) return val.toInt();
+      return int.tryParse(val.toString());
+    }
+
+    bool? parseBool(dynamic val) {
+      if (val == null) return null;
+      if (val is bool) return val;
+      if (val is num) return val != 0;
+      final s = val.toString().toLowerCase();
+      return s == 'true' || s == '1';
+    }
+
+    return VariantModel(
+      id: parseInt(json['id']),
+      productId: parseInt(json['product_id']),
+      price: json['price']?.toString(),
+      stock: parseInt(json['stock']),
+      property: json['property']?.toString(),
+      isActive: parseInt(json['is_active']),
+      hasActiveOffer: parseBool(json['has_active_offer']),
+      offerId: parseInt(json['offer_id']),
+      discountAmount: json['discount_amount'],
+      newPrice: json['new_price'],
+      product: json['product'] is Map
+          ? ProductModel.fromJson(Map<String, dynamic>.from(json['product'] as Map))
+          : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => _$VariantModelToJson(this);
 }
