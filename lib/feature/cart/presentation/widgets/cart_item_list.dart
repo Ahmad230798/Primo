@@ -15,9 +15,11 @@ class CartItemList extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
       itemBuilder: (context, index) {
+        final item = items[index];
         return Column(
+          key: ValueKey(item.id),
           children: [
-            CartItemCard(item: items[index]),
+            CartItemCard(item: item),
             8.verticalSpace,
           ],
         );

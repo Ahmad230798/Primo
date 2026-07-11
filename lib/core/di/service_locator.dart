@@ -334,7 +334,7 @@ void setupServiceLocator() {
     () => ToggleFavoriteUseCase(getIt<FavoritesRepo>()),
   );
   // استبدل السطر القديم بهذا:
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
     () => FavoritesCubit(
       getIt<GetFavoritesUseCase>(),
       getIt<ToggleFavoriteUseCase>(),
@@ -352,7 +352,7 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton(() => DeleteFromCartUseCase(getIt<CartRepo>()));
   // استبدل السطر القديم بهذا:
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
     () => CartCubit(
       getIt<GetCartUseCase>(),
       getIt<AddToCartUseCase>(),

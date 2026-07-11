@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -22,19 +24,9 @@ class Cart extends StatelessWidget {
         child: BlocConsumer<CartCubit, CartState>(
           listener: (context, state) {
             if (state is CartLoaded && state.actionMessage != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.actionMessage!),
-                  backgroundColor: AppColors.primary,
-                ),
-              );
+              context.showSuccess(state.actionMessage!);
             } else if (state is CartError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              context.showError(state.errorMessage);
             }
           },
           builder: (context, state) {
@@ -49,7 +41,8 @@ class Cart extends StatelessWidget {
                       Icons.notifications_none,
                       color: AppColors.greyMedium1,
                     ),
-                    onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
+                    onRightIconTap: () =>
+                        context.pushNamed(Routes.notifications),
                   ),
                 ),
                 20.verticalSpace,
@@ -173,7 +166,7 @@ class Cart extends StatelessWidget {
             text: "متابعة للدفع",
             icon: Icons.arrow_forward,
             onPressed: () {
-              Navigator.pushNamed(context, Routes.checkoutScreen);
+              context.pushNamed(Routes.checkoutScreen);
             },
           ),
           32.verticalSpace,

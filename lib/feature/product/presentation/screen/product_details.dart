@@ -13,6 +13,7 @@ import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/core/widgets/custom_counter.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:primo/feature/product/presentation/cubit/product_cubit.dart';
 import 'package:primo/feature/product/presentation/cubit/product_state.dart';
@@ -63,7 +64,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     CustomAppBar(
+                    CustomAppBar(
                       title: "Primo",
                       showRightIcon: true,
                       onRightIconTap: () {
@@ -72,9 +73,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         }
                       },
                       icon: Icon(
-                        isFav
-                            ? Icons.favorite
-                            : Icons.favorite_border_outlined,
+                        isFav ? Icons.favorite : Icons.favorite_border_outlined,
                         color: AppColors.primary,
                       ),
                     ),
@@ -207,22 +206,35 @@ class _ProductDetailsState extends State<ProductDetails> {
                   },
                 ),
                 16.verticalSpace,
-                AppButton(
-                  text: "أضف إلى السلة",
-                  icon: Icons.shopping_cart,
-                  onPressed: () {
-                    if (cubit.selectedVariant != null &&
-                        cubit.selectedVariant!.id != null) {
-                      getIt<CartCubit>().addToCart(
-                        cubit.selectedVariant!.id!,
-                        currentQuantity,
-                      );
-                      // تحديث السلة إجبارياً بعد الإضافة
-                      getIt<CartCubit>().getCart(showLoading: false);
-                      context.showSuccess("تم إضافة المنتج إلى السلة بنجاح");
-                    } else {
-                      context.showError("الرجاء اختيار خصائص المنتج أولاً");
+                BlocConsumer<CartCubit, CartState>(
+                  bloc: getIt<CartCubit>(),
+                  listener: (context, cartState) {
+                    // عرض رسالة النجاح القادمة من السيرفر
+                    if (cartState is CartLoaded &&
+                        cartState.actionMessage != null) {
+                      context.showSuccess(cartState.actionMessage!);
                     }
+                    // عرض رسالة الخطأ
+                    else if (cartState is CartError) {
+                      context.showError(cartState.errorMessage);
+                    }
+                  },
+                  builder: (context, cartState) {
+                    return AppButton(
+                      text: "أضف إلى السلة",
+                      icon: Icons.shopping_cart,
+                      isLoading: cartState is CartLoading,
+                      onPressed: () {
+                        if (cartState is CartLoading) return;
+                        if (cubit.selectedVariant != null &&
+                            cubit.selectedVariant!.id != null) {
+                          getIt<CartCubit>().addToCart(
+                            cubit.selectedVariant!.id!,
+                            currentQuantity,
+                          );
+                        }
+                      },
+                    );
                   },
                 ),
                 24.verticalSpace,
