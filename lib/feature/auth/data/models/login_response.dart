@@ -14,6 +14,8 @@ class LoginResponse {
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) =>
       _$LoginResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
 }
 
 @JsonSerializable()
@@ -49,4 +51,6 @@ final String? innerMessage;
 
   factory LoginData.fromJson(Map<String, dynamic> json) => 
       _$LoginDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LoginDataToJson(this);
 }

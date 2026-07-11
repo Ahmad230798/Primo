@@ -4,13 +4,19 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OrdersTabBar extends StatelessWidget {
-  const OrdersTabBar({super.key});
+  final String activeFilter;
+  final Function(String) onFilterChanged;
+
+  const OrdersTabBar({
+    super.key,
+    required this.activeFilter,
+    required this.onFilterChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // تم نقل اللون ليكون داخل الـ BoxDecoration لتجنب خطأ الـ AssertionError
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.white,
         border: Border(
           bottom: BorderSide(color: AppColors.formBorder, width: 1),
@@ -18,34 +24,39 @@ class OrdersTabBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildTab(title: "قيد التجهيز", isActive: true),
-          _buildTab(title: "قيد التوصيل / جاهز للاستلام", isActive: false),
-          _buildTab(title: "مكتمل", isActive: false),
+          _buildTab(title: "الكل", filterKey: "all"),
+          _buildTab(title: "قيد الانتظار", filterKey: "pending"),
+          _buildTab(title: "قيد التجهيز", filterKey: "processing"),
+          _buildTab(title: "مكتمل", filterKey: "completed"),
         ],
       ),
     );
   }
 
-  Widget _buildTab({required String title, required bool isActive}) {
+  Widget _buildTab({required String title, required String filterKey}) {
+    final isActive = activeFilter == filterKey;
     return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isActive ? AppColors.primary : Colors.transparent,
-              width: 3,
+      child: InkWell(
+        onTap: () => onFilterChanged(filterKey),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 16.h),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isActive ? AppColors.primary : Colors.transparent,
+                width: 3,
+              ),
             ),
           ),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: AppTextStyle.font14.copyWith(
-              color: isActive ? AppColors.textMain : AppColors.greyMedium3,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          child: Center(
+            child: Text(
+              title,
+              style: AppTextStyle.font14.copyWith(
+                color: isActive ? AppColors.textMain : AppColors.greyMedium3,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         ),
       ),

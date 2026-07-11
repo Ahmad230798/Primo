@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/di/service_locator.dart';
 import '../../../../core/network/app_storage.dart';
+import '../../../../core/services/firebase_messaging_service.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../data/models/login_request_body.dart';
 import 'login_state.dart';
@@ -47,9 +49,11 @@ class LoginCubit extends Cubit<LoginState> {
     }
     emit(LoginLoading());
 
+    final fcmToken = await getIt<FirebaseCloudMessagingService>().getDeviceToken();
     final requestBody = LoginRequestBody(
       phoneNumber: phoneController.text,
       password: passwordController.text,
+      fcmToken: fcmToken,
     );
 
     final response = await _loginUseCase.execute(requestBody);
@@ -90,6 +94,11 @@ class LoginCubit extends Cubit<LoginState> {
           );
 
           await AppStorage.saveUserRole(data.data?.user?.isAdmin ?? 0);
+          await AppStorage.saveUserData(
+            name: data.data?.user?.name,
+            phone: data.data?.user?.phone,
+            avatar: data.data?.user?.avatar,
+          );
           emit(LoginSuccess(data));
         }
       },

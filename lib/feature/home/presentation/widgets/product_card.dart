@@ -7,6 +7,7 @@ import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel? product;
@@ -40,11 +41,11 @@ class ProductCard extends StatelessWidget {
                   ? Center(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.r),
-                        child: Image.network(
-                          product!.fullImageUrl!,
+                        child: AppCachedNetworkImage(
+                          imageUrl: product!.fullImageUrl!,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorWidget: Container(
                             alignment: Alignment.center,
                             color: AppColors.greyBackground,
                             child: Icon(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dartz/dartz.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_consumer.dart';
@@ -7,6 +8,9 @@ import '../../domain/repo/admin_product_repo.dart';
 import '../models/add_product_request_body.dart';
 import '../models/update_product_request_body.dart';
 
+List<ProductModel> _parseProductsList(List<dynamic> dataList) =>
+    dataList.map((e) => ProductModel.fromJson(e as Map<String, dynamic>)).toList();
+
 class AdminProductRepoImpl implements AdminProductRepo {
   final ApiConsumer _apiConsumer;
   AdminProductRepoImpl(this._apiConsumer);
@@ -15,8 +19,8 @@ class AdminProductRepoImpl implements AdminProductRepo {
   Future<Either<Failure, List<ProductModel>>> getProducts() async {
     try {
       final response = await _apiConsumer.get(path: ApiConstant.adminProducts);
-      final List<dynamic> dataList = response['data'];
-      final products = dataList.map((e) => ProductModel.fromJson(e)).toList();
+      final List<dynamic> dataList = response['data'] ?? [];
+      final products = await compute(_parseProductsList, dataList);
       return Right(products);
     } on ServerFailure catch (failure) {
       return Left(failure);

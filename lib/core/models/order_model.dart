@@ -1,4 +1,5 @@
 import 'package:primo/feature/addresses/data/models/address_model.dart';
+import 'package:primo/core/models/user_model.dart';
 
 class OrderItemModel {
   final int id;
@@ -79,6 +80,7 @@ class OrderModel {
   final String? createdAt;
   final String? updatedAt;
   final AddressModel? address;
+  final UserModel? user;
   final List<OrderItemModel> items;
 
   OrderModel({
@@ -93,34 +95,44 @@ class OrderModel {
     this.createdAt,
     this.updatedAt,
     this.address,
+    this.user,
     required this.items,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
-      id: json['id'] as int? ?? 0,
-      userId: json['user_id'] as int? ?? 0,
-      addressId: json['address_id'] is int
-          ? json['address_id']
-          : int.tryParse(json['address_id']?.toString() ?? ''),
+      id: json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
+      userId: json['user_id'] != null
+          ? (int.tryParse(json['user_id'].toString()) ?? 0)
+          : 0,
+      addressId: json['address_id'] != null
+          ? int.tryParse(json['address_id'].toString())
+          : null,
       status: json['status']?.toString() ?? 'pending',
-      // التعامل مع الأخطاء الإملائية في السيرفر: is_delivere أو is_delivery
       isDelivery: json['is_delivere'] == true ||
           json['is_delivery'] == true ||
           json['is_delivere'] == 1 ||
           json['is_delivery'] == 1 ||
           json['is_delivere'] == "1" ||
           json['is_delivery'] == "1",
-      amount: json['amount'] as num? ?? 0,
-      // التعامل مع الأخطاء الإملائية: delivere_amount أو delivery_amount
-      deliveryAmount: json['delivere_amount'] as num? ??
-          json['delivery_amount'] as num? ??
-          0,
-      totalAmount: json['total_amount'] as num? ?? 0,
+      amount: json['amount'] != null
+          ? (num.tryParse(json['amount'].toString()) ?? 0)
+          : 0,
+      deliveryAmount: json['delivere_amount'] != null
+          ? (num.tryParse(json['delivere_amount'].toString()) ?? 0)
+          : (json['delivery_amount'] != null
+              ? (num.tryParse(json['delivery_amount'].toString()) ?? 0)
+              : 0),
+      totalAmount: json['total_amount'] != null
+          ? (num.tryParse(json['total_amount'].toString()) ?? 0)
+          : 0,
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
       address: json['address'] != null && json['address'] is Map
           ? AddressModel.fromJson(json['address'] as Map<String, dynamic>)
+          : null,
+      user: json['user'] != null && json['user'] is Map
+          ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))

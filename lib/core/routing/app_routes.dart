@@ -6,8 +6,11 @@ import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/routing/otp_enum.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/feature/admin_categories/presentation/cubit/admin_category_cubit.dart';
+import 'package:primo/feature/admin_categories/presentation/cubit/admin_categories_list_cubit.dart';
 import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_cubit.dart';
+import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_list_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_product_cubit.dart';
+import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/forgot_password_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/login_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/otp_cubit.dart';
@@ -63,8 +66,13 @@ import 'package:primo/feature/direct_orders/presentation/screen/direct_orders_sc
 import 'package:primo/feature/admin_categories/presentation/screen/admin_categories_screen.dart';
 import 'package:primo/feature/admin_categories/presentation/screen/add_category_screen.dart';
 import 'package:primo/feature/admin_offers/presentation/screen/create_offer_screen.dart';
+import 'package:primo/feature/admin_offers/presentation/screen/admin_offers_screen.dart';
 import 'package:primo/feature/admin_suggestions/presentation/screen/admin_suggestions_screen.dart';
 import 'package:primo/feature/suggestions/presentation/screens/suggest_product_page.dart';
+import 'package:primo/feature/admin_home/presentation/cubit/admin_dashboard_cubit.dart';
+import 'package:primo/feature/admin_settings/presentation/screen/admin_settings_screen.dart';
+import 'package:primo/feature/admin_settings/presentation/cubit/store_settings_cubit.dart';
+import 'package:primo/feature/admin_settings/presentation/cubit/add_store_address_cubit.dart';
 
 class AppRoutes {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -312,9 +320,12 @@ class AppRoutes {
             } else if (arg is int) {
               categoryId = arg;
             } else if (arg is Map) {
-              if (arg['id'] != null)
+              if (arg['id'] != null) {
                 categoryId = int.tryParse(arg['id'].toString()) ?? 1;
-              if (arg['name'] != null) categoryName = arg['name'].toString();
+              }
+              if (arg['name'] != null) {
+                categoryName = arg['name'].toString();
+              }
             }
             return MultiBlocProvider(
               providers: [
@@ -348,49 +359,122 @@ class AppRoutes {
 
       // ================== Admin App ==================
       case Routes.adminHome:
-        return CupertinoPageRoute(builder: (_) => const AdminHomeScreen());
-      case Routes.adminInventory:
-        return CupertinoPageRoute(builder: (_) => const InventoryScreen());
-      case Routes.addProducts:
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
-            create: (context) =>
-                getIt<AdminProductCubit>()
-                  ..loadCategories(), // جلب الأقسام فور فتح الشاشة
+            create: (_) => getIt<AdminDashboardCubit>()..getDashboard(),
+            child: const AdminHomeScreen(),
+          ),
+        );
+      case Routes.adminInventory:
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<AdminProductsListCubit>()),
+              BlocProvider.value(value: getIt<AdminProductCubit>()),
+            ],
+            child: const InventoryScreen(),
+          ),
+        );
+      case Routes.addProducts:
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                value: getIt<AdminProductCubit>()
+                  ..clearForm()
+                  ..loadCategories(),
+              ),
+              BlocProvider.value(value: getIt<AdminProductsListCubit>()),
+            ],
             child: const AddProductScreen(),
           ),
         );
       case Routes.editProduct:
-        return CupertinoPageRoute(builder: (_) => const EditProductScreen());
+        final prodCubit = getIt<AdminProductCubit>();
+        if (settings.arguments is ProductModel) {
+          prodCubit.initForEdit(settings.arguments as ProductModel);
+        }
+        prodCubit.loadCategories();
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: prodCubit),
+              BlocProvider.value(value: getIt<AdminProductsListCubit>()),
+            ],
+            child: const EditProductScreen(),
+          ),
+        );
       case Routes.adminOrders:
         return CupertinoPageRoute(builder: (_) => const AdminOrdersScreen());
       case Routes.orderDetails:
+        final order = settings.arguments as OrderModel?;
         return CupertinoPageRoute(
-          builder: (_) => const AdminOrderDetailsScreen(),
+          builder: (_) => AdminOrderDetailsScreen(orderArg: order),
         );
       case Routes.directOrders:
         return CupertinoPageRoute(builder: (_) => const DirectOrdersScreen());
       case Routes.adminCategories:
         return CupertinoPageRoute(
-          builder: (_) => const AdminCategoriesScreen(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<AdminCategoriesListCubit>()),
+              BlocProvider.value(value: getIt<AdminCategoryCubit>()),
+            ],
+            child: const AdminCategoriesScreen(),
+          ),
         );
       case Routes.addCategory:
+        final catCubit = getIt<AdminCategoryCubit>();
+        if (settings.arguments is CategoryModel) {
+          catCubit.initForEdit(settings.arguments as CategoryModel);
+        } else {
+          catCubit.clearForAdd();
+        }
         return CupertinoPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => getIt<AdminCategoryCubit>(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: catCubit),
+              BlocProvider.value(value: getIt<AdminCategoriesListCubit>()),
+            ],
             child: const AddCategoryScreen(),
           ),
         );
       case Routes.adminOffers:
         return CupertinoPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => getIt<AdminOffersCubit>(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<AdminOffersListCubit>()),
+              BlocProvider.value(value: getIt<AdminOffersCubit>()),
+            ],
+            child: const AdminOffersScreen(),
+          ),
+        );
+      case Routes.createOffer:
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<AdminOffersCubit>()),
+              BlocProvider.value(value: getIt<AdminOffersListCubit>()),
+              BlocProvider.value(
+                value: getIt<AdminProductsListCubit>()..getProducts(),
+              ),
+            ],
             child: const CreateOfferScreen(),
           ),
         );
       case Routes.adminSuggestions:
         return CupertinoPageRoute(
           builder: (_) => const AdminSuggestionsScreen(),
+        );
+      case Routes.adminSettings:
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => getIt<StoreSettingsCubit>()),
+              BlocProvider(create: (_) => getIt<AddStoreAddressCubit>()),
+            ],
+            child: const AdminSettingsScreen(),
+          ),
         );
 
       // ================== Default & Checkout ==================

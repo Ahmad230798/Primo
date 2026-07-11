@@ -13,22 +13,22 @@ class OtpResponse {
 
   factory OtpResponse.fromJson(Map<String, dynamic> json) =>
       _$OtpResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OtpResponseToJson(this);
 }
 
 @JsonSerializable()
 class OtpData {
-  // استخدمنا الـ UserModel المشترك هنا
   final UserModel? user; 
-  
   @JsonKey(name: 'access_token')
   final String? accessToken;
-  
   @JsonKey(name: 'refresh_token')
   final String? refreshToken;
-  
   final String? message;
 
   OtpData({this.user, this.accessToken, this.refreshToken, this.message});
 
   factory OtpData.fromJson(Map<String, dynamic> json) => _$OtpDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OtpDataToJson(this);
 }

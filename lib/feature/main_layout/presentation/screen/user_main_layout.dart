@@ -8,10 +8,7 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/screens/cart.dart';
-import 'package:primo/feature/categories/presentation/cubit/user_categories_cubit.dart';
 import 'package:primo/feature/categories/presentation/screen/all_categories_screen.dart';
-import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
-import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
 
 // استدعاء شاشة الـ Home القديمة الخاصة بك
 import 'package:primo/feature/home/presentation/screen/home.dart';

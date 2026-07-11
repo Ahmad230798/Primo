@@ -20,7 +20,7 @@ class LoginScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       // 3. تحديد ماذا يحدث عند الضغط على زر الرجوع
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           return;
         }

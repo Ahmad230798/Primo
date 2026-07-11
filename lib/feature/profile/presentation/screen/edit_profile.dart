@@ -40,9 +40,7 @@ class EditProfile extends StatelessWidget {
                 cubit.user?.fullAvatarUrl ??
                 cubit.user?.fullAvatarUrl ??
                 "assets/images/profile_image.jpg";
-            print(
-              "DEBUG_IMAGE_PATH: $imagePath",
-            ); // 💡 انظر للكونسول وتأكد أن الرابط يفتح في المتصفح
+            debugPrint("DEBUG_IMAGE_PATH: $imagePath");
             return SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),

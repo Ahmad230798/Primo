@@ -1,4 +1,16 @@
 import 'package:get_it/get_it.dart';
+import 'package:primo/core/services/firebase_messaging_service.dart';
+import 'package:primo/feature/admin_orders/data/repos/admin_orders_repo_impl.dart';
+import 'package:primo/feature/admin_orders/domain/repo/admin_orders_repo.dart';
+import 'package:primo/feature/admin_orders/domain/usecases/get_admin_order_details_usecase.dart';
+import 'package:primo/feature/admin_orders/domain/usecases/get_admin_orders_usecase.dart';
+import 'package:primo/feature/admin_orders/domain/usecases/update_order_status_usecase.dart';
+import 'package:primo/feature/admin_orders/presentation/cubit/admin_orders_cubit.dart';
+import 'package:primo/feature/admin_suggestions/data/repos/admin_suggestions_repo_impl.dart';
+import 'package:primo/feature/admin_suggestions/domain/repo/admin_suggestions_repo.dart';
+import 'package:primo/feature/admin_suggestions/domain/usecases/get_admin_suggestions_usecase.dart';
+import 'package:primo/feature/admin_suggestions/domain/usecases/update_suggestion_status_usecase.dart';
+import 'package:primo/feature/admin_suggestions/presentation/cubit/admin_suggestions_cubit.dart';
 import 'package:primo/feature/admin_categories/data/repos/admin_category_repo_impl.dart';
 import 'package:primo/feature/admin_categories/domain/repo/admin_category_repo.dart';
 import 'package:primo/feature/admin_categories/domain/usecases/add_category_usecase.dart';
@@ -89,6 +101,22 @@ import 'package:primo/feature/suggestions/data/repos/suggestions_repo_impl.dart'
 import 'package:primo/feature/suggestions/domain/repos/suggestions_repo.dart';
 import 'package:primo/feature/suggestions/domain/usecases/send_suggestion_usecase.dart';
 import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.dart';
+import 'package:primo/feature/admin_home/data/repos/admin_dashboard_repo_impl.dart';
+import 'package:primo/feature/admin_home/domain/repos/admin_dashboard_repo.dart';
+import 'package:primo/feature/admin_home/domain/usecases/get_admin_dashboard_usecase.dart';
+import 'package:primo/feature/admin_home/presentation/cubit/admin_dashboard_cubit.dart';
+import 'package:primo/feature/admin_settings/data/repos/store_settings_repo_impl.dart';
+import 'package:primo/feature/admin_settings/domain/repos/store_settings_repo.dart';
+import 'package:primo/feature/admin_settings/domain/usecases/add_store_address_usecase.dart';
+import 'package:primo/feature/admin_settings/domain/usecases/get_delivery_price_usecase.dart';
+import 'package:primo/feature/admin_settings/domain/usecases/update_delivery_price_usecase.dart';
+import 'package:primo/feature/admin_settings/presentation/cubit/add_store_address_cubit.dart';
+import 'package:primo/feature/admin_settings/presentation/cubit/store_settings_cubit.dart';
+import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
+import 'package:primo/feature/admin_categories/domain/usecases/manage_category_usecase.dart';
+import 'package:primo/feature/admin_categories/presentation/cubit/admin_categories_list_cubit.dart';
+import 'package:primo/feature/admin_offers/domain/usecases/manage_offers_usecase.dart';
+import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_list_cubit.dart';
 import '../network/api_consumer.dart';
 import '../network/dio_factory.dart';
 
@@ -96,7 +124,7 @@ final getIt = GetIt.instance;
 
 void setupServiceLocator() {
   // 1. النواة والشبكة (Core / Network)
-  // كائن جلب الـ Dio كمثيل وحيد مستقر
+  getIt.registerLazySingleton(() => FirebaseCloudMessagingService());
   getIt.registerLazySingleton(() => ApiConsumer(DioFactory.getDio()));
 
   // 2. المستودعات (Repositories)
@@ -148,7 +176,15 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => GetCategoriesUseCase(getIt<AdminCategoryRepo>()),
   );
-  getIt.registerFactory(() => AdminCategoryCubit(getIt<AddCategoryUseCase>()));
+  getIt.registerLazySingleton(
+    () => ManageCategoryUseCase(getIt<AdminCategoryRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => AdminCategoryCubit(getIt<ManageCategoryUseCase>()),
+  );
+  getIt.registerLazySingleton(
+    () => AdminCategoriesListCubit(getIt<ManageCategoryUseCase>()),
+  );
 
   // ================= ADMIN OFFERS =================
   getIt.registerLazySingleton<AdminOffersRepo>(
@@ -157,7 +193,15 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => CreateOfferUseCase(getIt<AdminOffersRepo>()),
   );
-  getIt.registerFactory(() => AdminOffersCubit(getIt<CreateOfferUseCase>()));
+  getIt.registerLazySingleton(
+    () => ManageOffersUseCase(getIt<AdminOffersRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => AdminOffersCubit(getIt<ManageOffersUseCase>()),
+  );
+  getIt.registerLazySingleton(
+    () => AdminOffersListCubit(getIt<ManageOffersUseCase>()),
+  );
 
   getIt.registerLazySingleton<AdminProductRepo>(
     () => AdminProductRepoImpl(getIt<ApiConsumer>()),
@@ -169,10 +213,16 @@ void setupServiceLocator() {
     () => ManageProductUseCase(getIt<AdminProductRepo>()),
   );
 
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
     () => AdminProductCubit(
       getIt<ManageProductUseCase>(),
       getIt<GetCategoriesUseCase>(), // جلب الأقسام من قسم الـ Categories
+    ),
+  );
+  getIt.registerLazySingleton(
+    () => AdminProductsListCubit(
+      getIt<GetProductsUseCase>(),
+      getIt<ManageProductUseCase>(),
     ),
   );
   getIt.registerLazySingleton(() => ForgotPasswordUsecase(getIt<AuthRepo>()));
@@ -364,4 +414,72 @@ void setupServiceLocator() {
     () => SendSuggestionUseCase(getIt<SuggestionsRepo>()),
   );
   getIt.registerFactory(() => SuggestionsCubit(getIt<SendSuggestionUseCase>()));
+
+  // --- Admin Dashboard ---
+  getIt.registerLazySingleton<AdminDashboardRepo>(
+    () => AdminDashboardRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetAdminDashboardUseCase(getIt<AdminDashboardRepo>()),
+  );
+  getIt.registerFactory(() => AdminDashboardCubit(getIt<GetAdminDashboardUseCase>()));
+
+  // --- Store Settings ---
+  getIt.registerLazySingleton<StoreSettingsRepo>(
+    () => StoreSettingsRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetDeliveryPriceUseCase(getIt<StoreSettingsRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => UpdateDeliveryPriceUseCase(getIt<StoreSettingsRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => AddStoreAddressUseCase(getIt<StoreSettingsRepo>()),
+  );
+  getIt.registerFactory(
+    () => StoreSettingsCubit(
+      getIt<GetDeliveryPriceUseCase>(),
+      getIt<UpdateDeliveryPriceUseCase>(),
+    ),
+  );
+  getIt.registerFactory(() => AddStoreAddressCubit(getIt<AddStoreAddressUseCase>()));
+
+  // --- Admin Orders ---
+  getIt.registerLazySingleton<AdminOrdersRepo>(
+    () => AdminOrdersRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetAdminOrdersUseCase(getIt<AdminOrdersRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetAdminOrderDetailsUseCase(getIt<AdminOrdersRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => UpdateOrderStatusUseCase(getIt<AdminOrdersRepo>()),
+  );
+  getIt.registerFactory(
+    () => AdminOrdersCubit(
+      getIt<GetAdminOrdersUseCase>(),
+      getIt<GetAdminOrderDetailsUseCase>(),
+      getIt<UpdateOrderStatusUseCase>(),
+    ),
+  );
+
+  // --- Admin Suggestions ---
+  getIt.registerLazySingleton<AdminSuggestionsRepo>(
+    () => AdminSuggestionsRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerLazySingleton(
+    () => GetAdminSuggestionsUseCase(getIt<AdminSuggestionsRepo>()),
+  );
+  getIt.registerLazySingleton(
+    () => UpdateSuggestionStatusUseCase(getIt<AdminSuggestionsRepo>()),
+  );
+  getIt.registerFactory(
+    () => AdminSuggestionsCubit(
+      getIt<GetAdminSuggestionsUseCase>(),
+      getIt<UpdateSuggestionStatusUseCase>(),
+    ),
+  );
 }

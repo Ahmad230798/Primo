@@ -57,7 +57,7 @@ class FavoritesPage extends StatelessWidget {
                         final item = state.favorites[index];
                         return FavoriteProductCard(
                           title: item.title ?? item.name ?? "منتج",
-                          weight: "${item.unit ?? 'قطعة'}",
+                          weight: item.unit ?? 'قطعة',
                           price: "${item.displayPrice} ل.س",
                           imagePath: item.fullImageUrl ?? "",
                           product: item,

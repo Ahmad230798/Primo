@@ -7,8 +7,13 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OfferSubmitButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final String text;
 
-  const OfferSubmitButton({super.key, required this.onPressed});
+  const OfferSubmitButton({
+    super.key,
+    required this.onPressed,
+    this.text = "تفعيل العرض",
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +40,7 @@ class OfferSubmitButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "تفعيل العرض",
+              text,
               style: AppTextStyle.font18.copyWith(
                 color: AppColors.white,
                 fontWeight: FontWeight.bold,

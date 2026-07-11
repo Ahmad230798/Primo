@@ -6,6 +6,7 @@ import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class UserProductCard extends StatelessWidget {
   final String title;
@@ -32,8 +33,7 @@ class UserProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final opacity = isOutOfStock ? 0.6 : 1.0;
-    final isNet =
-        imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
+    final isNet = !imageUrl.startsWith('assets/');
 
     return GestureDetector(
       onTap: () {
@@ -75,10 +75,10 @@ class UserProductCard extends StatelessWidget {
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: isNet
-                          ? Image.network(
-                              imageUrl,
+                          ? AppCachedNetworkImage(
+                              imageUrl: imageUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Center(
+                              errorWidget: Center(
                                 child: Icon(
                                   Icons.shopping_bag_outlined,
                                   color: AppColors.greyMedium2,
