@@ -146,4 +146,14 @@ class AppStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_defaultAddressKey);
   }
+
+  static Future<void> cacheData(String key, String jsonString) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, jsonString);
+  }
+
+  static Future<String?> getCachedData(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
+  }
 }

@@ -92,56 +92,87 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    16.verticalSpace,
-                    Text(
-                      "إدارة المخزون",
-                      style: AppTextStyle.font30.copyWith(
-                        color: AppColors.textMain,
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  await context.read<AdminProductsListCubit>().getProducts();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      16.verticalSpace,
+                      Text(
+                        "إدارة المخزون",
+                        style: AppTextStyle.font30.copyWith(
+                          color: AppColors.textMain,
+                        ),
                       ),
-                    ),
-                    4.verticalSpace,
-                    Text(
-                      "تحكم في توافر المنتجات وتحديث الكميات",
-                      style: AppTextStyle.font14.copyWith(
-                        color: AppColors.greyMedium3,
+                      4.verticalSpace,
+                      Text(
+                        "تحكم في توافر المنتجات وتحديث الكميات",
+                        style: AppTextStyle.font14.copyWith(
+                          color: AppColors.greyMedium3,
+                        ),
                       ),
-                    ),
-                    24.verticalSpace,
-                    const SearchAndFilterWidget(),
-                    24.verticalSpace,
+                      24.verticalSpace,
+                      const SearchAndFilterWidget(),
+                      24.verticalSpace,
 
-                    BlocBuilder<
-                      AdminProductsListCubit,
-                      AdminProductsListState
-                    >(
-                      builder: (context, state) {
-                        if (state is AdminProductsListLoading) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32.h),
-                              child: const CircularProgressIndicator(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          );
-                        } else if (state is AdminProductsListError) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32.h),
-                              child: Text(
-                                state.message,
-                                style: AppTextStyle.font16.copyWith(
+                      BlocBuilder<
+                        AdminProductsListCubit,
+                        AdminProductsListState
+                      >(
+                        builder: (context, state) {
+                          if (state is AdminProductsListLoading) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(32.h),
+                                child: const CircularProgressIndicator(
                                   color: AppColors.primary,
                                 ),
                               ),
-                            ),
-                          );
-                        }
+                            );
+                          } else if (state is AdminProductsListError) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(32.h),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline_rounded,
+                                      size: 48.sp,
+                                      color: AppColors.primary,
+                                    ),
+                                    12.verticalSpace,
+                                    Text(
+                                      state.message,
+                                      style: AppTextStyle.font16.copyWith(
+                                        color: AppColors.primary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    16.verticalSpace,
+                                    ElevatedButton.icon(
+                                      onPressed: () => context.read<AdminProductsListCubit>().getProducts(),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primary,
+                                        foregroundColor: AppColors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12.r),
+                                        ),
+                                      ),
+                                      icon: const Icon(Icons.refresh_rounded),
+                                      label: const Text("إعادة المحاولة"),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
 
                         final products =
                             context
@@ -216,6 +247,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   ],
                 ),
               ),
+            ),
             ),
           ],
         ),

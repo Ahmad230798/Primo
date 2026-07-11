@@ -41,12 +41,16 @@ class CalculationCard extends StatelessWidget {
                       color: AppColors.white.withValues(alpha: 0.8),
                     ),
                   ),
-                  Text(
-                    "${before.toStringAsFixed(0)} ل.س",
-                    style: AppTextStyle.font16.copyWith(
-                      color: AppColors.white.withValues(alpha: 0.6),
-                      decoration: TextDecoration.lineThrough,
-                      decorationColor: AppColors.white.withValues(alpha: 0.6),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: Text(
+                      "${before.toStringAsFixed(0)} ل.س",
+                      key: ValueKey<double>(before),
+                      style: AppTextStyle.font16.copyWith(
+                        color: AppColors.white.withValues(alpha: 0.6),
+                        decoration: TextDecoration.lineThrough,
+                        decorationColor: AppColors.white.withValues(alpha: 0.6),
+                      ),
                     ),
                   ),
                 ],
@@ -64,11 +68,15 @@ class CalculationCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    "${after.toStringAsFixed(0)} ل.س",
-                    style: AppTextStyle.font24.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: Text(
+                      "${after.toStringAsFixed(0)} ل.س",
+                      key: ValueKey<double>(after),
+                      style: AppTextStyle.font24.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

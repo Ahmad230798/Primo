@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:dartz/dartz.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_error_handler.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/core/models/category_model.dart';
 import '../../domain/repo/admin_category_repo.dart';
 import '../models/add_category_request_body.dart';
@@ -41,12 +43,23 @@ class AdminCategoryRepoImpl implements AdminCategoryRepo {
       );
 
       final List<dynamic> dataList = response['data'] ?? [];
+      try {
+        await AppStorage.cacheData('cache_admin_categories', jsonEncode(dataList));
+      } catch (_) {}
+
       final categories = await compute(_parseCategoriesList, dataList);
 
       return Right(categories);
-    } on ServerFailure catch (failure) {
-      return Left(failure);
     } catch (e) {
+      try {
+        final cached = await AppStorage.getCachedData('cache_admin_categories');
+        if (cached != null) {
+          final List<dynamic> dataList = jsonDecode(cached);
+          final categories = await compute(_parseCategoriesList, dataList);
+          return Right(categories);
+        }
+      } catch (_) {}
+      if (e is ServerFailure) return Left(e);
       return Left(ServerFailure("حدث خطأ غير متوقع: $e"));
     }
   }

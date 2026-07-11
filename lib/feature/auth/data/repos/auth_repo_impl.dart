@@ -1,4 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:primo/core/di/service_locator.dart';
+import 'package:primo/core/services/firebase_messaging_service.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_error_handler.dart';
@@ -181,8 +183,15 @@ class AuthRepoImpl implements AuthRepo {
   @override
   Future<Either<Failure, String>> logout() async {
     try {
-      final response = await _apiConsumer.post(path: ApiConstant.logOut);
-      final message = response['data']['message'].toString();
+      String? fcmToken;
+      try {
+        fcmToken = await getIt<FirebaseCloudMessagingService>().getDeviceToken();
+      } catch (_) {}
+      final response = await _apiConsumer.post(
+        path: ApiConstant.logOut,
+        body: fcmToken != null ? {'fcm_token': fcmToken} : null,
+      );
+      final message = response['data']?['message']?.toString() ?? "تم تسجيل الخروج بنجاح";
       return Right(message);
     } on ServerFailure catch (error) {
       return Left(error);
