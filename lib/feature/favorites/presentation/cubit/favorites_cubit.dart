@@ -14,11 +14,15 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     : super(FavoritesInitial());
 
   Future<void> fetchFavorites({bool showLoading = true}) async {
-    emit(FavoritesLoading());
+    if (favorites.isEmpty && showLoading) {
+      emit(FavoritesLoading());
+    }
     final result = await _getFavoritesUseCase.execute();
     result.fold(
       (failure) {
-        if (!isClosed) emit(FavoritesError(failure.errorMessage)); // 💡 حماية
+        if (favorites.isEmpty && !isClosed) {
+          emit(FavoritesError(failure.errorMessage));
+        }
       },
       (list) {
         favorites = list;

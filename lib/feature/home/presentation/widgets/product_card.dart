@@ -4,15 +4,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/helper/navigation.dart';
-import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/models/product_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
-// استدعاءات السلة
-import 'package:primo/core/di/service_locator.dart';
-import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
+// // استدعاءات السلة
+// import 'package:primo/core/di/service_locator.dart';
+// import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 
 // 💡 1. الكلاس عاد ليكون StatelessWidget نقي مع const constructor
 class ProductCard extends StatelessWidget {
@@ -22,7 +21,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 💡 2. تعريف متغير محلي داخل دالة build للتحكم بحالة التحميل
-    bool isAddingToCart = false;
+    // bool isAddingToCart = false;
 
     return GestureDetector(
       onTap: () {
@@ -108,73 +107,73 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
 
-                // 💡 3. استخدام StatefulBuilder للتحكم بحالة الزر فقط
-                StatefulBuilder(
-                  builder: (context, setState) {
-                    return Container(
-                      width: 40.w,
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.23),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        shape: BoxShape.circle,
-                        color: AppColors.primary,
-                      ),
-                      // 💡 4. إظهار الدائرة إذا كان قيد التحميل
-                      child: isAddingToCart
-                          ? Center(
-                              child: SizedBox(
-                                width: 18.w,
-                                height: 18.w,
-                                child: const CircularProgressIndicator(
-                                  color: AppColors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              ),
-                            )
-                          : IconButton(
-                              icon: const Icon(Icons.add),
-                              color: AppColors.white,
-                              onPressed: () async {
-                                if (isAddingToCart) return;
+                // // 💡 3. استخدام StatefulBuilder للتحكم بحالة الزر فقط
+                // StatefulBuilder(
+                //   builder: (context, setState) {
+                //     return Container(
+                //       width: 40.w,
+                //       height: 40.h,
+                //       decoration: BoxDecoration(
+                //         boxShadow: [
+                //           BoxShadow(
+                //             color: AppColors.primary.withValues(alpha: 0.23),
+                //             blurRadius: 12,
+                //             offset: const Offset(0, 4),
+                //           ),
+                //         ],
+                //         shape: BoxShape.circle,
+                //         color: AppColors.primary,
+                //       ),
+                //       // 💡 4. إظهار الدائرة إذا كان قيد التحميل
+                //       child: isAddingToCart
+                //           ? Center(
+                //               child: SizedBox(
+                //                 width: 18.w,
+                //                 height: 18.w,
+                //                 child: const CircularProgressIndicator(
+                //                   color: AppColors.white,
+                //                   strokeWidth: 2.5,
+                //                 ),
+                //               ),
+                //             )
+                //           : IconButton(
+                //               icon: const Icon(Icons.add),
+                //               color: AppColors.white,
+                //               onPressed: () async {
+                //                 if (isAddingToCart) return;
 
-                                if (product != null) {
-                                  final variantId =
-                                      (product!.variants != null &&
-                                          product!.variants!.isNotEmpty)
-                                      ? product!.variants!.first.id
-                                      : product!.id;
+                //                 if (product != null) {
+                //                   final variantId =
+                //                       (product!.variants != null &&
+                //                           product!.variants!.isNotEmpty)
+                //                       ? product!.variants!.first.id
+                //                       : product!.id;
 
-                                  if (variantId != null) {
-                                    // 💡 5. تحديث حالة الزر ليظهر التحميل
-                                    setState(() => isAddingToCart = true);
+                //                   if (variantId != null) {
+                //                     // 💡 5. تحديث حالة الزر ليظهر التحميل
+                //                     setState(() => isAddingToCart = true);
 
-                                    // انتظار استجابة السيرفر
-                                    await getIt<CartCubit>().addToCart(
-                                      variantId,
-                                      1,
-                                    );
+                //                     // انتظار استجابة السيرفر
+                //                     await getIt<CartCubit>().addToCart(
+                //                       variantId,
+                //                       1,
+                //                     );
 
-                                    // 💡 6. إيقاف التحميل وإعادة الزر لشكله الطبيعي
-                                    if (context.mounted) {
-                                      setState(() => isAddingToCart = false);
-                                    }
-                                  } else {
-                                    context.showError(
-                                      "لا يمكن إضافة هذا المنتج حالياً",
-                                    );
-                                  }
-                                }
-                              },
-                            ),
-                    );
-                  },
-                ),
+                //                     // 💡 6. إيقاف التحميل وإعادة الزر لشكله الطبيعي
+                //                     if (context.mounted) {
+                //                       setState(() => isAddingToCart = false);
+                //                     }
+                //                   } else {
+                //                     context.showError(
+                //                       "لا يمكن إضافة هذا المنتج حالياً",
+                //                     );
+                //                   }
+                //                 }
+                //               },
+                //             ),
+                //     );
+                //   },
+                // ),
               ],
             ),
           ],

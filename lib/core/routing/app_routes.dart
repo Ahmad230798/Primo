@@ -276,7 +276,8 @@ class AppRoutes {
           builder: (_) => MultiBlocProvider(
             providers: [
               BlocProvider.value(
-                value: getIt<FavoritesCubit>()..fetchFavorites(),
+                value: getIt<FavoritesCubit>()
+                  ..fetchFavorites(showLoading: false),
               ),
             ],
             child: const FavoritesPage(isFromBottomNav: false),
