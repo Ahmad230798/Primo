@@ -192,7 +192,7 @@ class OrderDetailsScreen extends StatelessWidget {
 
                                 bool hasErrors = false;
 
-                                for (final item in liveOrder .items) {
+                                for (final item in liveOrder.items) {
                                   await getIt<CartCubit>().addToCart(
                                     item.id,
                                     item.quantity,

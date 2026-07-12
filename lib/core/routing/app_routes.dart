@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/routing/otp_enum.dart';
@@ -282,12 +283,22 @@ class AppRoutes {
       case Routes.orderDetailsScreen:
         final order = settings.arguments as OrderModel?; // استلام الداتا
         return MaterialPageRoute(
-          builder: (_) => OrderDetailsScreen(orderArg: order), // تمريرها للشاشة
+          builder: (_) => BlocProvider(
+            create: (context) {
+              final cubit = getIt<OrdersCubit>();
+              if (order != null) {
+                cubit.getOrderDetails(order.id);
+              }
+              return cubit;
+            },
+            child: OrderDetailsScreen(orderArg: order),
+          ), // تمريرها للشاشة
         );
       case Routes.suggestProduct:
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
             create: (context) => getIt<SuggestionsCubit>(),
+
             child: const SuggestProductPage(),
           ),
         );
@@ -423,20 +434,9 @@ class AppRoutes {
       case Routes.adminOrders:
         return CupertinoPageRoute(builder: (_) => const AdminOrdersScreen());
       case Routes.orderDetails:
-        final orderArg = settings.arguments as OrderModel?;
-
-        return MaterialPageRoute(
-          // 💡 التغليف يتم  نا! هذا يجعل الشاشة بالكامل تمتلك Context يرى الكيوبت
-          builder: (context) => BlocProvider(
-            create: (context) {
-              final cubit = getIt<OrdersCubit>();
-              if (orderArg != null) {
-                cubit.getOrderDetails(orderArg.id);
-              }
-              return cubit;
-            },
-            child: OrderDetailsScreen(orderArg: orderArg),
-          ),
+        final order = settings.arguments as OrderModel?;
+        return CupertinoPageRoute(
+          builder: (_) => AdminOrderDetailsScreen(orderArg: order),
         );
       case Routes.directOrders:
         return CupertinoPageRoute(builder: (_) => const DirectOrdersScreen());
