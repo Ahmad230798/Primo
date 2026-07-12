@@ -1,9 +1,11 @@
+import 'dart:async'; // 💡 استيراد مكتبة الـ Timer
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:primo/feature/favorites/presentation/cubit/favorites_state.dart'; // 💡 استيراد الـ State الخاص بالمفضلة
 import 'package:primo/feature/search/presentation/cubit/search_cubit.dart';
 import 'package:primo/feature/search/presentation/cubit/search_state.dart';
 
@@ -20,15 +22,14 @@ class SearchResultsScreen extends StatefulWidget {
 
 class _SearchResultsScreenState extends State<SearchResultsScreen> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce; // 💡 متغير المؤقت لمنع ضغط السيرفر
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<SearchCubit>();
-      if (cubit.products.isNotEmpty) {
-        // already searched
-      } else {
+      if (cubit.products.isEmpty) {
         cubit.searchProducts("");
       }
     });
@@ -36,8 +37,19 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel(); // 💡 تنظيف المؤقت عند الخروج من الشاشة
     _searchController.dispose();
     super.dispose();
+  }
+
+  // 💡 دالة ذكية للبحث مع تأخير زمني (Debouncing)
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        context.read<SearchCubit>().searchProducts(query);
+      }
+    });
   }
 
   @override
@@ -50,24 +62,22 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
             // 1. شريط البحث العلوي (Header)
             Container(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-              decoration: BoxDecoration(color: AppColors.background),
+              decoration: const BoxDecoration(color: AppColors.background),
               child: Row(
                 children: [
-                  // سهم الرجوع
                   InkWell(
                     onTap: () => Navigator.pop(context),
                     borderRadius: BorderRadius.circular(99.r),
                     child: Padding(
                       padding: EdgeInsets.all(4.w),
                       child: Icon(
-                        Icons.arrow_forward_rounded, // سهم لليمين لأن التطبيق RTL
+                        Icons.arrow_forward_rounded,
                         color: AppColors.greyDark,
                         size: 26.sp,
                       ),
                     ),
                   ),
                   12.horizontalSpace,
-                  // حقل البحث
                   Expanded(
                     child: Container(
                       height: 48.h,
@@ -82,11 +92,13 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                             child: TextField(
                               controller: _searchController,
                               onSubmitted: (query) {
-                                context.read<SearchCubit>().searchProducts(query);
+                                _debounce?.cancel(); // إلغاء المؤقت إذا ضغط تم
+                                context.read<SearchCubit>().searchProducts(
+                                  query,
+                                );
                               },
-                              onChanged: (query) {
-                                context.read<SearchCubit>().searchProducts(query);
-                              },
+                              // 💡 استخدام دالة التأخير الذكية هنا
+                              onChanged: _onSearchChanged,
                               style: AppTextStyle.font14.copyWith(
                                 color: AppColors.textMain,
                                 fontWeight: FontWeight.w600,
@@ -101,10 +113,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                               ),
                             ),
                           ),
-                          // زر مسح النص (X)
                           InkWell(
                             onTap: () {
                               _searchController.clear();
+                              _debounce?.cancel();
                               context.read<SearchCubit>().searchProducts("");
                             },
                             child: Padding(
@@ -124,7 +136,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               ),
             ),
 
-            // 2. محتوى الصفحة القابل للتمرير بـ CustomScrollView (Virtualization)
+            // 2. محتوى الصفحة القابل للتمرير
             Expanded(
               child: BlocBuilder<SearchCubit, SearchState>(
                 builder: (context, state) {
@@ -143,43 +155,64 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                           child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 40.h),
                             child: const Center(
-                              child: CircularProgressIndicator(color: AppColors.primary),
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
                             ),
                           ),
                         )
-                      else if (state is SearchLoaded && state.products.isNotEmpty)
+                      else if (state is SearchLoaded &&
+                          state.products.isNotEmpty)
                         SliverPadding(
                           padding: EdgeInsets.symmetric(horizontal: 24.w),
                           sliver: SliverGrid(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16.w,
-                              mainAxisSpacing: 16.h,
-                              childAspectRatio: 0.65,
-                            ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final products = state.products;
-                                final product = products[index];
-                                final favCubit = context.watch<FavoritesCubit>();
-                                final isFav = favCubit.isProductFavorited(product.id ?? 0, defaultVal: product.isFavorite);
-                                return UserProductCard(
-                                  title: product.title ?? product.name ?? "منتج",
-                                  weight: product.unit ?? 'قطعة',
-                                  price: "${product.displayPrice} ل.س",
-                                  imageUrl: product.fullImageUrl ?? "",
-                                  isFavorite: isFav,
-                                  isOutOfStock: product.stock != null && product.stock! <= 0,
-                                  product: product,
-                                  onFavoriteTap: () {
-                                    if (product.id != null) {
-                                      favCubit.toggleFavorite(product.id!);
-                                    }
-                                  },
-                                );
-                              },
-                              childCount: state.products.length,
-                            ),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16.w,
+                                  mainAxisSpacing: 16.h,
+                                  childAspectRatio: 0.65,
+                                ),
+                            delegate: SliverChildBuilderDelegate((
+                              context,
+                              index,
+                            ) {
+                              final products = state.products;
+                              final product = products[index];
+
+                              // 💡 حصر التحديث في البطاقة الحالية فقط لحل مشكلة الأداء
+                              return BlocBuilder<
+                                FavoritesCubit,
+                                FavoritesState
+                              >(
+                                builder: (context, favState) {
+                                  final favCubit = context
+                                      .read<FavoritesCubit>();
+                                  final isFav = favCubit.isProductFavorited(
+                                    product.id ?? 0,
+                                    defaultVal: product.isFavorite,
+                                  );
+
+                                  return UserProductCard(
+                                    title:
+                                        product.title ?? product.name ?? "منتج",
+                                    weight: product.unit ?? 'قطعة',
+                                    price: "${product.displayPrice} ل.س",
+                                    imageUrl: product.fullImageUrl ?? "",
+                                    isFavorite: isFav,
+                                    isOutOfStock:
+                                        product.stock != null &&
+                                        product.stock! <= 0,
+                                    product: product,
+                                    onFavoriteTap: () {
+                                      if (product.id != null) {
+                                        favCubit.toggleFavorite(product.id!);
+                                      }
+                                    },
+                                  );
+                                },
+                              );
+                            }, childCount: state.products.length),
                           ),
                         )
                       else if (state is SearchError)
@@ -193,7 +226,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                             child: Center(
                               child: Text(
                                 "لم يتم العثور على منتجات مطابقة",
-                                style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium2),
+                                style: AppTextStyle.font16.copyWith(
+                                  color: AppColors.greyMedium2,
+                                ),
                               ),
                             ),
                           ),
@@ -205,7 +240,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                             child: Center(
                               child: Text(
                                 "ابحث عن المنتجات المطلوبة",
-                                style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium2),
+                                style: AppTextStyle.font16.copyWith(
+                                  color: AppColors.greyMedium2,
+                                ),
                               ),
                             ),
                           ),

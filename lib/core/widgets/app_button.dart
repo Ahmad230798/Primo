@@ -43,12 +43,14 @@ class AppButton extends StatelessWidget {
         ),
         onPressed: (isLoading == true) ? null : onPressed,
         child: isLoading == true
-            ? SizedBox(
-                width: 24.w,
-                height: 24.h,
-                child: const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.5,
+            ? Center(
+                child: SizedBox(
+                  width: 24.w,
+                  height: 24.h,
+                  child: const CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
                 ),
               )
             : Row(

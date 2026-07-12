@@ -99,12 +99,15 @@ class CartCubit extends Cubit<CartState> {
     }
 
     final result = await _updateCartQuantityUseCase(cartId, newCount);
-    result.fold((failure) {
-      if (!isClosed) emit(CartError(failure.errorMessage));
-      if (!isClosed) getCart(showLoading: false); // إعادة جلب عند الخطأ
-    }, (_) {
-      if (!isClosed) getCart(showLoading: false);
-    });
+    result.fold(
+      (failure) {
+        if (!isClosed) emit(CartError(failure.errorMessage));
+        if (!isClosed) getCart(showLoading: false); // إعادة جلب عند الخطأ
+      },
+      (_) {
+        if (!isClosed) getCart(showLoading: false);
+      },
+    );
   }
 
   Future<void> deleteFromCart(int cartId) async {
@@ -121,11 +124,14 @@ class CartCubit extends Cubit<CartState> {
     }
 
     final result = await _deleteFromCartUseCase(cartId);
-    result.fold((failure) {
-      if (!isClosed) emit(CartError(failure.errorMessage));
-      if (!isClosed) getCart(showLoading: false);
-    }, (_) {
-      if (!isClosed) getCart(showLoading: false);
-    });
+    result.fold(
+      (failure) {
+        if (!isClosed) emit(CartError(failure.errorMessage));
+        if (!isClosed) getCart(showLoading: false);
+      },
+      (_) {
+        if (!isClosed) getCart(showLoading: false);
+      },
+    );
   }
 }

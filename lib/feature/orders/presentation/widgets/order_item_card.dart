@@ -21,6 +21,7 @@ class OrderItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final int currentRating = item.productRatings;
     return Container(
       padding: EdgeInsets.all(12.w),
       margin: EdgeInsets.only(bottom: 12.h),
@@ -135,7 +136,9 @@ class OrderItemCard extends StatelessWidget {
                                 child: Padding(
                                   padding: EdgeInsets.only(left: 2.w),
                                   child: Icon(
-                                    Icons.star_border,
+                                    index < currentRating
+                                        ? Icons.star
+                                        : Icons.star_border,
                                     color: AppColors.primary,
                                     size: 20.sp,
                                   ),
