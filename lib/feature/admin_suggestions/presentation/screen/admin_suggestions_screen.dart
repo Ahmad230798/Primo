@@ -46,7 +46,8 @@ class AdminSuggestionsScreen extends StatelessWidget {
                     child: CustomAppBar(
                       title: "مقترحات الزبائن",
                       suffixsIcon: InkWell(
-                        onTap: () => Navigator.pushNamed(context, Routes.notifications),
+                        onTap: () =>
+                            Navigator.pushNamed(context, Routes.notifications),
                         borderRadius: BorderRadius.circular(99.r),
                         child: Padding(
                           padding: EdgeInsets.all(4.w),
@@ -77,7 +78,12 @@ class AdminSuggestionsScreen extends StatelessWidget {
                         ),
                         24.verticalSpace,
                         Expanded(
-                          child: _buildSuggestionsList(context, state, suggestions, cubit),
+                          child: _buildSuggestionsList(
+                            context,
+                            state,
+                            suggestions,
+                            cubit,
+                          ),
                         ),
                       ],
                     ),
@@ -133,13 +139,25 @@ class AdminSuggestionsScreen extends StatelessWidget {
               ? item.name!.trim()[0]
               : "ع";
 
+          // 💡 السحر هنا: استخراج التاريخ فقط بأمان
+          String displayDate = "حديث";
+          if (item.createdAt != null && item.createdAt!.trim().isNotEmpty) {
+            try {
+              final parsedDate = DateTime.parse(item.createdAt!);
+              displayDate =
+                  "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
+            } catch (e) {
+              // خطة بديلة: في حال كان النص غير قابل للتحويل، نقوم بقصه عند أول مسافة أو حرف T
+              displayDate = item.createdAt!.split('T').first.split(' ').first;
+            }
+          }
           return Stack(
             children: [
               SuggestionItemCard(
                 customerName: item.name ?? "عميل بريمو",
                 customerType: "زبون بريمو",
                 avatarLetter: firstChar,
-                date: item.createdAt ?? "حديث",
+                date: displayDate,
                 suggestionTitle: "مقترح #${item.id}",
                 suggestionText: '"${item.description ?? ''}"',
                 onAccept: () {
@@ -149,7 +167,8 @@ class AdminSuggestionsScreen extends StatelessWidget {
                   cubit.updateStatus(item.id, "rejected");
                 },
               ),
-              if (state is AdminSuggestionUpdating && state.suggestionId == item.id)
+              if (state is AdminSuggestionUpdating &&
+                  state.suggestionId == item.id)
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -157,7 +176,9 @@ class AdminSuggestionsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24.r),
                     ),
                     child: const Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                 ),
