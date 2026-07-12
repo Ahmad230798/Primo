@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -29,20 +30,34 @@ class CatigorySection extends StatelessWidget {
               ),
             );
           }
-          final cats = state.data.categories.take(4).toList();
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: cats.map((cat) {
-              return CatigoryChip(
-                text: cat.name ?? "قسم",
-                imageUrl: cat.fullImageUrl,
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  Routes.categoryProducts,
-                  arguments: cat,
-                ),
-              );
-            }).toList(),
+          // ... داخل الـ HomeLoaded
+          // 1. إزالة .take(4) لعرض كل العناصر
+          final cats = state.data.categories;
+
+          return SizedBox(
+            // 💡 يجب تحديد ارتفاع للـ SizedBox لكي تعرف القائمة مساحتها
+            height: 120.h,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal, // 💡 جعل القائمة أفقية
+              padding: EdgeInsets.symmetric(
+                horizontal: 24.w,
+              ), // مسافة من الجوانب
+              itemCount: cats.length,
+              separatorBuilder: (context, index) =>
+                  12.horizontalSpace, // مسافة بين العناصر
+              itemBuilder: (context, index) {
+                final cat = cats[index];
+                return CatigoryChip(
+                  text: cat.name ?? "قسم",
+                  imageUrl: cat.fullImageUrl,
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    Routes.categoryProducts,
+                    arguments: cat,
+                  ),
+                );
+              },
+            ),
           );
         } else if (state is HomeError) {
           return Center(

@@ -30,10 +30,7 @@ class ActivityCard extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 if (imgUrl.isNotEmpty)
-                  AppCachedNetworkImage(
-                    imageUrl: imgUrl,
-                    fit: BoxFit.cover,
-                  ),
+                  AppCachedNetworkImage(imageUrl: imgUrl, fit: BoxFit.cover),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   decoration: BoxDecoration(
@@ -72,7 +69,9 @@ class ActivityCard extends StatelessWidget {
                             8.verticalSpace,
                             if (offer?.discountValue != null || offer != null)
                               Text(
-                                offer?.discountValue != null ? "خصم ${offer!.discountValue}%" : "عرض خاص",
+                                offer?.discountValue != null
+                                    ? "خصم ${offer!.discountValue}%"
+                                    : "عرض خاص",
                                 style: AppTextStyle.font24.copyWith(
                                   color: AppColors.white,
                                   fontWeight: FontWeight.w600,

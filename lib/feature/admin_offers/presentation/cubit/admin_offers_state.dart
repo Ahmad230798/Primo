@@ -28,13 +28,14 @@ final class AdminOffersUIChanged extends AdminOffersState {
   final bool isPercentage;
   final String fromDate;
   final String toDate;
+  final String discountValue; // 💡 1. أضف هذا المتغير الجديد
 
   const AdminOffersUIChanged({
     required this.isPercentage,
     required this.fromDate,
-    required this.toDate,
+    required this.toDate, required this.discountValue,
   });
 
   @override
-  List<Object?> get props => [isPercentage, fromDate, toDate];
+List<Object> get props => [isPercentage, fromDate, toDate, discountValue]; // 💡 3. هذا السطر هو السحر الذي سيجبر الشاشة على التحديث
 }

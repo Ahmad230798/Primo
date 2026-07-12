@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_error_handler.dart';
@@ -23,6 +24,9 @@ class HomeRepoImpl implements HomeRepo {
         path: ApiConstant.userHome,
         queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
       );
+      debugPrint(
+        "API RESPONSE SEARCH: ${response['data'].toString()}",
+      ); // 💡 أضف هذا السطر
       final rawData = response['data'];
       if (search == null || search.trim().isEmpty) {
         try {

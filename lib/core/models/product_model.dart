@@ -61,16 +61,32 @@ class ProductModel {
   }
 
   String get lowestPrice {
-    if (directLowestPrice != null && directLowestPrice!.trim().isNotEmpty && directLowestPrice != "null") {
+    if (directLowestPrice != null &&
+        directLowestPrice!.trim().isNotEmpty &&
+        directLowestPrice != "null") {
       return directLowestPrice!;
     }
     if (variants == null || variants!.isEmpty) return "0";
-    var prices = variants!.map((v) => double.tryParse(v.price.toString()) ?? 0.0).toList();
+    var prices = variants!
+        .map((v) => double.tryParse(v.price.toString()) ?? 0.0)
+        .toList();
     prices.sort();
     return prices.first.toStringAsFixed(0);
   }
 
-  String get displayPrice => lowestPrice;
+  String get displayPrice {
+    // 1. إذا كان السعر موجوداً مباشرة في المنتج، استخدمه فوراً!
+    if (price != null && price.toString() != "0") {
+      return price.toString();
+    }
+    // 2. إذا لم يكن موجوداً، ابحث في الـ variants (المنطق القديم)
+    if (variants == null || variants!.isEmpty) return "0";
+    var prices = variants!
+        .map((v) => double.tryParse(v.price.toString()) ?? 0.0)
+        .toList();
+    prices.sort();
+    return prices.first.toStringAsFixed(0);
+  }
 
   String? get title => name;
   String? get unit {
@@ -79,14 +95,22 @@ class ProductModel {
     }
     return 'قطعة';
   }
+
   int? get stock => totalStock;
 
   int get totalStock {
-    if (directTotalStock != null) {
+    // إذا أرسل السيرفر قيمة مباشرة استخدمها
+    if (directTotalStock != null && directTotalStock! > 0) {
       return directTotalStock!;
     }
-    if (variants == null || variants!.isEmpty) return 0;
-    return variants!.fold(0, (sum, item) => sum + (int.tryParse(item.stock.toString()) ?? 0));
+    // إذا لم تكن هناك variants، لا تعيد 0 وتتسبب في "نفد الكمية"
+    // افترض أن المنتج متاح (مثلاً 1) أو تعامل معها كقيمة غير معروفة
+    if (variants == null || variants!.isEmpty)
+      return 999; // 💡 تعني: متاح (أو يمكنك وضع قيمة افتراضية)
+    return variants!.fold(
+      0,
+      (sum, item) => sum + (int.tryParse(item.stock.toString()) ?? 0),
+    );
   }
 
   bool get isActiveBool =>
@@ -106,8 +130,11 @@ class ProductModel {
     return ProductModel(
       id: parseInt(json['id']),
       categoryId: json['category_id'],
-      categoryName: json['category_name']?.toString() ??
-          (json['category'] is Map ? json['category']['name']?.toString() : null),
+      categoryName:
+          json['category_name']?.toString() ??
+          (json['category'] is Map
+              ? json['category']['name']?.toString()
+              : null),
       name: json['name']?.toString(),
       image: json['image']?.toString(),
       description: json['description']?.toString(),
@@ -115,16 +142,23 @@ class ProductModel {
       skuCode: json['sku_code']?.toString(),
       isActive: json['is_active'],
       category: json['category'] is Map
-          ? CategoryModel.fromJson(Map<String, dynamic>.from(json['category'] as Map))
+          ? CategoryModel.fromJson(
+              Map<String, dynamic>.from(json['category'] as Map),
+            )
           : null,
-      variants: json['variants'] != null 
-          ? List<VariantModel>.from(json['variants'].map((x) => VariantModel.fromJson(Map<String, dynamic>.from(x)))) 
+      variants: json['variants'] != null
+          ? List<VariantModel>.from(
+              json['variants'].map(
+                (x) => VariantModel.fromJson(Map<String, dynamic>.from(x)),
+              ),
+            )
           : [],
       ratings: json['ratings'],
       ratingsCount: parseInt(json['ratings_count']),
       isFavorite: json['is_favorite'] == true || json['is_favorite'] == 1,
       directLowestPrice: json['lowest_price']?.toString(),
-      directTotalStock: parseInt(json['total_stack']) ?? parseInt(json['total_stock']),
+      directTotalStock:
+          parseInt(json['total_stack']) ?? parseInt(json['total_stock']),
     );
   }
 

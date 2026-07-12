@@ -17,7 +17,9 @@ class OfferProductDropdown extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<AdminOffersCubit>();
         final productsCubit = context.read<AdminProductsListCubit>();
-        if (cubit.availableVariants.isEmpty && productsCubit.allProducts.isNotEmpty) {
+
+        if (cubit.availableVariants.isEmpty &&
+            productsCubit.allProducts.isNotEmpty) {
           cubit.loadVariantsFromProducts(productsCubit.allProducts);
         }
 
@@ -53,7 +55,9 @@ class OfferProductDropdown extends StatelessWidget {
                     enableFilter: true,
                     initialSelection: cubit.selectedVariant,
                     hintText: "ابحث واختر منتجاً أو نوعاً لتطبيق العرض عليه...",
-                    textStyle: AppTextStyle.font14.copyWith(color: AppColors.textMain),
+                    textStyle: AppTextStyle.font14.copyWith(
+                      color: AppColors.textMain,
+                    ),
                     inputDecorationTheme: InputDecorationTheme(
                       filled: true,
                       fillColor: AppColors.white,
@@ -70,12 +74,29 @@ class OfferProductDropdown extends StatelessWidget {
                       cubit.selectVariant(variant);
                     },
                     dropdownMenuEntries: cubit.availableVariants.map((variant) {
-                      final productName = variant.product?.name ?? "منتج #${variant.productId ?? ''}";
-                      final sku = variant.product?.skuCode != null && variant.product!.skuCode!.isNotEmpty
-                          ? " [SKU: ${variant.product!.skuCode}]"
-                          : "";
-                      final variantProp = variant.property ?? "قطعة";
-                      final label = "$productName$sku - $variantProp (${variant.price ?? 0} ل.س)";
+                      final parentProduct = productsCubit.allProducts
+                          .where((p) => p.id == variant.productId)
+                          .firstOrNull;
+
+                      // 1. جلب اسم المنتج
+                      final productName =
+                          parentProduct?.name ?? parentProduct?.title ?? "منتج";
+
+                      // 2. جلب الخاصية (مثل الحجم أو اللون)
+                      final variantProp = variant.property ?? "";
+
+                      // 3. جلب السعر
+                      final price = variant.price ?? 0;
+
+                      // 4. بناء النص الأساسي (الاسم والنوع)
+                      String label = variantProp.isNotEmpty
+                          ? "$productName - $variantProp"
+                          : productName;
+
+                      // 5. إضافة السعر داخل أقواس محمية بعلامة (RTL) لمنع انقلاب القوس
+                      const rlm = '\u200F';
+                      label += " $rlm($price ل.س)$rlm";
+
                       return DropdownMenuEntry<VariantModel>(
                         value: variant,
                         label: label,

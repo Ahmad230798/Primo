@@ -12,24 +12,25 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
   Future<void> getOffers() async {
     emit(AdminOffersListLoading());
     final result = await _useCase.getAllOffers();
-    result.fold(
-      (failure) => emit(AdminOffersListError(failure.errorMessage)),
-      (data) {
-        offers = data;
-        emit(AdminOffersListLoaded(offers));
-      },
-    );
+    result.fold((failure) => emit(AdminOffersListError(failure.errorMessage)), (
+      data,
+    ) {
+      offers = data;
+      emit(AdminOffersListLoaded(offers));
+    });
   }
 
   Future<void> deleteOffer(int offerId) async {
+    if (!isClosed) {
+      emit(AdminOffersListLoading());
+    }
     final result = await _useCase.deleteOffer(offerId);
-    result.fold(
-      (failure) => emit(AdminOffersListError(failure.errorMessage)),
-      (success) {
-        offers.removeWhere((o) => o.id == offerId);
-        emit(const AdminOfferDeleteSuccess("تم حذف العرض بنجاح"));
-        emit(AdminOffersListLoaded(offers));
-      },
-    );
+    result.fold((failure) => emit(AdminOffersListError(failure.errorMessage)), (
+      success,
+    ) {
+      offers.removeWhere((o) => o.id == offerId);
+      emit(const AdminOfferDeleteSuccess("تم حذف العرض بنجاح"));
+      emit(AdminOffersListLoaded(offers));
+    });
   }
 }

@@ -88,9 +88,7 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
   void initForEdit(OfferModel offer) {
     editingOfferId = offer.id;
     discountController.text =
-        offer.discountValue?.toString() ??
-        offer.variantPrice?.toString() ??
-        "";
+        offer.discountValue?.toString() ?? offer.variantPrice?.toString() ?? "";
     if (offer.from != null) {
       try {
         startDate = DateTime.parse(offer.from!);
@@ -115,7 +113,9 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
 
   void clearForAdd() {
     editingOfferId = null;
-    selectedVariant = availableVariants.isNotEmpty ? availableVariants.first : null;
+    selectedVariant = availableVariants.isNotEmpty
+        ? availableVariants.first
+        : null;
     if (selectedVariant?.id != null) {
       selectedVariantId = selectedVariant!.id!.toString();
     }
@@ -144,6 +144,7 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
         isPercentage: isPercentage,
         fromDate: startDateText,
         toDate: endDateText,
+        discountValue: discountController.text,
       ),
     );
   }
@@ -170,13 +171,12 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
 
     final response = await _manageOffersUseCase.createOffer(body);
 
-    response.fold(
-      (failure) => emit(AdminOffersError(failure.errorMessage)),
-      (success) {
-        _resetForm();
-        emit(AdminOffersSuccess(success.message ?? "تم إضافة العرض بنجاح"));
-      },
-    );
+    response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
+      success,
+    ) {
+      _resetForm();
+      emit(AdminOffersSuccess(success.message ?? "تم إضافة العرض بنجاح"));
+    });
   }
 
   void updateOffer() async {
@@ -207,12 +207,11 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
       body,
     );
 
-    response.fold(
-      (failure) => emit(AdminOffersError(failure.errorMessage)),
-      (success) {
-        emit(AdminOffersSuccess(success.message ?? "تم تعديل العرض بنجاح"));
-      },
-    );
+    response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
+      success,
+    ) {
+      emit(AdminOffersSuccess(success.message ?? "تم تعديل العرض بنجاح"));
+    });
   }
 
   void _resetForm() {
