@@ -1,6 +1,8 @@
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:primo/core/routing/app_routes.dart';
 
 class FirebaseCloudMessagingService {
   static final FirebaseCloudMessagingService _instance =
@@ -37,6 +39,47 @@ class FirebaseCloudMessagingService {
         messaging.onTokenRefresh.listen((newToken) {
           _cachedToken = newToken;
           log('FCM Device Token Refreshed: $_cachedToken');
+        });
+
+        // Listen for foreground notifications
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          log('Foreground FCM Message Received: ${message.notification?.title}');
+          final notification = message.notification;
+          if (notification != null) {
+            final context = AppRoutes.navigatorKey.currentContext;
+            if (context != null && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (notification.title != null)
+                        Text(
+                          notification.title!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      if (notification.body != null)
+                        Text(
+                          notification.body!,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                    ],
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 4),
+                  action: SnackBarAction(
+                    label: 'حسناً',
+                    textColor: Colors.white,
+                    onPressed: () {},
+                  ),
+                ),
+              );
+            }
+          }
         });
       } else {
         log('User declined or has not accepted permission for Firebase messaging');

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/models/product_model.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/favorites/domain/usecases/get_favorites_usecase.dart';
 import 'package:primo/feature/favorites/domain/usecases/toggle_favorite_usecase.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_state.dart';
@@ -14,13 +16,34 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     : super(FavoritesInitial());
 
   Future<void> fetchFavorites({bool showLoading = true}) async {
-    if (favorites.isEmpty && showLoading) {
+    bool hasCache = false;
+    if (favorites.isEmpty) {
+      try {
+        final cached = await AppStorage.getCachedData('cache_user_favorites');
+        if (cached != null) {
+          final List<dynamic> jsonList = jsonDecode(cached);
+          favorites =
+              jsonList.map((e) => ProductModel.fromJson(e)).toList();
+          for (var prod in favorites) {
+            if (prod.id != null) {
+              favoriteStatusMap[prod.id!] = true;
+            }
+          }
+          hasCache = true;
+          if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
+        }
+      } catch (_) {}
+    } else {
+      hasCache = true;
+    }
+
+    if (!hasCache && showLoading && !isClosed) {
       emit(FavoritesLoading());
     }
     final result = await _getFavoritesUseCase.execute();
     result.fold(
       (failure) {
-        if (favorites.isEmpty && !isClosed) {
+        if (!hasCache && favorites.isEmpty && !isClosed) {
           emit(FavoritesError(failure.errorMessage));
         }
       },
@@ -32,6 +55,11 @@ class FavoritesCubit extends Cubit<FavoritesState> {
             favoriteStatusMap[prod.id!] = true;
           }
         }
+        try {
+          final jsonString =
+              jsonEncode(list.map((e) => e.toJson()).toList());
+          AppStorage.cacheData('cache_user_favorites', jsonString);
+        } catch (_) {}
         if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
       },
     );

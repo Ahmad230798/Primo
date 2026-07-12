@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/models/offer_model.dart';
+import 'package:primo/core/network/app_storage.dart';
 import '../../domain/usecases/manage_offers_usecase.dart';
 import 'admin_offers_list_state.dart';
 
@@ -10,7 +12,21 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
   AdminOffersListCubit(this._useCase) : super(AdminOffersListInitial());
 
   Future<void> getOffers() async {
-    emit(AdminOffersListLoading());
+    bool hasCache = false;
+    try {
+      final cached = await AppStorage.getCachedData('cache_admin_offers');
+      if (cached != null) {
+        final List<dynamic> jsonList = jsonDecode(cached);
+        offers = jsonList.map((e) => OfferModel.fromJson(e)).toList();
+        hasCache = true;
+        if (!isClosed) emit(AdminOffersListLoaded(offers));
+      }
+    } catch (_) {}
+
+    if (!hasCache && !isClosed) {
+      emit(AdminOffersListLoading());
+    }
+
     final result = await _useCase.getAllOffers();
     result.fold((failure) => emit(AdminOffersListError(failure.errorMessage)), (
       data,

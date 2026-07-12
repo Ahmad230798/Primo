@@ -10,8 +10,9 @@ import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 
 import 'package:primo/core/utils/appcolor/app_colors.dart';
-import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
+import 'package:primo/core/widgets/app_empty_state.dart';
+import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_state.dart';
@@ -55,29 +56,21 @@ class FavoritesPage extends StatelessWidget {
                       );
                     } else if (state is FavoritesLoaded) {
                       if (state.favorites.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.favorite_border_rounded,
-                                size: 64.sp,
-                                color: AppColors.greyMedium2,
-                              ),
-                              16.verticalSpace,
-                              Text(
-                                "قائمة المفضلة فارغة",
-                                style: AppTextStyle.font16.copyWith(
-                                  color: AppColors.greyMedium2,
-                                ),
-                              ),
-                            ],
-                          ),
+                        return AppEmptyState(
+                          icon: Icons.favorite_border_rounded,
+                          message: "قائمة المفضلة فارغة",
+                          onRetry: () =>
+                              context.read<FavoritesCubit>().fetchFavorites(),
                         );
                       }
-                      return GridView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.symmetric(
+                      return RefreshIndicator(
+                        color: AppColors.primary,
+                        onRefresh: () async {
+                          await context.read<FavoritesCubit>().fetchFavorites();
+                        },
+                        child: GridView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
                           horizontal: 24.w,
                           vertical: 20.h,
                         ),
@@ -143,9 +136,14 @@ class FavoritesPage extends StatelessWidget {
                             ),
                           );
                         },
+                      ),
                       );
                     } else if (state is FavoritesError) {
-                      return Center(child: Text(state.errorMessage));
+                      return AppErrorWidget(
+                        message: state.errorMessage,
+                        onRetry: () =>
+                            context.read<FavoritesCubit>().fetchFavorites(),
+                      );
                     }
                     return const SizedBox();
                   },

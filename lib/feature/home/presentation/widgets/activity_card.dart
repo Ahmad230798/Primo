@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/models/offer_model.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
@@ -15,16 +16,24 @@ class ActivityCard extends StatelessWidget {
     final imgUrl = offer?.fullImageUrl ?? image;
 
     return Padding(
-      padding: EdgeInsets.only(left: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
       child: Material(
         color: AppColors.greyBackground,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {},
+          onTap: () {
+            if (offer != null) {
+              Navigator.pushNamed(
+                context,
+                Routes.productDetails,
+                arguments: offer,
+              );
+            }
+          },
           child: SizedBox(
-            width: 0.8.sw,
+            width: double.infinity,
             height: 180.h,
             child: Stack(
               fit: StackFit.expand,
@@ -70,7 +79,7 @@ class ActivityCard extends StatelessWidget {
                             if (offer?.discountValue != null || offer != null)
                               Text(
                                 offer?.discountValue != null
-                                    ? "خصم ${offer!.discountValue}%"
+                                    ? "خصم ${offer!.discountValue}"
                                     : "عرض خاص",
                                 style: AppTextStyle.font24.copyWith(
                                   color: AppColors.white,

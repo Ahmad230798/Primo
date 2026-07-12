@@ -85,6 +85,20 @@ class OrderItemModel {
       newPrice: parsedNewPrice,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'variant_id': id,
+        'product_id': productId,
+        'product_ratings': productRatings,
+        'name': name,
+        'image': image,
+        'quantity': quantity,
+        'property': property,
+        'price': price,
+        'has_active_offer': hasActiveOffer,
+        'new_price': newPrice,
+      };
 }
 
 class OrderPriceModel {
@@ -181,6 +195,22 @@ class OrderModel {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'user_id': userId,
+        'address_id': addressId,
+        'status': status,
+        'is_delivery': isDelivery ? 1 : 0,
+        'amount': amount,
+        'delivery_amount': deliveryAmount,
+        'total_amount': totalAmount,
+        'created_at': createdAt,
+        'updated_at': updatedAt,
+        'address': address?.toJson(),
+        'user': user?.toJson(),
+        'items': items.map((e) => e.toJson()).toList(),
+      };
 
   String get formattedDate {
     if (createdAt == null || createdAt!.isEmpty) return "";

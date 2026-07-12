@@ -81,13 +81,18 @@ class CartItemCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  4.verticalSpace,
-                  Text(
-                    item.variantProperty,
-                    style: AppTextStyle.font14.copyWith(
-                      color: AppColors.greyMedium2,
+                  if (item.variantProperty.trim().isNotEmpty) ...[
+                    4.verticalSpace,
+                    Text(
+                      item.variantProperty,
+                      style: AppTextStyle.font12.copyWith(
+                        color: AppColors.greyMedium2,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                  ],
                   8.verticalSpace,
                   Row(
                     children: [
