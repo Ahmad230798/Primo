@@ -4,6 +4,8 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/app_empty_state.dart';
+import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_state.dart';
@@ -75,72 +77,47 @@ class OrderHistoryScreen extends StatelessWidget {
               child: BlocBuilder<OrdersCubit, OrdersState>(
                 builder: (context, state) {
                   if (state is OrdersLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
                   } else if (state is OrdersError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            state.errorMessage,
-                            style: AppTextStyle.font16.copyWith(
-                              color: Colors.red,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          16.verticalSpace,
-                          ElevatedButton(
-                            onPressed: () =>
-                                context.read<OrdersCubit>().getOrders(),
-                            child: const Text("إعادة المحاولة"),
-                          ),
-                        ],
-                      ),
+                    return AppErrorWidget(
+                      message: state.errorMessage,
+                      onRetry: () => context.read<OrdersCubit>().getOrders(),
                     );
                   }
     
                   final orders = context.read<OrdersCubit>().currentOrders;
     
                   if (orders.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.receipt_long_outlined,
-                            size: 80.sp,
-                            color: AppColors.greyMedium2,
-                          ),
-                          16.verticalSpace,
-                          Text(
-                            "لا توجد طلبات سابقة",
-                            style: AppTextStyle.font20.copyWith(
-                              color: AppColors.greyMedium2,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                    return AppEmptyState(
+                      icon: Icons.receipt_long_outlined,
+                      message: "لا توجد طلبات سابقة",
+                      onRetry: () => context.read<OrdersCubit>().getOrders(),
                     );
                   }
     
-                  return ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    itemCount: orders.length,
-                    itemBuilder: (context, index) {
-                      final order = orders[index];
-                      return OrderHistoryCard(
-                        order: order,
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            Routes.orderDetailsScreen,
-                            arguments: order,
-                          );
-                        },
-                      );
+                  return RefreshIndicator(
+                    color: AppColors.primary,
+                    onRefresh: () async {
+                      await context.read<OrdersCubit>().getOrders();
                     },
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      itemCount: orders.length,
+                      itemBuilder: (context, index) {
+                        final order = orders[index];
+                        return OrderHistoryCard(
+                          order: order,
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              Routes.orderDetailsScreen,
+                              arguments: order,
+                            );
+                          },
+                        );
+                      },
+                    ),
                   );
                 },
               ),

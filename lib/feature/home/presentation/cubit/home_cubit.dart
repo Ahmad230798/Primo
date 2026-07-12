@@ -36,8 +36,14 @@ class HomeCubit extends Cubit<HomeState> {
       },
       (data) {
         homeData = data;
+        try {
+          AppStorage.cacheData('cache_user_home', jsonEncode(data.toJson()));
+        } catch (_) {}
         if (!isClosed) emit(HomeLoaded(data));
       },
     );
   }
+
+  Future<void> getHomeData({bool isRefresh = true}) =>
+      fetchHomeData(isRefresh: isRefresh);
 }

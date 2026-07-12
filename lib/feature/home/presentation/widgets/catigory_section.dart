@@ -1,5 +1,7 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -29,17 +31,26 @@ class CatigorySection extends StatelessWidget {
               ),
             );
           }
-          final cats = state.data.categories.take(4).toList();
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: cats.map((cat) {
-              return CatigoryChip(
-                text: cat.name ?? "قسم",
-                imageUrl: cat.fullImageUrl,
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  Routes.categoryProducts,
-                  arguments: cat,
+          final cats = state.data.categories;
+          return CarouselSlider(
+            options: CarouselOptions(
+              height: 105.h,
+              enableInfiniteScroll: true,
+              padEnds: false,
+              viewportFraction: 0.25,
+              enlargeCenterPage: false,
+            ),
+            items: cats.map((cat) {
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: CatigoryChip(
+                  text: cat.name ?? "قسم",
+                  imageUrl: cat.fullImageUrl,
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    Routes.categoryProducts,
+                    arguments: cat,
+                  ),
                 ),
               );
             }).toList(),

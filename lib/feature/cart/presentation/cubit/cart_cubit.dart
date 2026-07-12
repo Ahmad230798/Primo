@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/cart/data/models/cart_item_model.dart';
 import 'package:primo/feature/cart/domain/usecases/add_to_cart_usecase.dart';
 import 'package:primo/feature/cart/domain/usecases/delete_from_cart_usecase.dart';
@@ -30,18 +32,43 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> getCart({bool showLoading = true}) async {
-    if (showLoading && !isClosed) {
+    bool hasCache = false;
+    if (currentItems.isEmpty) {
+      try {
+        final cached = await AppStorage.getCachedData('cache_user_cart');
+        if (cached != null) {
+          final List<dynamic> jsonList = jsonDecode(cached);
+          currentItems =
+              jsonList.map((e) => CartItemModel.fromJson(e)).toList();
+          hasCache = true;
+          if (!isClosed) {
+            emit(CartLoaded(
+                items: currentItems, totalPrice: calculateTotal(currentItems)));
+          }
+        }
+      } catch (_) {}
+    } else {
+      hasCache = true;
+    }
+
+    if (!hasCache && showLoading && !isClosed) {
       emit(CartLoading());
     }
     final result = await _getCartUseCase();
     result.fold(
       (failure) {
-        if (!isClosed) emit(CartError(failure.errorMessage)); // 💡 حماية
+        if (!hasCache && currentItems.isEmpty && !isClosed) {
+          emit(CartError(failure.errorMessage));
+        }
       },
       (items) {
         currentItems = items;
+        try {
+          final jsonString =
+              jsonEncode(items.map((e) => e.toJson()).toList());
+          AppStorage.cacheData('cache_user_cart', jsonString);
+        } catch (_) {}
         if (!isClosed) {
-          // 💡 حماية
           emit(CartLoaded(items: items, totalPrice: calculateTotal(items)));
         }
       },

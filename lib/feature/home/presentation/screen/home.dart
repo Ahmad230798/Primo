@@ -12,6 +12,7 @@ import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_state.dart'
     show CartState, CartLoaded, CartError;
+import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
 import 'package:primo/feature/home/presentation/widgets/activities_list.dart';
 import 'package:primo/feature/home/presentation/widgets/catigory_section.dart';
 import 'package:primo/feature/home/presentation/widgets/latest_product.dart';
@@ -25,10 +26,15 @@ class Home extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: SingleChildScrollView(
-            // التعديل الوحيد هنا: أضفنا مسافة سفلية بمقدار 120
-            padding: EdgeInsets.only(bottom: 120.h),
-            child: BlocListener<CartCubit, CartState>(
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () async {
+              await context.read<HomeCubit>().getHomeData(isRefresh: true);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.only(bottom: 120.h),
+              child: BlocListener<CartCubit, CartState>(
               bloc: getIt<CartCubit>(),
               listener: (context, cartState) {
                 if (cartState is CartLoaded &&
@@ -112,6 +118,7 @@ class Home extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

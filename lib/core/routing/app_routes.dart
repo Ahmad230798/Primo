@@ -41,6 +41,7 @@ import 'package:primo/feature/search/presentation/cubit/search_cubit.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
 
 import 'package:primo/core/models/category_model.dart';
+import 'package:primo/core/models/offer_model.dart';
 import 'package:primo/feature/categories/presentation/cubit/category_products_cubit.dart';
 import 'package:primo/feature/categories/presentation/screen/category_products_screen.dart';
 import 'package:primo/feature/addresses/presentation/screen/saved_addresses_screen.dart';
@@ -193,13 +194,28 @@ class AppRoutes {
             final arg = settings.arguments;
             int productId = 1;
             ProductModel? initProduct;
+            OfferModel? initOffer;
             if (arg is ProductModel) {
               initProduct = arg;
               if (arg.id != null) productId = arg.id!;
+            } else if (arg is OfferModel) {
+              initOffer = arg;
+              initProduct = arg.variant?.product;
+              if (arg.variant?.productId != null) {
+                productId = arg.variant!.productId!;
+              } else if (arg.variant?.product?.id != null) {
+                productId = arg.variant!.product!.id!;
+              } else if (arg.variantId != null) {
+                productId = arg.variantId!;
+              } else if (arg.id != null) {
+                productId = arg.id!;
+              }
             } else if (arg is int) {
               productId = arg;
-            } else if (arg is Map && arg['id'] != null) {
-              productId = arg['id'];
+            } else if (arg is Map) {
+              if (arg['id'] != null) productId = arg['id'];
+              if (arg['product'] is ProductModel) initProduct = arg['product'];
+              if (arg['offer'] is OfferModel) initOffer = arg['offer'];
             }
             return MultiBlocProvider(
               providers: [
@@ -209,7 +225,10 @@ class AppRoutes {
                 ),
                 BlocProvider.value(value: getIt<FavoritesCubit>()),
               ],
-              child: ProductDetails(initialProduct: initProduct),
+              child: ProductDetails(
+                initialProduct: initProduct,
+                initialOffer: initOffer,
+              ),
             );
           },
         );

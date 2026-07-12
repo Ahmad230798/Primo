@@ -7,6 +7,8 @@ import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
+import 'package:primo/core/widgets/app_empty_state.dart';
+import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
@@ -57,25 +59,12 @@ class Cart extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, CartState state) {
     if (state is CartLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
     } else if (state is CartError &&
         context.read<CartCubit>().currentItems.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              state.errorMessage,
-              style: AppTextStyle.font16.copyWith(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            16.verticalSpace,
-            ElevatedButton(
-              onPressed: () => context.read<CartCubit>().getCart(),
-              child: const Text("إعادة المحاولة"),
-            ),
-          ],
-        ),
+      return AppErrorWidget(
+        message: state.errorMessage,
+        onRetry: () => context.read<CartCubit>().getCart(),
       );
     }
 
@@ -84,33 +73,23 @@ class Cart extends StatelessWidget {
     final totalPrice = cubit.calculateTotal(items);
 
     if (items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.shopping_cart_outlined,
-              size: 80.sp,
-              color: AppColors.greyMedium2,
-            ),
-            16.verticalSpace,
-            Text(
-              "السلة فارغة حالياً",
-              style: AppTextStyle.font20.copyWith(
-                color: AppColors.greyMedium2,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+      return AppEmptyState(
+        icon: Icons.shopping_cart_outlined,
+        message: "عربة التسوق فارغة حالياً",
+        onRetry: () => context.read<CartCubit>().getCart(),
       );
     }
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        children: [
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        await context.read<CartCubit>().getCart();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: Column(
+          children: [
           Row(
             children: [
               Text("عربة التسوق", style: AppTextStyle.font20),
@@ -172,6 +151,7 @@ class Cart extends StatelessWidget {
           32.verticalSpace,
         ],
       ),
+    ),
     );
   }
 }
