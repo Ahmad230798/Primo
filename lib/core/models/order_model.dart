@@ -35,15 +35,43 @@ class OrderItemModel {
   }
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
+    // 💡 1. حماية الكمية: تحويل آمن يضمن قراءة الرقم سواء جاء كنص "3" أو رقم 3
+    final int parsedQuantity = json['quantity'] != null
+        ? int.tryParse(json['quantity'].toString().trim()) ?? 1
+        : 1;
+
+    // 💡 2. حماية السعر: تحويل آمن يضمن قراءة النص "30000.00" إلى رقم فعلي
+    final num parsedPrice = json['price'] != null
+        ? num.tryParse(json['price'].toString().trim()) ?? 0
+        : 0;
+
+    // 💡 3. حماية السعر الجديد (في حال وجود عرض)
+    final num? parsedNewPrice = json['new_price'] != null
+        ? num.tryParse(json['new_price'].toString().trim())
+        : null;
+
+    // 💡 4. التعديل الذهبي لحل المشكلة: ترتيب فحص المعرفات لضمان التقاط variant_id أولاً
+    final int parsedId = json['variant_id'] != null
+        ? (int.tryParse(json['variant_id'].toString()) ?? 0)
+        : (json['id'] != null
+              ? (int.tryParse(json['id'].toString()) ?? 0)
+              : (json['product_id'] != null
+                    ? (int.tryParse(json['product_id'].toString()) ?? 0)
+                    : 0));
+
     return OrderItemModel(
-      id: json['id'] as int? ?? 0,
-      name: json['name'] as String? ?? 'منتج',
-      image: json['image'] as String?,
-      quantity: json['quantity'] as int? ?? 1,
-      property: json['property'] as String?,
-      price: json['price'] != null ? num.tryParse(json['price'].toString()) ?? 0 : 0,
-      hasActiveOffer: json['has_active_offer'] == true || json['has_active_offer'] == 1,
-      newPrice: json['new_price'] != null ? num.tryParse(json['new_price'].toString()) : null,
+      id: parsedId, // سيحمل الآن قيمة variant_id الصحيحة
+      name: json['name']?.toString() ?? 'منتج',
+      image: json['image']?.toString(),
+      quantity: parsedQuantity,
+      property: json['property']?.toString(),
+      price: parsedPrice,
+      hasActiveOffer:
+          json['has_active_offer'] == true ||
+          json['has_active_offer'] == 1 ||
+          json['has_active_offer'] == "1" ||
+          parsedNewPrice != null,
+      newPrice: parsedNewPrice,
     );
   }
 }
@@ -109,7 +137,8 @@ class OrderModel {
           ? int.tryParse(json['address_id'].toString())
           : null,
       status: json['status']?.toString() ?? 'pending',
-      isDelivery: json['is_delivere'] == true ||
+      isDelivery:
+          json['is_delivere'] == true ||
           json['is_delivery'] == true ||
           json['is_delivere'] == 1 ||
           json['is_delivery'] == 1 ||
@@ -121,8 +150,8 @@ class OrderModel {
       deliveryAmount: json['delivere_amount'] != null
           ? (num.tryParse(json['delivere_amount'].toString()) ?? 0)
           : (json['delivery_amount'] != null
-              ? (num.tryParse(json['delivery_amount'].toString()) ?? 0)
-              : 0),
+                ? (num.tryParse(json['delivery_amount'].toString()) ?? 0)
+                : 0),
       totalAmount: json['total_amount'] != null
           ? (num.tryParse(json['total_amount'].toString()) ?? 0)
           : 0,
@@ -134,7 +163,8 @@ class OrderModel {
       user: json['user'] != null && json['user'] is Map
           ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
-      items: (json['items'] as List<dynamic>?)
+      items:
+          (json['items'] as List<dynamic>?)
               ?.map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],

@@ -74,13 +74,14 @@ class OrdersCubit extends Cubit<OrdersState> {
     final result = await _rateProductInOrderUseCase(productId, orderId, rating);
     result.fold(
       (failure) {
-        if (!isClosed) emit(OrdersError(failure.errorMessage)); // 💡 حماية
+        if (!isClosed) emit(OrdersError(failure.errorMessage));
       },
       (msg) {
         if (!isClosed) {
-          // 💡 حماية
           emit(OrderRatingSuccess(msg));
-          getOrders(); // إعادة جلب القائمة بعد التقييم
+          // 💡 السحر هنا: جلب تفاصيل الطلب الحالي لكي تتحدث الشاشة ويختفي زر التقييم!
+          getOrderDetails(orderId);
+          getOrders(); // تحديث القائمة الخارجية في الخلفية لا يضر
         }
       },
     );

@@ -49,7 +49,8 @@ class LoginCubit extends Cubit<LoginState> {
     }
     emit(LoginLoading());
 
-    final fcmToken = await getIt<FirebaseCloudMessagingService>().getDeviceToken();
+    final fcmToken = await getIt<FirebaseCloudMessagingService>()
+        .getDeviceToken();
     final requestBody = LoginRequestBody(
       phoneNumber: phoneController.text,
       password: passwordController.text,
@@ -68,8 +69,9 @@ class LoginCubit extends Cubit<LoginState> {
             const Duration(minutes: 15),
           ); // قفل لمدة 15 دقيقة
           emit(
-            const LoginError(
-              error: "محاولات خاطئة كثيرة. تم قفل تسجيل الدخول لمدة 15 دقيقة.",
+            LoginError(
+              error:
+                  "محاولات خاطئة كثيرة. تم قفل تسجيل الدخول لمدة $_failedAttempts دقيقة.",
             ),
           );
         } else {

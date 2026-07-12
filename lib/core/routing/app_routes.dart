@@ -221,7 +221,19 @@ class AppRoutes {
           ),
         );
       case Routes.orderTracking:
-        return CupertinoPageRoute(builder: (_) => const OrderTracking());
+        final orderArg = settings.arguments as OrderModel?;
+        return CupertinoPageRoute(
+          builder: (_) => BlocProvider(
+            create: (context) {
+              final cubit = getIt<OrdersCubit>();
+              if (orderArg != null) {
+                cubit.getOrderDetails(orderArg.id); // جلب التفاصيل الحية
+              }
+              return cubit;
+            },
+            child: OrderTracking(orderArg: orderArg),
+          ),
+        );
       case Routes.notifications:
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
@@ -411,9 +423,20 @@ class AppRoutes {
       case Routes.adminOrders:
         return CupertinoPageRoute(builder: (_) => const AdminOrdersScreen());
       case Routes.orderDetails:
-        final order = settings.arguments as OrderModel?;
-        return CupertinoPageRoute(
-          builder: (_) => AdminOrderDetailsScreen(orderArg: order),
+        final orderArg = settings.arguments as OrderModel?;
+
+        return MaterialPageRoute(
+          // 💡 التغليف يتم  نا! هذا يجعل الشاشة بالكامل تمتلك Context يرى الكيوبت
+          builder: (context) => BlocProvider(
+            create: (context) {
+              final cubit = getIt<OrdersCubit>();
+              if (orderArg != null) {
+                cubit.getOrderDetails(orderArg.id);
+              }
+              return cubit;
+            },
+            child: OrderDetailsScreen(orderArg: orderArg),
+          ),
         );
       case Routes.directOrders:
         return CupertinoPageRoute(builder: (_) => const DirectOrdersScreen());
