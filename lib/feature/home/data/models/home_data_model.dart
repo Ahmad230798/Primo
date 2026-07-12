@@ -29,4 +29,10 @@ class HomeDataModel {
           [],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'categories': categories.map((e) => e.toJson()).toList(),
+        'products': products.map((e) => e.toJson()).toList(),
+        'offers': offers.map((e) => e.toJson()).toList(),
+      };
 }

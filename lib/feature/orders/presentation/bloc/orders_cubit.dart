@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/models/order_model.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/orders/domain/usecases/get_order_by_id_usecase.dart';
 import 'package:primo/feature/orders/domain/usecases/get_orders_usecase.dart';
 import 'package:primo/feature/orders/domain/usecases/rate_product_in_order_usecase.dart';
@@ -24,12 +26,27 @@ class OrdersCubit extends Cubit<OrdersState> {
     if (status != null) {
       activeStatus = status;
     }
-    emit(OrdersLoading());
+    final cacheKey = 'cache_user_orders_$activeStatus';
+    bool hasCache = false;
+    try {
+      final cached = await AppStorage.getCachedData(cacheKey);
+      if (cached != null) {
+        final List<dynamic> jsonList = jsonDecode(cached);
+        currentOrders =
+            jsonList.map((e) => OrderModel.fromJson(e)).toList();
+        hasCache = true;
+        if (!isClosed) emit(OrdersLoaded(currentOrders));
+      }
+    } catch (_) {}
+
+    if (!hasCache && !isClosed) {
+      emit(OrdersLoading());
+    }
+
     final result = await _getOrdersUseCase(status: activeStatus);
     result.fold(
       (failure) {
-        // 💡 حماية الكيوبت في حال تم إغلاقه
-        if (!isClosed) emit(OrdersError(failure.errorMessage));
+        if (!hasCache && !isClosed) emit(OrdersError(failure.errorMessage));
       },
       (orders) {
         List<OrderModel> filtered = orders;
@@ -51,6 +68,11 @@ class OrdersCubit extends Cubit<OrdersState> {
           }
         }
         currentOrders = filtered;
+        try {
+          final jsonString =
+              jsonEncode(filtered.map((e) => e.toJson()).toList());
+          AppStorage.cacheData(cacheKey, jsonString);
+        } catch (_) {}
         if (!isClosed) emit(OrdersLoaded(filtered));
       },
     );

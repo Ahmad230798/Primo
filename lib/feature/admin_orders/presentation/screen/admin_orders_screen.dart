@@ -10,6 +10,7 @@ import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
+import 'package:primo/core/widgets/app_empty_state.dart';
 import 'package:primo/core/widgets/app_error_widget.dart';
 import '../cubit/admin_orders_cubit.dart';
 import '../cubit/admin_orders_state.dart';
@@ -148,14 +149,10 @@ class AdminOrdersScreen extends StatelessWidget {
     }
 
     if (orders.isEmpty) {
-      return Center(
-        child: Text(
-          "لا توجد طلبات مطابقة حالياً",
-          style: AppTextStyle.font16.copyWith(
-            color: AppColors.greyDark,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      return AppEmptyState(
+        icon: Icons.shopping_bag_outlined,
+        message: "لا توجد طلبات مطابقة حالياً",
+        onRetry: () => cubit.getOrders(status: cubit.currentFilter),
       );
     }
 

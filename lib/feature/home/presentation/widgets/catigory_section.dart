@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -30,24 +31,19 @@ class CatigorySection extends StatelessWidget {
               ),
             );
           }
-          // ... داخل الـ HomeLoaded
-          // 1. إزالة .take(4) لعرض كل العناصر
           final cats = state.data.categories;
-
-          return SizedBox(
-            // 💡 يجب تحديد ارتفاع للـ SizedBox لكي تعرف القائمة مساحتها
-            height: 120.h,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal, // 💡 جعل القائمة أفقية
-              padding: EdgeInsets.symmetric(
-                horizontal: 24.w,
-              ), // مسافة من الجوانب
-              itemCount: cats.length,
-              separatorBuilder: (context, index) =>
-                  12.horizontalSpace, // مسافة بين العناصر
-              itemBuilder: (context, index) {
-                final cat = cats[index];
-                return CatigoryChip(
+          return CarouselSlider(
+            options: CarouselOptions(
+              height: 105.h,
+              enableInfiniteScroll: true,
+              padEnds: false,
+              viewportFraction: 0.25,
+              enlargeCenterPage: false,
+            ),
+            items: cats.map((cat) {
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: CatigoryChip(
                   text: cat.name ?? "قسم",
                   imageUrl: cat.fullImageUrl,
                   onTap: () => Navigator.pushNamed(
@@ -55,9 +51,9 @@ class CatigorySection extends StatelessWidget {
                     Routes.categoryProducts,
                     arguments: cat,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }).toList(),
           );
         } else if (state is HomeError) {
           return Center(

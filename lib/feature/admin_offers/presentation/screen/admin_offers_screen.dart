@@ -6,6 +6,8 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
+import 'package:primo/core/widgets/app_empty_state.dart';
+import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_state.dart';
@@ -90,205 +92,216 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    24.verticalSpace,
-                    Text(
-                      "العروض والخصومات",
-                      style: AppTextStyle.font30.copyWith(
-                        color: AppColors.textMain,
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  await context.read<AdminOffersListCubit>().getOffers();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      24.verticalSpace,
+                      Text(
+                        "العروض والخصومات",
+                        style: AppTextStyle.font30.copyWith(
+                          color: AppColors.textMain,
+                        ),
                       ),
-                    ),
-                    4.verticalSpace,
-                    Text(
-                      "إدارة العروض الترويجية والخصومات المتاحة للزبائن.",
-                      style: AppTextStyle.font14.copyWith(
-                        color: AppColors.greyMedium3,
+                      4.verticalSpace,
+                      Text(
+                        "إدارة العروض الترويجية والخصومات المتاحة للزبائن.",
+                        style: AppTextStyle.font14.copyWith(
+                          color: AppColors.greyMedium3,
+                        ),
                       ),
-                    ),
-                    24.verticalSpace,
+                      24.verticalSpace,
 
-                    BlocListener<
-                      AdminProductsListCubit,
-                      AdminProductsListState
-                    >(
-                      listener: (context, state) {
-                        _syncProductsWithOffers(); // تحديث القائمة المنسدلة فور وصول المنتجات
-                      },
-                      child: BlocBuilder<AdminOffersListCubit, AdminOffersListState>(
-                        builder: (context, state) {
-                          if (state is AdminOffersListLoading) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(40.h),
-                                child: const CircularProgressIndicator(
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            );
-                          } else if (state is AdminOffersListError) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(40.h),
-                                child: Text(
-                                  state.message,
-                                  style: AppTextStyle.font16.copyWith(
+                      BlocListener<
+                        AdminProductsListCubit,
+                        AdminProductsListState
+                      >(
+                        listener: (context, state) {
+                          _syncProductsWithOffers(); // تحديث القائمة المنسدلة فور وصول المنتجات
+                        },
+                        child: BlocBuilder<AdminOffersListCubit, AdminOffersListState>(
+                          builder: (context, state) {
+                            if (state is AdminOffersListLoading) {
+                              return Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(40.h),
+                                  child: const CircularProgressIndicator(
                                     color: AppColors.primary,
                                   ),
                                 ),
-                              ),
-                            );
-                          }
-
-                          final offers = context
-                              .read<AdminOffersListCubit>()
-                              .offers;
-
-                          if (offers.isEmpty) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(40.h),
-                                child: Column(
-                                  children: [
-                                    Icon(
-                                      Icons.campaign_outlined,
-                                      size: 64.sp,
-                                      color: AppColors.greyMedium3,
+                              );
+                            } else if (state is AdminOffersListError) {
+                              return Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(40.h),
+                                  child: Text(
+                                    state.message,
+                                    style: AppTextStyle.font16.copyWith(
+                                      color: AppColors.primary,
                                     ),
-                                    16.verticalSpace,
-                                    Text(
-                                      "لا توجد عروض حالياً",
-                                      style: AppTextStyle.font16.copyWith(
-                                        color: AppColors.textMain,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: offers.length,
-                            separatorBuilder: (context, index) =>
-                                16.verticalSpace,
-                            itemBuilder: (context, index) {
-                              final offer = offers[index];
-                              return Container(
-                                padding: EdgeInsets.all(16.w),
-                                decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  borderRadius: BorderRadius.circular(16.r),
-                                  border: Border.all(
-                                    color: AppColors.formBorder,
                                   ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 64.w,
-                                      height: 64.w,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.greyBackground,
-                                        borderRadius: BorderRadius.circular(
-                                          12.r,
+                              );
+                            }
+
+                            final offers = context
+                                .read<AdminOffersListCubit>()
+                                .offers;
+
+                            if (offers.isEmpty) {
+                              return Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(40.h),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.campaign_outlined,
+                                        size: 64.sp,
+                                        color: AppColors.greyMedium3,
+                                      ),
+                                      16.verticalSpace,
+                                      Text(
+                                        "لا توجد عروض حالياً",
+                                        style: AppTextStyle.font16.copyWith(
+                                          color: AppColors.textMain,
                                         ),
                                       ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                          12.r,
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: offers.length,
+                              separatorBuilder: (context, index) =>
+                                  16.verticalSpace,
+                              itemBuilder: (context, index) {
+                                final offer = offers[index];
+                                return Container(
+                                  padding: EdgeInsets.all(16.w),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(16.r),
+                                    border: Border.all(
+                                      color: AppColors.formBorder,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 64.w,
+                                        height: 64.w,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.greyBackground,
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
                                         ),
-                                        child: offer.fullImageUrl != null
-                                            ? AppCachedNetworkImage(
-                                                imageUrl: offer.fullImageUrl!,
-                                                fit: BoxFit.cover,
-                                                errorWidget: Icon(
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                          child: offer.fullImageUrl != null
+                                              ? AppCachedNetworkImage(
+                                                  imageUrl: offer.fullImageUrl!,
+                                                  fit: BoxFit.cover,
+                                                  errorWidget: Icon(
+                                                    Icons.local_offer_rounded,
+                                                    color: AppColors.primary,
+                                                  ),
+                                                )
+                                              : Icon(
                                                   Icons.local_offer_rounded,
                                                   color: AppColors.primary,
                                                 ),
-                                              )
-                                            : Icon(
-                                                Icons.local_offer_rounded,
-                                                color: AppColors.primary,
-                                              ),
+                                        ),
                                       ),
-                                    ),
-                                    16.horizontalSpace,
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            offer.productName ?? "منتج العرض",
-                                            style: AppTextStyle.font16.copyWith(
-                                              color: AppColors.textMain,
-                                              fontWeight: FontWeight.bold,
+                                      16.horizontalSpace,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              offer.productName ?? "منتج العرض",
+                                              style: AppTextStyle.font16
+                                                  .copyWith(
+                                                    color: AppColors.textMain,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
-                                          ),
-                                          4.verticalSpace,
-                                          Text(
-                                            "الخصم: ${offer.discountValue ?? ''}",
-                                            style: AppTextStyle.font14.copyWith(
-                                              color: AppColors.primary,
-                                              fontWeight: FontWeight.bold,
+                                            4.verticalSpace,
+                                            Text(
+                                              "الخصم: ${offer.discountValue ?? ''}",
+                                              style: AppTextStyle.font14
+                                                  .copyWith(
+                                                    color: AppColors.primary,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
-                                          ),
-                                          4.verticalSpace,
-                                          Text(
-                                            "من ${offer.from ?? ''} إلى ${offer.to ?? ''}",
-                                            style: AppTextStyle.font12.copyWith(
-                                              color: AppColors.greyMedium3,
+                                            4.verticalSpace,
+                                            Text(
+                                              "من ${offer.from ?? ''} إلى ${offer.to ?? ''}",
+                                              style: AppTextStyle.font12
+                                                  .copyWith(
+                                                    color:
+                                                        AppColors.greyMedium3,
+                                                  ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        context
-                                            .read<AdminOffersCubit>()
-                                            .initForEdit(offer);
-                                        Navigator.pushNamed(
-                                          context,
-                                          Routes.createOffer,
-                                        );
-                                      },
-                                      icon: Icon(
-                                        Icons.edit_rounded,
-                                        color: AppColors.primary,
-                                        size: 22.sp,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        if (offer.id != null) {
+                                      IconButton(
+                                        onPressed: () {
                                           context
-                                              .read<AdminOffersListCubit>()
-                                              .deleteOffer(offer.id!);
-                                        }
-                                      },
-                                      icon: Icon(
-                                        Icons.delete_outline_rounded,
-                                        color: AppColors.primary,
-                                        size: 22.sp,
+                                              .read<AdminOffersCubit>()
+                                              .initForEdit(offer);
+                                          Navigator.pushNamed(
+                                            context,
+                                            Routes.createOffer,
+                                          );
+                                        },
+                                        icon: Icon(
+                                          Icons.edit_rounded,
+                                          color: AppColors.primary,
+                                          size: 22.sp,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
+                                      IconButton(
+                                        onPressed: () {
+                                          if (offer.id != null) {
+                                            context
+                                                .read<AdminOffersListCubit>()
+                                                .deleteOffer(offer.id!);
+                                          }
+                                        },
+                                        icon: Icon(
+                                          Icons.delete_outline_rounded,
+                                          color: AppColors.primary,
+                                          size: 22.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    100.verticalSpace,
-                  ],
+                      100.verticalSpace,
+                    ],
+                  ),
                 ),
               ),
             ),

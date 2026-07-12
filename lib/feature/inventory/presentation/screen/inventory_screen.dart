@@ -5,6 +5,8 @@ import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
+import 'package:primo/core/widgets/app_empty_state.dart';
+import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_state.dart';
@@ -136,72 +138,24 @@ class _InventoryScreenState extends State<InventoryScreen> {
                               ),
                             );
                           } else if (state is AdminProductsListError) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(32.h),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.error_outline_rounded,
-                                      size: 48.sp,
-                                      color: AppColors.primary,
-                                    ),
-                                    12.verticalSpace,
-                                    Text(
-                                      state.message,
-                                      style: AppTextStyle.font16.copyWith(
-                                        color: AppColors.primary,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    16.verticalSpace,
-                                    ElevatedButton.icon(
-                                      onPressed: () => context.read<AdminProductsListCubit>().getProducts(),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                        foregroundColor: AppColors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12.r),
-                                        ),
-                                      ),
-                                      icon: const Icon(Icons.refresh_rounded),
-                                      label: const Text("إعادة المحاولة"),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            return AppErrorWidget(
+                              message: state.message,
+                              onRetry: () => context.read<AdminProductsListCubit>().getProducts(),
                             );
                           }
 
-                        final products =
-                            context
-                                .read<AdminProductsListCubit>()
-                                .currentProducts;
+                          final products =
+                              context
+                                  .read<AdminProductsListCubit>()
+                                  .currentProducts;
 
-                        if (products.isEmpty) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(40.h),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.inventory_2_outlined,
-                                    size: 64.sp,
-                                    color: AppColors.greyMedium3,
-                                  ),
-                                  16.verticalSpace,
-                                  Text(
-                                    "لا توجد منتجات في المخزون حالياً",
-                                    style: AppTextStyle.font16.copyWith(
-                                      color: AppColors.textMain,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
+                          if (products.isEmpty) {
+                            return AppEmptyState(
+                              icon: Icons.inventory_2_outlined,
+                              message: "لا توجد منتجات في المخزون حالياً",
+                              onRetry: () => context.read<AdminProductsListCubit>().getProducts(),
+                            );
+                          }
 
                         return ListView.separated(
                           shrinkWrap: true,
