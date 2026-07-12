@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
+import 'package:primo/core/widgets/app_shimmer.dart';
 
 class AppCachedNetworkImage extends StatelessWidget {
   final String imageUrl;
@@ -39,18 +40,11 @@ class AppCachedNetworkImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
-      placeholder:
-          (context, url) => Container(
-            width: width,
-            height: height,
-            color: AppColors.greyBackground,
-            child: const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
+      placeholder: (context, url) => AppShimmerPlaceholder(
+        width: width,
+        height: height,
+        borderRadius: borderRadius,
+      ),
       errorWidget: (context, url, error) => _buildError(),
     );
 

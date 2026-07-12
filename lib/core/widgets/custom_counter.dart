@@ -41,7 +41,18 @@ class CustomCounter extends StatelessWidget {
             onTap: onIncrement,
             child: Icon(Icons.add, color: AppColors.primary),
           ),
-          Text("$count", style: AppTextStyle.font20),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: animation,
+              child: FadeTransition(opacity: animation, child: child),
+            ),
+            child: Text(
+              "$count",
+              key: ValueKey<int>(count),
+              style: AppTextStyle.font20,
+            ),
+          ),
           GestureDetector(
             onTap: onDecrement,
             child: Center(child: Icon(Icons.remove)),

@@ -35,12 +35,12 @@ class ProfileCubit extends Cubit<ProfileState> {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       selectedAvatar = File(image.path);
-      emit(ProfileAvatarPicked(selectedAvatar!));
+      if (!isClosed) emit(ProfileAvatarPicked(selectedAvatar!));
     }
   }
 
   Future<void> getProfile() async {
-    emit(ProfileLoading());
+    if (!isClosed) emit(ProfileLoading());
     final response = await _getProfileUseCase.execute();
 
     response.fold(
@@ -66,28 +66,30 @@ class ProfileCubit extends Cubit<ProfileState> {
     String? phone,
     File? avatar,
   }) async {
-    emit(UpdateProfileLoading());
+    if (!isClosed) emit(UpdateProfileLoading());
     final body = UpdateProfileRequestBody(
       name: name,
       phone: phone,
       avatar: avatar ?? selectedAvatar,
     );
     final response = await _updateProfileUseCase.execute(body);
-    response.fold((failure) => emit(UpdateProfileError(failure.errorMessage)), (
-      data,
-    ) {
+    response.fold((failure) {
+      if (!isClosed) emit(UpdateProfileError(failure.errorMessage));
+    }, (data) {
       if (data.data != null) {
         user = data.data;
         selectedAvatar = null;
-        emit(
-          UpdateProfileSuccess(
-            user!,
-            data.message ?? "تم تحديث الملف الشخصي بنجاح",
-          ),
-        );
-        emit(ProfileLoaded(user!));
+        if (!isClosed) {
+          emit(
+            UpdateProfileSuccess(
+              user!,
+              data.message ?? "تم تحديث الملف الشخصي بنجاح",
+            ),
+          );
+          emit(ProfileLoaded(user!));
+        }
       } else {
-        emit(const UpdateProfileError("فشل تحديث البيانات"));
+        if (!isClosed) emit(const UpdateProfileError("فشل تحديث البيانات"));
       }
     });
   }
@@ -98,10 +100,10 @@ class ProfileCubit extends Cubit<ProfileState> {
     required String newPasswordConfirmation,
   }) async {
     if (newPassword != newPasswordConfirmation) {
-      emit(const ChangePasswordError("كلمة المرور الجديدة غير متطابقة"));
+      if (!isClosed) emit(const ChangePasswordError("كلمة المرور الجديدة غير متطابقة"));
       return;
     }
-    emit(ChangePasswordLoading());
+    if (!isClosed) emit(ChangePasswordLoading());
     final body = ChangePasswordRequestBody(
       currentPassword: currentPassword,
       newPassword: newPassword,
@@ -109,24 +111,28 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
     final response = await _changePasswordUseCase.execute(body);
     response.fold(
-      (failure) => emit(ChangePasswordError(failure.errorMessage)),
-      (message) => emit(ChangePasswordSuccess(message)),
+      (failure) {
+        if (!isClosed) emit(ChangePasswordError(failure.errorMessage));
+      },
+      (message) {
+        if (!isClosed) emit(ChangePasswordSuccess(message));
+      },
     );
   }
 
   Future<void> deleteAccount() async {
-    emit(DeleteAccountLoading());
+    if (!isClosed) emit(DeleteAccountLoading());
     final response = await _deleteAccountUseCase.execute();
-    response.fold((failure) => emit(DeleteAccountError(failure.errorMessage)), (
-      message,
-    ) async {
+    response.fold((failure) {
+      if (!isClosed) emit(DeleteAccountError(failure.errorMessage));
+    }, (message) async {
       await AppStorage.clearAllData();
-      emit(DeleteAccountSuccess(message));
+      if (!isClosed) emit(DeleteAccountSuccess(message));
     });
   }
 
   Future<void> logout() async {
-    emit(LogoutLoading()); // هنا لا مشكلة لأنها قبل الـ await
+    if (!isClosed) emit(LogoutLoading());
     final response = await _logoutUseCase.execute();
 
     response.fold(

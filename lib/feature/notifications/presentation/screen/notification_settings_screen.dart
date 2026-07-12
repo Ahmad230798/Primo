@@ -107,16 +107,14 @@ class NotificationSettingsScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            SwitchListTile(
+                             SwitchListTile(
                               value: settings.notificationOffer,
-                              onChanged: isUpdating
-                                  ? null
-                                  : (val) {
-                                      cubit.updateSettings(
-                                        offerEnabled: val,
-                                        orderEnabled: settings.notificationOrder,
-                                      );
-                                    },
+                              onChanged: (val) {
+                                cubit.updateSettings(
+                                  offerEnabled: val,
+                                  orderEnabled: settings.notificationOrder,
+                                );
+                              },
                               activeColor: AppColors.primary,
                               title: Text(
                                 "إشعارات العروض والخصومات",
@@ -131,8 +129,8 @@ class NotificationSettingsScreen extends StatelessWidget {
                               ),
                               secondary: Container(
                                 padding: EdgeInsets.all(8.w),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFDAD6),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFDAD6),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(Icons.campaign_rounded, color: AppColors.primary, size: 24.sp),
@@ -141,14 +139,12 @@ class NotificationSettingsScreen extends StatelessWidget {
                             Divider(color: AppColors.formBorder, height: 1),
                             SwitchListTile(
                               value: settings.notificationOrder,
-                              onChanged: isUpdating
-                                  ? null
-                                  : (val) {
-                                      cubit.updateSettings(
-                                        offerEnabled: settings.notificationOffer,
-                                        orderEnabled: val,
-                                      );
-                                    },
+                              onChanged: (val) {
+                                cubit.updateSettings(
+                                  offerEnabled: settings.notificationOffer,
+                                  orderEnabled: val,
+                                );
+                              },
                               activeColor: AppColors.primary,
                               title: Text(
                                 "إشعارات حالة الطلبات",

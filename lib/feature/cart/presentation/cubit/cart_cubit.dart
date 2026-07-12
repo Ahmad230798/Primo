@@ -30,9 +30,8 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> getCart({bool showLoading = true}) async {
-    if (showLoading) {
-      if(!isClosed)
-      {emit(CartLoading());}
+    if (showLoading && !isClosed) {
+      emit(CartLoading());
     }
     final result = await _getCartUseCase();
     result.fold(
@@ -89,36 +88,50 @@ class CartCubit extends Cubit<CartState> {
         totalPrice: oldItem.newPrice * newCount,
       );
       currentItems = List.from(currentItems)..[index] = updatedItem;
-      emit(
-        CartLoaded(
-          items: currentItems,
-          totalPrice: calculateTotal(currentItems),
-        ),
-      );
+      if (!isClosed) {
+        emit(
+          CartLoaded(
+            items: currentItems,
+            totalPrice: calculateTotal(currentItems),
+          ),
+        );
+      }
     }
 
     final result = await _updateCartQuantityUseCase(cartId, newCount);
-    result.fold((failure) {
-      emit(CartError(failure.errorMessage));
-      getCart(showLoading: false); // إعادة جلب عند الخطأ
-    }, (_) => getCart(showLoading: false));
+    result.fold(
+      (failure) {
+        if (!isClosed) emit(CartError(failure.errorMessage));
+        if (!isClosed) getCart(showLoading: false); // إعادة جلب عند الخطأ
+      },
+      (_) {
+        if (!isClosed) getCart(showLoading: false);
+      },
+    );
   }
 
   Future<void> deleteFromCart(int cartId) async {
     // التحديث اللحظي
     currentItems = currentItems.where((item) => item.id != cartId).toList();
-    emit(
-      CartLoaded(
-        items: currentItems,
-        totalPrice: calculateTotal(currentItems),
-        actionMessage: "تم حذف المنتج من السلة",
-      ),
-    );
+    if (!isClosed) {
+      emit(
+        CartLoaded(
+          items: currentItems,
+          totalPrice: calculateTotal(currentItems),
+          actionMessage: "تم حذف المنتج من السلة",
+        ),
+      );
+    }
 
     final result = await _deleteFromCartUseCase(cartId);
-    result.fold((failure) {
-      emit(CartError(failure.errorMessage));
-      getCart(showLoading: false);
-    }, (_) => getCart(showLoading: false));
+    result.fold(
+      (failure) {
+        if (!isClosed) emit(CartError(failure.errorMessage));
+        if (!isClosed) getCart(showLoading: false);
+      },
+      (_) {
+        if (!isClosed) getCart(showLoading: false);
+      },
+    );
   }
 }

@@ -7,10 +7,21 @@ class NotificationSettingsModel {
     required this.notificationOrder,
   });
 
+  static bool _parseBool(dynamic val) {
+    if (val == null) return true;
+    if (val is bool) return val;
+    if (val is num) return val != 0;
+    if (val is String) {
+      final s = val.trim().toLowerCase();
+      return s == '1' || s == 'true' || s == 'yes';
+    }
+    return true;
+  }
+
   factory NotificationSettingsModel.fromJson(Map<String, dynamic> json) {
     return NotificationSettingsModel(
-      notificationOffer: json['notification_offer'] as bool? ?? true,
-      notificationOrder: json['notification_order'] as bool? ?? true,
+      notificationOffer: _parseBool(json['notification_offer']),
+      notificationOrder: _parseBool(json['notification_order']),
     );
   }
 
