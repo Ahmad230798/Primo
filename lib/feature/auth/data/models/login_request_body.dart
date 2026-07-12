@@ -12,13 +12,13 @@ class LoginRequestBody {
   });
 
   FormData toFormData() {
-    final map = <String, dynamic>{
+    final formData = FormData.fromMap({
       'phone': phoneNumber,
       'password': password,
-    };
+    });
     if (fcmToken != null && fcmToken!.isNotEmpty) {
-      map['fcm_token'] = fcmToken;
+      formData.fields.add(MapEntry('fcm_token', fcmToken!));
     }
-    return FormData.fromMap(map);
+    return formData;
   }
 }

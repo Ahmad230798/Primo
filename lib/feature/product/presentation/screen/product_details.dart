@@ -72,9 +72,16 @@ class _ProductDetailsState extends State<ProductDetails> {
                           favCubit.toggleFavorite(product.id!);
                         }
                       },
-                      icon: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border_outlined,
-                        color: AppColors.primary,
+                      icon: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        transitionBuilder: (child, animation) {
+                          return ScaleTransition(scale: animation, child: child);
+                        },
+                        child: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border_outlined,
+                          key: ValueKey<bool>(isFav),
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                     Center(

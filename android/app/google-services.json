@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "423339830705",
+    "project_id": "primo-b9504",
+    "storage_bucket": "primo-b9504.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423339830705:android:6f140a8fc20806f399a190",
+        "android_client_info": {
+          "package_name": "com.example.primo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdXvJAJEAEz9v287zwxvtmTAjUackXQsg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

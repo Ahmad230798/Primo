@@ -18,13 +18,15 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   Future<void> getSettings() async {
-    emit(NotificationSettingsLoading());
+    if (!isClosed) emit(NotificationSettingsLoading());
     final result = await _getSettingsUseCase();
     result.fold(
-      (failure) => emit(NotificationSettingsError(failure.errorMessage)),
+      (failure) {
+        if (!isClosed) emit(NotificationSettingsError(failure.errorMessage));
+      },
       (settings) {
         currentSettings = settings;
-        emit(NotificationSettingsLoaded(settings));
+        if (!isClosed) emit(NotificationSettingsLoaded(settings));
       },
     );
   }
@@ -38,19 +40,21 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
       notificationOffer: offerEnabled,
       notificationOrder: orderEnabled,
     );
-    emit(NotificationSettingsUpdating(newSettings));
+    if (!isClosed) emit(NotificationSettingsUpdating(newSettings));
     final result = await _updateSettingsUseCase(newSettings);
     result.fold(
       (failure) {
-        emit(NotificationSettingsError(failure.errorMessage));
-        if (currentSettings != null) {
+        if (!isClosed) emit(NotificationSettingsError(failure.errorMessage));
+        if (currentSettings != null && !isClosed) {
           emit(NotificationSettingsLoaded(currentSettings!));
         }
       },
       (settings) {
         currentSettings = settings;
-        emit(NotificationSettingsUpdateSuccess(settings, "تم تحديث الإعدادات بنجاح"));
-        emit(NotificationSettingsLoaded(settings));
+        if (!isClosed) {
+          emit(NotificationSettingsUpdateSuccess(settings, "تم تحديث الإعدادات بنجاح"));
+          emit(NotificationSettingsLoaded(settings));
+        }
       },
     );
   }
