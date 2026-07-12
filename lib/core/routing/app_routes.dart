@@ -11,6 +11,7 @@ import 'package:primo/feature/admin_categories/presentation/cubit/admin_category
 import 'package:primo/feature/admin_categories/presentation/cubit/admin_categories_list_cubit.dart';
 import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_cubit.dart';
 import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_list_cubit.dart';
+import 'package:primo/feature/admin_orders/presentation/cubit/admin_orders_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_product_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/auth/presentation/cubit/forgot_password_cubit.dart';
@@ -451,12 +452,25 @@ class AppRoutes {
             child: const EditProductScreen(),
           ),
         );
-      case Routes.adminOrders:
-        return CupertinoPageRoute(builder: (_) => const AdminOrdersScreen());
+      case Routes.adminOrders: // استخدم اسم المسار الخاص بك لشاشة الطلبات
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            // 💡 توفير الكيوبت هنا (مع استدعاء دالة جلب الطلبات فوراً إذا أردت)
+            create: (context) =>
+                getIt<AdminOrdersCubit>()
+                  ..getOrders(), // استبدل getOrders باسم الدالة لديك
+            child: const AdminOrdersScreen(), // اسم شاشة الطلبات الخاصة بك
+          ),
+        );
       case Routes.orderDetails:
-        final order = settings.arguments as OrderModel?;
-        return CupertinoPageRoute(
-          builder: (_) => AdminOrderDetailsScreen(orderArg: order),
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            create: (context) =>
+                getIt<
+                  AdminOrdersCubit
+                >(), // أو الكيوبت الخاص بالتفاصيل إذا كان منفصلاً
+            child: const AdminOrderDetailsScreen(),
+          ),
         );
       case Routes.directOrders:
         return CupertinoPageRoute(builder: (_) => const DirectOrdersScreen());

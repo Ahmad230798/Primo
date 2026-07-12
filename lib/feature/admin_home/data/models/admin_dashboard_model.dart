@@ -1,4 +1,5 @@
 import 'package:primo/core/models/order_model.dart';
+import 'package:primo/core/models/user_model.dart';
 
 class SuggestionModel {
   final int id;
@@ -6,6 +7,7 @@ class SuggestionModel {
   final String? description;
   final String? createdAt;
   final String? status;
+  final UserModel? user;
 
   SuggestionModel({
     required this.id,
@@ -13,15 +15,18 @@ class SuggestionModel {
     this.description,
     this.createdAt,
     this.status,
+    this.user,
   });
 
   factory SuggestionModel.fromJson(Map<String, dynamic> json) {
     return SuggestionModel(
       id: json['id'] != null ? (int.tryParse(json['id'].toString()) ?? 0) : 0,
       name: json['name']?.toString(),
-      description: json['description']?.toString() ?? json['text']?.toString() ?? '',
+      description:
+          json['description']?.toString() ?? json['text']?.toString() ?? '',
       createdAt: json['created_at']?.toString(),
       status: json['status']?.toString() ?? 'pending',
+      user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
     );
   }
 }
@@ -52,12 +57,14 @@ class AdminDashboardModel {
       productsCount: json['products_count'] != null
           ? (int.tryParse(json['products_count'].toString()) ?? 0)
           : 0,
-      pendingOrders: (json['pending_orders'] as List<dynamic>?)
+      pendingOrders:
+          (json['pending_orders'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .map((e) => OrderModel.fromJson(e))
               .toList() ??
           [],
-      pendingSuggestions: (json['pending_suggestions'] as List<dynamic>?)
+      pendingSuggestions:
+          (json['pending_suggestions'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .map((e) => SuggestionModel.fromJson(e))
               .toList() ??

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -33,7 +34,8 @@ class OrderHistoryScreen extends StatelessWidget {
                   color: AppColors.textMain,
                   size: 26.sp,
                 ),
-                onRightIconTap: () => Navigator.pushNamed(context, Routes.notifications),
+                onRightIconTap: () =>
+                    Navigator.pushNamed(context, Routes.notifications),
               ),
             ),
             Padding(
@@ -77,16 +79,20 @@ class OrderHistoryScreen extends StatelessWidget {
               child: BlocBuilder<OrdersCubit, OrdersState>(
                 builder: (context, state) {
                   if (state is OrdersLoading) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    );
                   } else if (state is OrdersError) {
                     return AppErrorWidget(
                       message: state.errorMessage,
                       onRetry: () => context.read<OrdersCubit>().getOrders(),
                     );
                   }
-    
+
                   final orders = context.read<OrdersCubit>().currentOrders;
-    
+
                   if (orders.isEmpty) {
                     return AppEmptyState(
                       icon: Icons.receipt_long_outlined,
@@ -94,7 +100,7 @@ class OrderHistoryScreen extends StatelessWidget {
                       onRetry: () => context.read<OrdersCubit>().getOrders(),
                     );
                   }
-    
+
                   return RefreshIndicator(
                     color: AppColors.primary,
                     onRefresh: () async {
@@ -129,7 +135,8 @@ class OrderHistoryScreen extends StatelessWidget {
   }
 
   void _showFilterOptions(BuildContext context) {
-    final currentStatus = context.read<OrdersCubit>().activeStatus;
+    final parentContext = context;
+    final currentStatus = parentContext.read<OrdersCubit>().activeStatus;
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -164,7 +171,7 @@ class OrderHistoryScreen extends StatelessWidget {
                     ? const Icon(Icons.check_circle, color: AppColors.primary)
                     : null,
                 onTap: () {
-                  Navigator.pop(context);
+                  context.pop();
                   context.read<OrdersCubit>().getOrders(status: 'completed');
                 },
               ),

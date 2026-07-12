@@ -8,10 +8,8 @@ class AdminSuggestionsCubit extends Cubit<AdminSuggestionsState> {
   final GetAdminSuggestionsUseCase _getSuggestionsUseCase;
   final UpdateSuggestionStatusUseCase _updateStatusUseCase;
 
-  AdminSuggestionsCubit(
-    this._getSuggestionsUseCase,
-    this._updateStatusUseCase,
-  ) : super(AdminSuggestionsInitial());
+  AdminSuggestionsCubit(this._getSuggestionsUseCase, this._updateStatusUseCase)
+    : super(AdminSuggestionsInitial());
 
   List<SuggestionModel> allSuggestions = [];
   String currentTab = 'new';
@@ -25,32 +23,79 @@ class AdminSuggestionsCubit extends Cubit<AdminSuggestionsState> {
       },
       (list) {
         allSuggestions = list;
-        if (!isClosed) emit(AdminSuggestionsLoaded(allSuggestions, currentTab: currentTab));
+        // 💡 تحديث: عند جلب البيانات، نطبق الفلتر الحالي فوراً بدل إرسال القائمة كاملة
+        if (!isClosed) filterSuggestions(currentTab);
       },
     );
   }
 
   void filterSuggestions(String tab) {
     currentTab = tab;
-    emit(AdminSuggestionsLoaded(allSuggestions, currentTab: currentTab));
+
+    // 💡 1. إنشاء قائمة مؤقتة للفلترة
+    List<SuggestionModel> filteredList = [];
+
+    // 💡 2. منطق التصفية بناءً على الـ status القادم من السيرفر والـ key الخاص بالـ Tabs
+    if (tab == 'all') {
+      filteredList = List.from(allSuggestions);
+    } else if (tab == 'new') {
+      // التبويب "الجديدة" يطابق الحالة "pending" في الـ JSON
+      filteredList = allSuggestions
+          .where((item) => item.status == 'pending')
+          .toList();
+    } else if (tab == 'approved') {
+      // التبويب "تم التوفير" يطابق الحالة "approved" في الـ JSON
+      filteredList = allSuggestions
+          .where((item) => item.status == 'approved')
+          .toList();
+    } else {
+      filteredList = List.from(allSuggestions);
+    }
+
+    // 💡 3. إرسال القائمة المفلترة (filteredList) بدلاً من القائمة الكاملة
+    if (!isClosed) {
+      emit(AdminSuggestionsLoaded(filteredList, currentTab: currentTab));
+    }
   }
 
   Future<void> updateStatus(int id, String status) async {
     emit(AdminSuggestionUpdating(id));
     final result = await _updateStatusUseCase(id, status);
+
     result.fold(
       (failure) {
         if (!isClosed) {
           emit(AdminSuggestionsError(failure.errorMessage));
-          emit(AdminSuggestionsLoaded(allSuggestions, currentTab: currentTab));
+          // 💡 نطبق الفلتر لتعود الشاشة لحالتها الطبيعية في حال الفشل
+          filterSuggestions(currentTab);
         }
       },
-      (msg) async {
-        allSuggestions.removeWhere((item) => item.id == id);
+      (msg) {
+        // 💡 1. بدلاً من الحذف، نقوم بتحديث حالة المقترح محلياً (لكي يظهر في التبويب الآخر)
+        final index = allSuggestions.indexWhere((item) => item.id == id);
+        if (index != -1) {
+          final oldItem = allSuggestions[index];
+          // نقوم باستبدال العنصر القديم بنسخة محدثة تحمل الحالة الجديدة (approved أو rejected)
+          // ملاحظة: إذا كان لديك دالة copyWith في المودل استخدمها، أو اكتب المتغيرات هكذا:
+          allSuggestions[index] = SuggestionModel(
+            id: oldItem.id,
+            name: oldItem.name,
+            description: oldItem.description,
+            status: status, // الحالة الجديدة القادمة من الزر
+            createdAt: oldItem.createdAt,
+            user: oldItem.user,
+          );
+        }
+
         if (!isClosed) {
           emit(AdminSuggestionStatusSuccess(msg));
-          emit(AdminSuggestionsLoaded(allSuggestions, currentTab: currentTab));
-          await getSuggestions();
+
+          // 💡 2. هنا السحر: نستدعي الفلتر!
+          // إذا كنا في تبويب "الجديدة"، سيختفي المقترح فوراً لأنه لم يعد pending
+          // وإذا ذهبنا لتبويب "تم التوفير"، سنجده هناك دون الحاجة لجلبه من السيرفر!
+          filterSuggestions(currentTab);
+
+          // 💡 3. قمنا بحذف await getSuggestions() لأن التطبيق أصبح يعتمد على التحديث المحلي السريع جداً
         }
       },
     );

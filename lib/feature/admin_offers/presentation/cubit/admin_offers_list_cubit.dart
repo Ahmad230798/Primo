@@ -32,7 +32,10 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
       data,
     ) {
       offers = data;
-      emit(AdminOffersListLoaded(offers));
+      if (!isClosed) 
+      {
+        emit(AdminOffersListLoaded(offers));
+      }
     });
   }
 

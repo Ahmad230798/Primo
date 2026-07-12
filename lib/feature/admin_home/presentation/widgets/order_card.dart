@@ -70,7 +70,7 @@ class OrderCard extends StatelessWidget {
                       ),
                       4.verticalSpace,
                       Text(
-                        "طلب $orderId • $itemCount عناصر",
+                        "طلب $orderId •\n $itemCount عناصر",
                         style: AppTextStyle.font12.copyWith(
                           color: AppColors.greyMedium3,
                         ),

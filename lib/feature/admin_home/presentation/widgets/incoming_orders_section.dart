@@ -53,10 +53,21 @@ class IncomingOrdersSection extends StatelessWidget {
             separatorBuilder: (context, index) => 12.verticalSpace,
             itemBuilder: (context, index) {
               final order = list[index];
+
+              // 1. الوصول للاسم من كائن user وليس address
+              final customerName = order.user?.name ?? "عميل #${order.userId}";
+
+              // 2. بخصوص عدد العناصر:
+              // بما أن الـ items غير موجودة في هذا الرد، سنحاول إظهار نص افتراضي
+              // أو إذا كان لديك حقل آخر في المودل مثل itemsCount تأكد من استخدامه.
+              // حالياً سنضع نصاً معبراً لتجنب ظهور "0"
+              final itemCountText = "طلبية";
+
               return OrderCard(
-                customerName: order.address?.name ?? "عميل #${order.userId}",
+                customerName: customerName,
                 orderId: "#${order.id}",
-                itemCount: order.items.length.toString(),
+                itemCount:
+                    itemCountText, // تم استبدال الـ length النصي بهذا المتغير
                 price: order.totalAmount.toString(),
                 onAccept: () {
                   context.pushNamed(Routes.adminOrders);

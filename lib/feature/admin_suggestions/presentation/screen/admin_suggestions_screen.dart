@@ -10,6 +10,7 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/feature/admin_home/data/models/admin_dashboard_model.dart';
 
 import '../cubit/admin_suggestions_cubit.dart';
 import '../cubit/admin_suggestions_state.dart';
@@ -37,8 +38,13 @@ class AdminSuggestionsScreen extends StatelessWidget {
             },
             builder: (context, state) {
               final cubit = context.read<AdminSuggestionsCubit>();
-              final suggestions = cubit.allSuggestions;
 
+              // 💡 التعديل هنا: إذا كانت الحالة المحملة جاهزة، خذ القائمة المفلترة منها، وإلا اعتمد قائمة الكيوبت كخيار احتياطي
+              List<SuggestionModel> suggestions = cubit.allSuggestions;
+              if (state is AdminSuggestionsLoaded) {
+                suggestions = state
+                    .suggestions; // (تأكد من اسم متغير القائمة داخل الـ State الخاص بك، غالباً اسمه suggestions)
+              }
               return Column(
                 children: [
                   Padding(
@@ -100,7 +106,7 @@ class AdminSuggestionsScreen extends StatelessWidget {
   Widget _buildSuggestionsList(
     BuildContext context,
     AdminSuggestionsState state,
-    List dynamicSuggestions,
+    List<SuggestionModel> dynamicSuggestions,
     AdminSuggestionsCubit cubit,
   ) {
     if (state is AdminSuggestionsLoading && dynamicSuggestions.isEmpty) {
@@ -135,11 +141,17 @@ class AdminSuggestionsScreen extends StatelessWidget {
         separatorBuilder: (context, index) => 16.verticalSpace,
         itemBuilder: (context, index) {
           final item = dynamicSuggestions[index];
-          final firstChar = (item.name != null && item.name!.trim().isNotEmpty)
-              ? item.name!.trim()[0]
+
+          // 💡 1. استخراج بيانات الزبون بشكل صحيح من كائن الـ user الداخلي
+          final user = item.user;
+          final realCustomerName = user?.name ?? "عميل بريمو";
+
+          // 💡 2. أخذ الحرف الأول من اسم الزبون (وليس اسم المنتج)
+          final firstChar = realCustomerName.trim().isNotEmpty
+              ? realCustomerName.trim()[0]
               : "ع";
 
-          // 💡 السحر هنا: استخراج التاريخ فقط بأمان
+          // 💡 3. معالجة التاريخ ليعرض اليوم والشهر والسنة فقط
           String displayDate = "حديث";
           if (item.createdAt != null && item.createdAt!.trim().isNotEmpty) {
             try {
@@ -147,19 +159,19 @@ class AdminSuggestionsScreen extends StatelessWidget {
               displayDate =
                   "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
             } catch (e) {
-              // خطة بديلة: في حال كان النص غير قابل للتحويل، نقوم بقصه عند أول مسافة أو حرف T
               displayDate = item.createdAt!.split('T').first.split(' ').first;
             }
           }
           return Stack(
             children: [
               SuggestionItemCard(
-                customerName: item.name ?? "عميل بريمو",
+                customerName: realCustomerName,
                 customerType: "زبون بريمو",
                 avatarLetter: firstChar,
                 date: displayDate,
-                suggestionTitle: "مقترح #${item.id}",
-                suggestionText: '"${item.description ?? ''}"',
+                suggestionTitle: item.name ?? "منتج مقترح",
+                suggestionText:
+                    '"${item.description ?? 'لا يوجد تفاصيل إضافية'}"',
                 onAccept: () {
                   cubit.updateStatus(item.id, "approved");
                 },
