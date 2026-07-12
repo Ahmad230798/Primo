@@ -6,6 +6,8 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
+import 'package:primo/core/widgets/app_empty_state.dart';
+import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import '../cubit/admin_offers_cubit.dart';
 import '../cubit/admin_offers_list_cubit.dart';
@@ -75,78 +77,61 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    24.verticalSpace,
-                    Text(
-                      "العروض والخصومات",
-                      style: AppTextStyle.font30.copyWith(
-                        color: AppColors.textMain,
+              child: RefreshIndicator(
+                color: AppColors.primary,
+                onRefresh: () async {
+                  await context.read<AdminOffersListCubit>().getOffers();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      24.verticalSpace,
+                      Text(
+                        "العروض والخصومات",
+                        style: AppTextStyle.font30.copyWith(
+                          color: AppColors.textMain,
+                        ),
                       ),
-                    ),
-                    4.verticalSpace,
-                    Text(
-                      "إدارة العروض الترويجية والخصومات المتاحة للزبائن.",
-                      style: AppTextStyle.font14.copyWith(
-                        color: AppColors.greyMedium3,
+                      4.verticalSpace,
+                      Text(
+                        "إدارة العروض الترويجية والخصومات المتاحة للزبائن.",
+                        style: AppTextStyle.font14.copyWith(
+                          color: AppColors.greyMedium3,
+                        ),
                       ),
-                    ),
-                    24.verticalSpace,
+                      24.verticalSpace,
 
-                    BlocBuilder<AdminOffersListCubit, AdminOffersListState>(
-                      builder: (context, state) {
-                        if (state is AdminOffersListLoading) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(40.h),
-                              child: const CircularProgressIndicator(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          );
-                        } else if (state is AdminOffersListError) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(40.h),
-                              child: Text(
-                                state.message,
-                                style: AppTextStyle.font16.copyWith(
+                      BlocBuilder<AdminOffersListCubit, AdminOffersListState>(
+                        builder: (context, state) {
+                          if (state is AdminOffersListLoading) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(40.h),
+                                child: const CircularProgressIndicator(
                                   color: AppColors.primary,
                                 ),
                               ),
-                            ),
-                          );
-                        }
+                            );
+                          } else if (state is AdminOffersListError) {
+                            return AppErrorWidget(
+                              message: state.message,
+                              onRetry: () => context.read<AdminOffersListCubit>().getOffers(),
+                            );
+                          }
 
-                        final offers =
-                            context.read<AdminOffersListCubit>().offers;
+                          final offers =
+                              context.read<AdminOffersListCubit>().offers;
 
-                        if (offers.isEmpty) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(40.h),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.campaign_outlined,
-                                    size: 64.sp,
-                                    color: AppColors.greyMedium3,
-                                  ),
-                                  16.verticalSpace,
-                                  Text(
-                                    "لا توجد عروض حالياً",
-                                    style: AppTextStyle.font16.copyWith(
-                                      color: AppColors.textMain,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
+                          if (offers.isEmpty) {
+                            return AppEmptyState(
+                              icon: Icons.campaign_outlined,
+                              message: "لا توجد عروض حالياً",
+                              onRetry: () => context.read<AdminOffersListCubit>().getOffers(),
+                            );
+                          }
 
                         return ListView.separated(
                           shrinkWrap: true,
@@ -257,8 +242,9 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                         );
                       },
                     ),
-                    100.verticalSpace,
-                  ],
+                      100.verticalSpace,
+                    ],
+                  ),
                 ),
               ),
             ),

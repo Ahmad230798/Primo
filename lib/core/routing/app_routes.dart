@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// ignore: unused_import
 import 'package:get_it/get_it.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/models/order_model.dart';

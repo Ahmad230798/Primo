@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/models/product_model.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/admin_product/domain/usecases/get_products_usecase.dart';
 import 'package:primo/feature/admin_product/domain/usecases/manage_product_usecase.dart';
 import 'admin_products_list_state.dart';
@@ -16,15 +18,42 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
   List<ProductModel> filteredProducts = [];
 
   Future<void> getProducts() async {
-    emit(AdminProductsListLoading());
+    bool hasCache = false;
+    try {
+      final cached = await AppStorage.getCachedData('cache_admin_products');
+      if (cached != null) {
+        final List<dynamic> jsonList = jsonDecode(cached);
+        final cachedProducts =
+            jsonList.map((e) => ProductModel.fromJson(e)).toList();
+        allProducts = cachedProducts;
+        filteredProducts = cachedProducts;
+        currentProducts = cachedProducts;
+        hasCache = true;
+        if (!isClosed) emit(AdminProductsListLoaded(filteredProducts));
+      }
+    } catch (_) {}
+
+    if (!hasCache && !isClosed) {
+      emit(AdminProductsListLoading());
+    }
+
     final result = await _getProductsUseCase.getAll();
     result.fold(
-      (failure) => emit(AdminProductsListError(failure.errorMessage)),
+      (failure) {
+        if (!hasCache && !isClosed) {
+          emit(AdminProductsListError(failure.errorMessage));
+        }
+      },
       (products) {
         allProducts = products;
         filteredProducts = products;
         currentProducts = products;
-        emit(AdminProductsListLoaded(filteredProducts));
+        try {
+          final jsonString =
+              jsonEncode(products.map((e) => e.toJson()).toList());
+          AppStorage.cacheData('cache_admin_products', jsonString);
+        } catch (_) {}
+        if (!isClosed) emit(AdminProductsListLoaded(filteredProducts));
       },
     );
   }
