@@ -28,33 +28,25 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
     }
 
     final result = await _useCase.getAllOffers();
-    result.fold(
-      (failure) {
-        if (!hasCache && !isClosed) {
-          emit(AdminOffersListError(failure.errorMessage));
-        }
-      },
-      (data) {
-        offers = data;
-        try {
-          final jsonString =
-              jsonEncode(data.map((e) => e.toJson()).toList());
-          AppStorage.cacheData('cache_admin_offers', jsonString);
-        } catch (_) {}
-        if (!isClosed) emit(AdminOffersListLoaded(offers));
-      },
-    );
+    result.fold((failure) => emit(AdminOffersListError(failure.errorMessage)), (
+      data,
+    ) {
+      offers = data;
+      emit(AdminOffersListLoaded(offers));
+    });
   }
 
   Future<void> deleteOffer(int offerId) async {
+    if (!isClosed) {
+      emit(AdminOffersListLoading());
+    }
     final result = await _useCase.deleteOffer(offerId);
-    result.fold(
-      (failure) => emit(AdminOffersListError(failure.errorMessage)),
-      (success) {
-        offers.removeWhere((o) => o.id == offerId);
-        emit(const AdminOfferDeleteSuccess("تم حذف العرض بنجاح"));
-        emit(AdminOffersListLoaded(offers));
-      },
-    );
+    result.fold((failure) => emit(AdminOffersListError(failure.errorMessage)), (
+      success,
+    ) {
+      offers.removeWhere((o) => o.id == offerId);
+      emit(const AdminOfferDeleteSuccess("تم حذف العرض بنجاح"));
+      emit(AdminOffersListLoaded(offers));
+    });
   }
 }

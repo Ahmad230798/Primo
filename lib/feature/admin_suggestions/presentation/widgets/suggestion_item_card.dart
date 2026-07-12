@@ -48,47 +48,53 @@ class SuggestionItemCard extends StatelessWidget {
         children: [
           // --- الجزء العلوي: بيانات الزبون والتاريخ ---
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start, // المحاذاة للأعلى
             children: [
-              // اليمين: الصورة الشخصية والاسم
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 22.r,
-                    backgroundColor: AppColors.greyBackground,
-                    child: Text(
-                      avatarLetter,
-                      style: AppTextStyle.font16.copyWith(
+              // الصورة الشخصية
+              CircleAvatar(
+                radius: 22.r,
+                backgroundColor: AppColors.greyBackground,
+                child: Text(
+                  avatarLetter,
+                  style: AppTextStyle.font16.copyWith(
+                    color: AppColors.textMain,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              12.horizontalSpace,
+
+              // 💡 التعديل 1: الـ Expanded يحيط بعمود النصوص بالكامل ليمنع التجاوز العرضي
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      customerName,
+                      style: AppTextStyle.font14.copyWith(
                         color: AppColors.textMain,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1, // 💡 حماية إضافية من التجاوز
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  12.horizontalSpace,
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        customerName,
-                        style: AppTextStyle.font14.copyWith(
-                          color: AppColors.textMain,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    2.verticalSpace,
+                    // 💡 التعديل 2: إزالة الـ Expanded من هنا لحل مشكلة الارتفاع اللانهائي
+                    Text(
+                      customerType,
+                      style: AppTextStyle.font12.copyWith(
+                        color: AppColors.greyMedium3,
                       ),
-                      2.verticalSpace,
-                      Text(
-                        customerType,
-                        style: AppTextStyle.font12.copyWith(
-                          color: AppColors.greyMedium3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
 
-              // اليسار: التاريخ
+              12.horizontalSpace,
+
+              // 💡 التعديل 3: إزالة الـ Expanded من التاريخ ليأخذ مساحته الطبيعية فقط
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
@@ -104,6 +110,7 @@ class SuggestionItemCard extends StatelessWidget {
               ),
             ],
           ),
+
           24.verticalSpace,
 
           // --- الجزء الأوسط: محتوى المقترح ---
@@ -119,15 +126,14 @@ class SuggestionItemCard extends StatelessWidget {
             suggestionText,
             style: AppTextStyle.font14.copyWith(
               color: AppColors.greyDark,
-              height: 1.6, // تباعد الأسطر لسهولة القراءة
+              height: 1.6,
             ),
           ),
           24.verticalSpace,
 
-          // --- الجزء السفلي: الأزرار (تجاهل / تم التوفير) ---
+          // --- الجزء السفلي: الأزرار ---
           Row(
             children: [
-              // زر تجاهل
               Expanded(
                 child: OutlinedButton(
                   onPressed: onIgnore,
@@ -159,7 +165,6 @@ class SuggestionItemCard extends StatelessWidget {
                 ),
               ),
               16.horizontalSpace,
-              // زر تم التوفير
               Expanded(
                 child: ElevatedButton(
                   onPressed: onAccept,
@@ -170,9 +175,7 @@ class SuggestionItemCard extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.r),
                     ),
-                    shadowColor: AppColors.primary.withOpacity(
-                      0.5,
-                    ), // ظل خفيف للزر
+                    shadowColor: AppColors.primary.withOpacity(0.5),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
