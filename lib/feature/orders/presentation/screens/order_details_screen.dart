@@ -110,7 +110,7 @@ class OrderDetailsScreen extends StatelessWidget {
                               showRating: isCompleted,
                               onRate: (rating) {
                                 context.read<OrdersCubit>().rateProduct(
-                                  item.id,
+                                  item.productId,
                                   liveOrder.id,
                                   rating,
                                 );

@@ -3,6 +3,8 @@ import 'package:primo/core/models/user_model.dart';
 
 class OrderItemModel {
   final int id;
+  final int productId;
+  final int productRatings;
   final String name;
   final String? image;
   final int quantity;
@@ -20,6 +22,8 @@ class OrderItemModel {
     required this.price,
     required this.hasActiveOffer,
     this.newPrice,
+    required this.productId,
+    required this.productRatings,
   });
 
   String? get fullImageUrl {
@@ -58,9 +62,16 @@ class OrderItemModel {
               : (json['product_id'] != null
                     ? (int.tryParse(json['product_id'].toString()) ?? 0)
                     : 0));
-
+    final int parsedProductId = json['product_id'] != null
+        ? (int.tryParse(json['product_id'].toString()) ?? 0)
+        : parsedId; // كخطة بديلة نأخذ الـ id العادي
+    final int parsedRatings = json['product_ratings'] != null
+        ? (int.tryParse(json['product_ratings'].toString()) ?? 0)
+        : 0;
     return OrderItemModel(
       id: parsedId, // سيحمل الآن قيمة variant_id الصحيحة
+      productId: parsedProductId, // 💡 تمريره هنا
+      productRatings: parsedRatings,
       name: json['name']?.toString() ?? 'منتج',
       image: json['image']?.toString(),
       quantity: parsedQuantity,

@@ -81,7 +81,6 @@ class OrdersCubit extends Cubit<OrdersState> {
           emit(OrderRatingSuccess(msg));
           // 💡 السحر هنا: جلب تفاصيل الطلب الحالي لكي تتحدث الشاشة ويختفي زر التقييم!
           getOrderDetails(orderId);
-          getOrders(); // تحديث القائمة الخارجية في الخلفية لا يضر
         }
       },
     );

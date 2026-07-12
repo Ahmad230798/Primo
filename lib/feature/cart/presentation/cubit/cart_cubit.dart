@@ -31,7 +31,8 @@ class CartCubit extends Cubit<CartState> {
 
   Future<void> getCart({bool showLoading = true}) async {
     if (showLoading) {
-      emit(CartLoading());
+      if(!isClosed)
+      {emit(CartLoading());}
     }
     final result = await _getCartUseCase();
     result.fold(
