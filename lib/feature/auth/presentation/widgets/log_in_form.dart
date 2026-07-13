@@ -37,10 +37,7 @@ class LogInForm extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "رقم الهاتف أو البريد الإلكتروني",
-                    style: AppTextStyle.font16,
-                  ),
+                  Text("رقم الهاتف", style: AppTextStyle.font16),
                   8.verticalSpace,
                   AppTextFormField(
                     controller: cubit.phoneController,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/models/order_model.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
@@ -64,9 +66,12 @@ class OrderTracking extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const AdditionalOptions(
+                        AdditionalOptions(
                           iconData: Icons.support_agent_outlined,
                           text: "المساعدة",
+                          onTap: () {
+                            context.pushNamed(Routes.helpCenter);
+                          },
                         ),
                         const AdditionalOptions(
                           iconData: Icons.description_outlined,

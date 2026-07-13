@@ -75,7 +75,8 @@ class OrderItemModel {
       name: json['name']?.toString() ?? 'منتج',
       image: json['image']?.toString(),
       quantity: parsedQuantity,
-      property: json['property']?.toString() ??
+      property:
+          json['property']?.toString() ??
           (json['variant'] is Map
               ? json['variant']['property']?.toString()
               : null),
@@ -90,18 +91,18 @@ class OrderItemModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'variant_id': id,
-        'product_id': productId,
-        'product_ratings': productRatings,
-        'name': name,
-        'image': image,
-        'quantity': quantity,
-        'property': property,
-        'price': price,
-        'has_active_offer': hasActiveOffer,
-        'new_price': newPrice,
-      };
+    'id': id,
+    'variant_id': id,
+    'product_id': productId,
+    'product_ratings': productRatings,
+    'name': name,
+    'image': image,
+    'quantity': quantity,
+    'property': property,
+    'price': price,
+    'has_active_offer': hasActiveOffer,
+    'new_price': newPrice,
+  };
 }
 
 class OrderPriceModel {
@@ -137,6 +138,7 @@ class OrderModel {
   final String? updatedAt;
   final AddressModel? address;
   final UserModel? user;
+  final int? itemCount;
   final List<OrderItemModel> items;
 
   OrderModel({
@@ -153,6 +155,7 @@ class OrderModel {
     this.address,
     this.user,
     required this.items,
+    this.itemCount,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -161,6 +164,7 @@ class OrderModel {
       userId: json['user_id'] != null
           ? (int.tryParse(json['user_id'].toString()) ?? 0)
           : 0,
+      itemCount: json['item_count'],
       addressId: json['address_id'] != null
           ? int.tryParse(json['address_id'].toString())
           : null,
@@ -200,20 +204,20 @@ class OrderModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'user_id': userId,
-        'address_id': addressId,
-        'status': status,
-        'is_delivery': isDelivery ? 1 : 0,
-        'amount': amount,
-        'delivery_amount': deliveryAmount,
-        'total_amount': totalAmount,
-        'created_at': createdAt,
-        'updated_at': updatedAt,
-        'address': address?.toJson(),
-        'user': user?.toJson(),
-        'items': items.map((e) => e.toJson()).toList(),
-      };
+    'id': id,
+    'user_id': userId,
+    'address_id': addressId,
+    'status': status,
+    'is_delivery': isDelivery ? 1 : 0,
+    'amount': amount,
+    'delivery_amount': deliveryAmount,
+    'total_amount': totalAmount,
+    'created_at': createdAt,
+    'updated_at': updatedAt,
+    'address': address?.toJson(),
+    'user': user?.toJson(),
+    'items': items.map((e) => e.toJson()).toList(),
+  };
 
   String get formattedDate {
     if (createdAt == null || createdAt!.isEmpty) return "";
@@ -270,6 +274,7 @@ class OrderModel {
       updatedAt: updatedAt ?? this.updatedAt,
       address: address ?? this.address,
       user: user ?? this.user,
+
       items: items ?? this.items,
     );
   }

@@ -73,8 +73,7 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
       (orders) {
         allOrders = orders;
         try {
-          final jsonString =
-              jsonEncode(orders.map((e) => e.toJson()).toList());
+          final jsonString = jsonEncode(orders.map((e) => e.toJson()).toList());
           AppStorage.cacheData(cacheKey, jsonString);
         } catch (_) {}
         if (!isClosed) {
@@ -104,20 +103,25 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
   Future<void> updateOrderStatus(int orderId, String newStatus) async {
     emit(AdminOrderStatusUpdating(orderId));
     final result = await _updateStatusUseCase(orderId, newStatus);
+
     result.fold(
       (failure) {
         if (!isClosed) emit(AdminOrdersError(failure.errorMessage));
       },
       (msg) async {
+        // 1. التحديث المحلي للقائمة (لكي تكون الشاشة الرئيسية السابقة محدثة عند الرجوع إليها)
         final index = allOrders.indexWhere((o) => o.id == orderId);
         if (index != -1) {
           allOrders[index] = allOrders[index].copyWith(status: newStatus);
         }
+
         if (!isClosed) {
+          // 2. إرسال حالة النجاح لظهور الإشعار الأخضر (SnackBar)
           emit(AdminOrderStatusSuccess(msg));
-          emit(AdminOrdersLoaded(
-              List.from(allOrders), activeFilter: currentFilter));
-          await getOrders(status: currentFilter);
+
+          // 💡 3. السحر هنا: بدلاً من جلب الطلبات المختصرة التي تمسح المنتجات..
+          // نقوم باستدعاء دالة التفاصيل لإعادة إنعاش الشاشة الحالية بكامل البيانات!
+          await getOrderDetails(orderId);
         }
       },
     );

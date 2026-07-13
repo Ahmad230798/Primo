@@ -10,7 +10,8 @@ import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.d
 import 'package:primo/feature/suggestions/presentation/cubit/suggestions_state.dart';
 
 class SuggestProductPage extends StatefulWidget {
-  const SuggestProductPage({super.key});
+  final bool isFromBottomNav;
+  const SuggestProductPage({super.key, required this.isFromBottomNav});
 
   @override
   State<SuggestProductPage> createState() => _SuggestProductPageState();
@@ -18,7 +19,8 @@ class SuggestProductPage extends StatefulWidget {
 
 class _SuggestProductPageState extends State<SuggestProductPage> {
   final TextEditingController productNameController = TextEditingController();
-  final TextEditingController productDetailsController = TextEditingController();
+  final TextEditingController productDetailsController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -64,6 +66,7 @@ class _SuggestProductPageState extends State<SuggestProductPage> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: CustomAppBar(
+                    suffixsIcon: widget.isFromBottomNav ? SizedBox() : null,
                     title: "اقترح منتجاً",
                     showRightIcon: true,
                     // عرض كلمة Primo باللون الأحمر جهة اليسار كما في الصورة
@@ -140,7 +143,8 @@ class _SuggestProductPageState extends State<SuggestProductPage> {
                         AppTextFormField(
                           controller: productDetailsController,
                           hinttText: "تفاصيل إضافية كالوزن أو النكهة (اختياري)",
-                          linesCount: 4, // يعطيه ارتفاعاً أكبر يشبه التصميم تماماً
+                          linesCount:
+                              4, // يعطيه ارتفاعاً أكبر يشبه التصميم تماماً
                           borderWidth: 0,
                           focusColor: AppColors.white,
                           isFilled: true,
@@ -169,9 +173,9 @@ class _SuggestProductPageState extends State<SuggestProductPage> {
                         ? null
                         : () {
                             context.read<SuggestionsCubit>().sendSuggestion(
-                                  name: productNameController.text,
-                                  description: productDetailsController.text,
-                                );
+                              name: productNameController.text,
+                              description: productDetailsController.text,
+                            );
                           },
                   ),
                 ),

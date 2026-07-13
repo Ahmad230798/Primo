@@ -31,7 +31,8 @@ class OtpVerificationScreen extends StatelessWidget {
           listenWhen: (previous, current) =>
               current is OtpSuccess ||
               current is OtpError ||
-              current is OtpForgotPasswordSuccess,
+              current is OtpForgotPasswordSuccess ||
+              current is OtpLoading,
 
           listener: (context, state) {
             if (state is OtpError) {
@@ -55,7 +56,11 @@ class OtpVerificationScreen extends StatelessWidget {
             }
           },
           buildWhen: (previous, current) =>
-              current is OtpTimerTick || current is ResendOtpLoading,
+              current is OtpTimerTick ||
+              current is ResendOtpLoading ||
+              current is OtpLoading || // 💡 السماح للزر برؤية حالة التحميل
+              current
+                  is OtpError, // 💡 السماح للزر بالتوقف عن التحميل إذا حدث خطأ
           builder: (context, state) {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),

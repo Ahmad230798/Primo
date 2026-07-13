@@ -185,6 +185,25 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                   16.verticalSpace,
                               itemBuilder: (context, index) {
                                 final offer = offers[index];
+                                String formatDate(String? rawDate) {
+                                  if (rawDate == null || rawDate.trim().isEmpty)
+                                    return 'غير محدد';
+                                  try {
+                                    final parsedDate = DateTime.parse(rawDate);
+                                    return "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
+                                  } catch (e) {
+                                    // خطة بديلة في حال كان التنسيق مختلفاً
+                                    return rawDate
+                                        .split('T')
+                                        .first
+                                        .split(' ')
+                                        .first;
+                                  }
+                                }
+
+                                // 💡 2. تطبيق الدالة على تاريخي البداية والنهاية
+                                final cleanFromDate = formatDate(offer.from);
+                                final cleanToDate = formatDate(offer.to);
                                 return Container(
                                   padding: EdgeInsets.all(16.w),
                                   decoration: BoxDecoration(
@@ -249,7 +268,7 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                             ),
                                             4.verticalSpace,
                                             Text(
-                                              "من ${offer.from ?? ''} إلى ${offer.to ?? ''}",
+                                              "من $cleanFromDate إلى $cleanToDate",
                                               style: AppTextStyle.font12
                                                   .copyWith(
                                                     color:

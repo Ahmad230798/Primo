@@ -69,17 +69,35 @@ class AdminOrderDetailsScreen extends StatelessWidget {
               // محتوى الشاشة
               Expanded(
                 child: BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
+                  // 💡 نقوم بالبناء عند تغير حالات التحميل والنجاح المخصصة للتفاصيل
+                  buildWhen: (previous, current) =>
+                      current is AdminOrdersLoading ||
+                      current is AdminOrderDetailsLoaded ||
+                      current is AdminOrdersLoaded,
                   builder: (context, state) {
-                    final cubit = context.read<AdminOrdersCubit>();
+                    // 💡 1. إظهار مؤشر التحميل أثناء مناداة السيرفر
+                    if (state is AdminOrdersLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      );
+                    }
+
+                    // 💡 2. تحديد مصدر البيانات:
+                    // إذا نجح السيرفر في جلب التفاصيل الكاملة نعتمد عليها، وإلا نستخدم البيانات المبسطة كخطة احتياطية
                     OrderModel? liveOrder = orderArg;
-                    try {
-                      if (orderArg?.id != null) {
-                        liveOrder = cubit.allOrders.firstWhere(
-                          (o) => o.id == orderArg!.id,
-                          orElse: () => orderArg!,
+                    if (state is AdminOrderDetailsLoaded) {
+                      liveOrder = state
+                          .order; // التفاصيل الكاملة من السيرفر (تحتوي على العناصر والزبون)
+                    } else if (state is AdminOrdersLoaded) {
+                      // في حال تم تحديث الحالة نجلب الطلب المحدث محلياً
+                      try {
+                        liveOrder = state.orders.firstWhere(
+                          (o) => o.id == orderArg?.id,
                         );
-                      }
-                    } catch (_) {}
+                      } catch (_) {}
+                    }
 
                     return SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
@@ -94,7 +112,10 @@ class AdminOrderDetailsScreen extends StatelessWidget {
 
                           OrderStatusTracker(
                             order: liveOrder,
-                            isLoading: state is AdminOrdersLoading,
+                            // 💡 جعل التتبع يعطي لودينغ فقط عند تحديث الحالة
+                            isLoading:
+                                state is AdminOrderStatusUpdating &&
+                                state.orderId == liveOrder?.id,
                             onUpdateStatus: (newStatus) {
                               if (liveOrder?.id != null) {
                                 context
@@ -108,6 +129,7 @@ class AdminOrderDetailsScreen extends StatelessWidget {
                           ),
                           24.verticalSpace,
 
+                          // 💡 الآن liveOrder?.items ستكون محملة بالكامل من دالة التفاصيل ولن تظهر 0
                           OrderedItemsList(items: liveOrder?.items),
                           24.verticalSpace,
 

@@ -40,10 +40,12 @@ class AdminOrdersScreen extends StatelessWidget {
               final cubit = context.read<AdminOrdersCubit>();
               final orders = cubit.allOrders;
               final activeCount = orders
-                  .where((o) =>
-                      o.status.toLowerCase() != 'completed' &&
-                      o.status.toLowerCase() != 'delivered' &&
-                      o.status != 'مكتمل')
+                  .where(
+                    (o) =>
+                        o.status.toLowerCase() != 'completed' &&
+                        o.status.toLowerCase() != 'delivered' &&
+                        o.status != 'مكتمل',
+                  )
                   .length;
 
               return Column(
@@ -51,12 +53,16 @@ class AdminOrdersScreen extends StatelessWidget {
                   // الهيدر المخصص
                   Container(
                     padding: EdgeInsets.symmetric(
-                        horizontal: 24.w, vertical: 16.h),
+                      horizontal: 24.w,
+                      vertical: 16.h,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       border: Border(
                         bottom: BorderSide(
-                            color: AppColors.formBorder, width: 1),
+                          color: AppColors.formBorder,
+                          width: 1,
+                        ),
                       ),
                     ),
                     child: Row(
@@ -167,13 +173,19 @@ class AdminOrdersScreen extends StatelessWidget {
           final order = orders[index];
           final st = order.status.toLowerCase();
           final isPending = st == 'pending' || order.status == 'قيد الانتظار';
-          final customerName = order.user?.name ?? order.address?.name ?? "عميل بريمو #${order.userId}";
+          final customerName =
+              order.user?.name ??
+              order.address?.name ??
+              "عميل بريمو #${order.userId}";
           final firstLetter = customerName.trim().isNotEmpty
               ? customerName.trim()[0]
               : "ز";
 
           return GestureDetector(
             onTap: () {
+              context.read<AdminOrdersCubit>().getOrderDetails(
+                order.id,
+              ); // أو استدعاء دالة جلب طلب واحد إذا توفرت
               Navigator.pushNamed(
                 context,
                 Routes.orderDetails,
@@ -194,7 +206,8 @@ class AdminOrdersScreen extends StatelessWidget {
                   orderType: order.isDelivery ? "توصيل" : "استلام من الفرع",
                   totalPrice: "${order.totalAmount} ل.س",
                   statusText: order.statusArabic,
-                  onStatusUpdate: () => _showStatusPicker(context, cubit, order),
+                  onStatusUpdate: () =>
+                      _showStatusPicker(context, cubit, order),
                   onActionTap: () {
                     final nextStatus = isPending ? 'processing' : 'completed';
                     cubit.updateOrderStatus(order.id, nextStatus);
@@ -203,7 +216,8 @@ class AdminOrdersScreen extends StatelessWidget {
                     cubit.updateOrderStatus(order.id, 'canceled');
                   },
                 ),
-                if (state is AdminOrderStatusUpdating && state.orderId == order.id)
+                if (state is AdminOrderStatusUpdating &&
+                    state.orderId == order.id)
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
@@ -211,7 +225,9 @@ class AdminOrdersScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16.r),
                       ),
                       child: const Center(
-                        child: CircularProgressIndicator(color: AppColors.primary),
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ),
@@ -224,7 +240,10 @@ class AdminOrdersScreen extends StatelessWidget {
   }
 
   void _showStatusPicker(
-      BuildContext context, AdminOrdersCubit cubit, OrderModel order) {
+    BuildContext context,
+    AdminOrdersCubit cubit,
+    OrderModel order,
+  ) {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -239,7 +258,9 @@ class AdminOrdersScreen extends StatelessWidget {
             children: [
               Text(
                 "تغيير حالة الطلب #${order.id}",
-                style: AppTextStyle.font18.copyWith(fontWeight: FontWeight.bold),
+                style: AppTextStyle.font18.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               20.verticalSpace,
@@ -294,8 +315,13 @@ class AdminOrdersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusOption(BuildContext ctx, String label, String value,
-      String current, VoidCallback onTap) {
+  Widget _buildStatusOption(
+    BuildContext ctx,
+    String label,
+    String value,
+    String current,
+    VoidCallback onTap,
+  ) {
     final isSelected = current.toLowerCase() == value;
     return InkWell(
       onTap: onTap,
@@ -303,7 +329,9 @@ class AdminOrdersScreen extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.white,
+          color: isSelected
+              ? AppColors.primary.withOpacity(0.1)
+              : AppColors.white,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.formBorder,

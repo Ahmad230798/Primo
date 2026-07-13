@@ -55,7 +55,12 @@ class ResetPasswordScreen extends StatelessWidget {
               child: Column(
                 children: [
                   // 1. شريط التنقل العلوي الموحد
-                  const CustomAppBar(title: "Primo"),
+                  CustomAppBar(
+                    title: "Primo",
+                    onBackTap: () {
+                      context.pushNamedAndRemoveUntil(Routes.login);
+                    },
+                  ),
 
                   // 2. محتوى الصفحة
                   Expanded(

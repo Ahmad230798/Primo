@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 import 'package:primo/feature/main_layout/presentation/cubit/main_layout_cubit.dart';
 import 'package:primo/feature/main_layout/presentation/cubit/main_layout_state.dart';
 import 'package:primo/feature/main_layout/widgets/semi_circule_divider.dart';
@@ -175,12 +177,13 @@ class _FloatingCircularNavBarState extends State<FloatingCircularNavBar>
               ),
               _buildMenuItem(
                 context,
-                icon: Icons.autorenew,
-                title: "الخدمات",
+                icon: Icons.lightbulb_outline,
+                title: "اقتراحات",
                 angle: math.pi * 0.05,
                 radius: radius * 0.65,
                 bgColor: AppColors.primary.withValues(alpha: 0.15),
                 iconColor: AppColors.primary,
+                onTap: () => context.read<MainLayoutCubit>().changeIndex(8),
               ),
             ],
           ),
@@ -275,13 +278,26 @@ class _FloatingCircularNavBarState extends State<FloatingCircularNavBar>
                 "طلباتي",
               ),
               SizedBox(width: 60.w), // مساحة للزر المركزي
-              _buildNavItem(
-                context,
-                currentIndex,
-                2,
-                Icons.shopping_cart_outlined,
-                "السلة",
-                hasNotification: true,
+              BlocBuilder<CartCubit, CartState>(
+                // 👈 استبدل CartCubit باسم الكيوبت الفعلي للسلة عندك
+                builder: (context, cartState) {
+                  // 💡 هنا نحدد متى يظهر الإشعار (مثلاً: إذا كان عدد المنتجات أكبر من صفر)
+                  bool hasItemsInCart = false;
+                  if (cartState is CartLoaded) {
+                    // 👈 استبدل CartLoaded بحالة النجاح عندك
+                    hasItemsInCart = cartState.items.isNotEmpty;
+                  }
+
+                  return _buildNavItem(
+                    context,
+                    currentIndex,
+                    2,
+                    Icons.shopping_cart_outlined,
+                    "السلة",
+                    hasNotification:
+                        hasItemsInCart, // 👈 أصبحت القيمة ديناميكية وتتغير فوراً!
+                  );
+                },
               ),
               _buildNavItem(
                 context,

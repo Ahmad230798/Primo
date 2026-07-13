@@ -20,6 +20,7 @@ extension Navigation on BuildContext {
     RoutePredicate? predicate,
   }) {
     return Navigator.of(this).pushNamedAndRemoveUntil(
+      
       routeName,
       predicate ?? (route) => false,
       arguments: arguments,

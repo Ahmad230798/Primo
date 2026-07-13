@@ -274,17 +274,11 @@ class AppRoutes {
           builder: (_) => const NotificationsHistoryScreen(),
         );
       case Routes.helpCenter:
-        return CupertinoPageRoute(
-          builder: (_) => const HelpCenterScreen(),
-        );
+        return CupertinoPageRoute(builder: (_) => const HelpCenterScreen());
       case Routes.privacyPolicy:
-        return CupertinoPageRoute(
-          builder: (_) => const PrivacyPolicyScreen(),
-        );
+        return CupertinoPageRoute(builder: (_) => const PrivacyPolicyScreen());
       case Routes.termsOfUse:
-        return CupertinoPageRoute(
-          builder: (_) => const TermsOfUseScreen(),
-        );
+        return CupertinoPageRoute(builder: (_) => const TermsOfUseScreen());
       case Routes.searchResults:
         return CupertinoPageRoute(
           builder: (_) {
@@ -342,7 +336,7 @@ class AppRoutes {
           builder: (_) => BlocProvider(
             create: (context) => getIt<SuggestionsCubit>(),
 
-            child: const SuggestProductPage(),
+            child: const SuggestProductPage(isFromBottomNav: false),
           ),
         );
       case Routes.favorites:
@@ -485,13 +479,22 @@ class AppRoutes {
           ),
         );
       case Routes.orderDetails:
+        // 💡 استخراج الـ OrderModel الممرر كـ argument بأمان
+        final order = settings.arguments as OrderModel?;
+
         return MaterialPageRoute(
           builder: (context) => BlocProvider(
-            create: (context) =>
-                getIt<
-                  AdminOrdersCubit
-                >(), // أو الكيوبت الخاص بالتفاصيل إذا كان منفصلاً
-            child: const AdminOrderDetailsScreen(),
+            // 💡 السحر هنا: نطلب التفاصيل الكاملة بالـ ID فور إنشاء الكيوبت
+            create: (context) {
+              final cubit = getIt<AdminOrdersCubit>();
+              if (order?.id != null) {
+                cubit.getOrderDetails(order!.id);
+              }
+              return cubit;
+            },
+            child: AdminOrderDetailsScreen(
+              orderArg: order,
+            ), // تمرير الـ argument للشاشة
           ),
         );
       case Routes.directOrders:

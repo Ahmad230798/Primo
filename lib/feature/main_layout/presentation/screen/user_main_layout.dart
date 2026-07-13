@@ -19,6 +19,8 @@ import 'package:primo/feature/cart/presentation/screens/cart.dart';
 import 'package:primo/feature/categories/presentation/screen/all_categories_screen.dart';
 import 'package:primo/feature/home/presentation/screen/home.dart';
 import 'package:primo/feature/profile/presentation/screen/settings_screen.dart';
+import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.dart';
+import 'package:primo/feature/suggestions/presentation/screens/suggest_product_page.dart';
 
 // استيراد الكيوبت والويدجت المعزول
 import '../cubit/main_layout_cubit.dart';
@@ -53,6 +55,10 @@ class UserMainLayout extends StatelessWidget {
     BlocProvider(
       create: (context) => getIt<FavoritesCubit>(),
       child: const FavoritesPage(isFromBottomNav: true),
+    ), // Index 7 (المفضلة)
+    BlocProvider(
+      create: (context) => getIt<SuggestionsCubit>(),
+      child: const SuggestProductPage(isFromBottomNav: true),
     ), // Index 7 (المفضلة)
   ];
 

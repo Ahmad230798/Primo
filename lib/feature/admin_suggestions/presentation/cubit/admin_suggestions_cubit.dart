@@ -12,7 +12,7 @@ class AdminSuggestionsCubit extends Cubit<AdminSuggestionsState> {
     : super(AdminSuggestionsInitial());
 
   List<SuggestionModel> allSuggestions = [];
-  String currentTab = 'new';
+  String currentTab = 'all';
 
   Future<void> getSuggestions() async {
     emit(AdminSuggestionsLoading());

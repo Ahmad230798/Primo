@@ -20,9 +20,9 @@ class AdminDrawer extends StatelessWidget {
     final adminAvatar = AppStorage.getUserAvatar();
 
     return Theme(
-      data: Theme.of(context).copyWith(
-        splashColor: AppColors.primary.withValues(alpha: 0.1),
-      ),
+      data: Theme.of(
+        context,
+      ).copyWith(splashColor: AppColors.primary.withValues(alpha: 0.1)),
       child: Drawer(
         backgroundColor: AppColors.white,
         child: SafeArea(

@@ -61,13 +61,13 @@ class IncomingOrdersSection extends StatelessWidget {
               // بما أن الـ items غير موجودة في هذا الرد، سنحاول إظهار نص افتراضي
               // أو إذا كان لديك حقل آخر في المودل مثل itemsCount تأكد من استخدامه.
               // حالياً سنضع نصاً معبراً لتجنب ظهور "0"
-              final itemCountText = "طلبية";
+              final itemCount = order.itemCount?.toString() ?? "1";
 
               return OrderCard(
                 customerName: customerName,
                 orderId: "#${order.id}",
                 itemCount:
-                    itemCountText, // تم استبدال الـ length النصي بهذا المتغير
+                    itemCount, // تم استبدال الـ length النصي بهذا المتغير
                 price: order.totalAmount.toString(),
                 onAccept: () {
                   context.pushNamed(Routes.adminOrders);

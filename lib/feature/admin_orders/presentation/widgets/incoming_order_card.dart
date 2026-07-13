@@ -37,14 +37,38 @@ class IncomingOrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color _getStatusDotColor(String? status) {
+      if (status == null)
+        return AppColors.primary; // اللون الافتراضي (الأحمر/البرتقالي الأساسي)
+
+      final normalizedStatus = status.trim();
+
+      if (normalizedStatus.contains("تسليم") ||
+          normalizedStatus.contains("مكتمل") ||
+          normalizedStatus.contains("approved")) {
+        return Colors.green; // الأخضر لحالة تم التسليم أو معتمد
+      } else if (normalizedStatus.contains("تجهيز") ||
+          normalizedStatus.contains("processing")) {
+        return Colors.orange; // البرتقالي لقيد التجهيز
+      } else if (normalizedStatus.contains("انتظار") ||
+          normalizedStatus.contains("pending")) {
+        return Colors.blue; // الأزرق لقيد الانتظار
+      }
+
+      return AppColors.primary; // القيمة الاحتياطية
+    }
+
     final bgColor = isDelayed ? const Color(0xFFFCE8E8) : AppColors.white;
-    final borderColor =
-        isDelayed ? AppColors.primary.withOpacity(0.3) : AppColors.formBorder;
-    final badgeBgColor =
-        isDelayed ? const Color(0xFFFFDAD6) : AppColors.greyBackground;
+    final borderColor = isDelayed
+        ? AppColors.primary.withOpacity(0.3)
+        : AppColors.formBorder;
+    final badgeBgColor = isDelayed
+        ? const Color(0xFFFFDAD6)
+        : AppColors.greyBackground;
     final badgeTextColor = isDelayed ? AppColors.primary : AppColors.greyDark;
-    final avatarBgColor =
-        isDelayed ? AppColors.primary : const Color(0xFFFFDAD6);
+    final avatarBgColor = isDelayed
+        ? AppColors.primary
+        : const Color(0xFFFFDAD6);
     final avatarTextColor = isDelayed ? AppColors.white : AppColors.primary;
     final timeColor = isDelayed ? AppColors.primary : AppColors.greyMedium3;
 
@@ -138,8 +162,8 @@ class IncomingOrderCard extends StatelessWidget {
                               Container(
                                 width: 8.w,
                                 height: 8.w,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
+                                decoration: BoxDecoration(
+                                  color: _getStatusDotColor(statusText),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -275,8 +299,7 @@ class IncomingOrderCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8.r),
                               border: isDelayed
                                   ? Border.all(
-                                      color:
-                                          AppColors.primary.withOpacity(0.3),
+                                      color: AppColors.primary.withOpacity(0.3),
                                     )
                                   : Border.all(color: AppColors.formBorder),
                             ),
@@ -345,8 +368,7 @@ class IncomingOrderCard extends StatelessWidget {
                               boxShadow: [
                                 if (isDelayed)
                                   BoxShadow(
-                                    color:
-                                        AppColors.primary.withOpacity(0.3),
+                                    color: AppColors.primary.withOpacity(0.3),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
