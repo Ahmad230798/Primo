@@ -25,6 +25,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descController;
+  late TextEditingController _phoneController;
   late TextEditingController _latController;
   late TextEditingController _lngController;
   bool _isLocationSelected = false;
@@ -35,6 +36,9 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
     _nameController = TextEditingController(text: widget.address?.name ?? '');
     _descController = TextEditingController(
       text: widget.address?.description ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: widget.address?.phone ?? '',
     );
     final initialLat = widget.address?.locationLat?.isNotEmpty == true
         ? widget.address!.locationLat!
@@ -53,6 +57,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
+    _phoneController.dispose();
     _latController.dispose();
     _lngController.dispose();
     super.dispose();
@@ -73,6 +78,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
           description: _descController.text.trim(),
           locationLat: _latController.text.trim(),
           locationLng: _lngController.text.trim(),
+          phone: _phoneController.text.trim(),
         );
       } else {
         cubit.createAddress(
@@ -80,6 +86,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
           description: _descController.text.trim(),
           locationLat: _latController.text.trim(),
           locationLng: _lngController.text.trim(),
+          phone: _phoneController.text.trim(),
         );
       }
     }
@@ -146,6 +153,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
                     8.verticalSpace,
                     TextFormField(
                       controller: _nameController,
+                      textDirection: TextDirection.rtl,
                       decoration: InputDecoration(
                         hintText: "المنزل",
                         filled: true,
@@ -178,8 +186,9 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
                     TextFormField(
                       controller: _descController,
                       maxLines: 3,
+                      textDirection: TextDirection.rtl,
                       decoration: InputDecoration(
-                        hintText: "شارع الملك فهد، حي العليا...",
+                        hintText: "حمص، حي الإنشاءات أو وادي النصارى، مرمريتا...",
                         filled: true,
                         fillColor: AppColors.white,
                         border: OutlineInputBorder(
@@ -198,6 +207,45 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
                       validator: (val) => val == null || val.trim().isEmpty
                           ? "الرجاء إدخال تفاصيل العنوان"
                           : null,
+                    ),
+                    16.verticalSpace,
+                    Text(
+                      "رقم هاتف التوصيل (إجباري)",
+                      style: AppTextStyle.font14.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    8.verticalSpace,
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      textDirection: TextDirection.ltr,
+                      decoration: InputDecoration(
+                        hintText: "09xxxxxxxx",
+                        filled: true,
+                        fillColor: AppColors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          borderSide: const BorderSide(
+                            color: AppColors.formBorder,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          borderSide: const BorderSide(
+                            color: AppColors.formBorder,
+                          ),
+                        ),
+                      ),
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return "الرجاء إدخال رقم هاتف التوصيل";
+                        }
+                        if (val.trim().length < 7) {
+                          return "الرجاء إدخال رقم هاتف صحيح";
+                        }
+                        return null;
+                      },
                     ),
                     16.verticalSpace,
                     Text(

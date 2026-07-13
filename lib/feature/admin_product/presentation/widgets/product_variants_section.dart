@@ -141,6 +141,7 @@ class ProductVariantsSection extends StatelessWidget {
                     TextFormField(
                       controller: variant.priceController,
                       keyboardType: TextInputType.number,
+                      textDirection: TextDirection.ltr,
                       decoration: InputDecoration(
                         hintText: "0",
                         hintStyle: AppTextStyle.font14.copyWith(
@@ -165,7 +166,7 @@ class ProductVariantsSection extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "ر.س",
+                              "ل.س",
                               style: AppTextStyle.font12.copyWith(
                                 color: AppColors.greyMedium3,
                               ),
@@ -187,6 +188,7 @@ class ProductVariantsSection extends StatelessWidget {
                     TextFormField(
                       controller: variant.stockController,
                       keyboardType: TextInputType.number,
+                      textDirection: TextDirection.ltr,
                       decoration: InputDecoration(
                         hintText: "0",
                         hintStyle: AppTextStyle.font14.copyWith(

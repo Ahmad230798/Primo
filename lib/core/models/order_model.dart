@@ -75,7 +75,10 @@ class OrderItemModel {
       name: json['name']?.toString() ?? 'منتج',
       image: json['image']?.toString(),
       quantity: parsedQuantity,
-      property: json['property']?.toString(),
+      property: json['property']?.toString() ??
+          (json['variant'] is Map
+              ? json['variant']['property']?.toString()
+              : null),
       price: parsedPrice,
       hasActiveOffer:
           json['has_active_offer'] == true ||
@@ -232,9 +235,42 @@ class OrderModel {
       case 'processing':
         return 'قيد التجهيز';
       case 'cancelled':
+      case 'canceled':
         return 'ملغي';
       default:
         return status;
     }
+  }
+
+  OrderModel copyWith({
+    int? id,
+    int? userId,
+    int? addressId,
+    String? status,
+    bool? isDelivery,
+    num? amount,
+    num? deliveryAmount,
+    num? totalAmount,
+    String? createdAt,
+    String? updatedAt,
+    AddressModel? address,
+    UserModel? user,
+    List<OrderItemModel>? items,
+  }) {
+    return OrderModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      addressId: addressId ?? this.addressId,
+      status: status ?? this.status,
+      isDelivery: isDelivery ?? this.isDelivery,
+      amount: amount ?? this.amount,
+      deliveryAmount: deliveryAmount ?? this.deliveryAmount,
+      totalAmount: totalAmount ?? this.totalAmount,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      address: address ?? this.address,
+      user: user ?? this.user,
+      items: items ?? this.items,
+    );
   }
 }

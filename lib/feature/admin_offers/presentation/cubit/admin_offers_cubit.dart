@@ -113,12 +113,8 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
 
   void clearForAdd() {
     editingOfferId = null;
-    selectedVariant = availableVariants.isNotEmpty
-        ? availableVariants.first
-        : null;
-    if (selectedVariant?.id != null) {
-      selectedVariantId = selectedVariant!.id!.toString();
-    }
+    selectedVariant = null;
+    selectedVariantId = "";
     _resetForm();
     emit(AdminOffersInitial());
   }
@@ -150,6 +146,10 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
   }
 
   void createOffer() async {
+    if (selectedVariant == null || selectedVariantId.isEmpty) {
+      emit(const AdminOffersError("يرجى اختيار المنتج / النوع أولاً"));
+      return;
+    }
     if (discountController.text.trim().isEmpty) {
       emit(const AdminOffersError("حقل قيمة الخصم مطلوب"));
       return;

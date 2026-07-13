@@ -6,8 +6,6 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
-import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_state.dart';

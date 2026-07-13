@@ -360,23 +360,26 @@ class _ProductDetailsState extends State<ProductDetails> {
                       child: product?.fullImageUrl != null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(16.r),
-                              child: AppCachedNetworkImage(
-                                imageUrl: product!.fullImageUrl!,
-                                height: 250.h,
-                                width: 1.sw,
-                                fit: BoxFit.cover,
-                                errorWidget: Container(
+                              child: Hero(
+                                tag: 'product_image_${product?.id}',
+                                child: AppCachedNetworkImage(
+                                  imageUrl: product!.fullImageUrl!,
                                   height: 250.h,
                                   width: 1.sw,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.greyBackground,
-                                    borderRadius: BorderRadius.circular(16.r),
-                                  ),
-                                  child: const Icon(
-                                    Icons.image_not_supported,
-                                    size: 80,
-                                    color: AppColors.greyMedium2,
+                                  fit: BoxFit.cover,
+                                  errorWidget: Container(
+                                    height: 250.h,
+                                    width: 1.sw,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.greyBackground,
+                                      borderRadius: BorderRadius.circular(16.r),
+                                    ),
+                                    child: const Icon(
+                                      Icons.image_not_supported,
+                                      size: 80,
+                                      color: AppColors.greyMedium2,
+                                    ),
                                   ),
                                 ),
                               ),

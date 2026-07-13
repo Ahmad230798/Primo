@@ -151,9 +151,15 @@ class Profile extends StatelessWidget {
                     ),
                     8.verticalSpace,
                     InfoCard(
-                      text: "مركز المساعدة",
+                      text: "إعدادات الإشعارات",
+                      iconData: Icons.notifications_active_outlined,
+                      onTap: () => context.pushNamed(Routes.notifications),
+                    ),
+                    8.verticalSpace,
+                    InfoCard(
+                      text: "مركز المساعدة والدعم",
                       iconData: Icons.support_agent_sharp,
-                      onTap: () {},
+                      onTap: () => context.pushNamed(Routes.helpCenter),
                     ),
                     32.verticalSpace,
                     AppButton(

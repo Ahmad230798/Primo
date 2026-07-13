@@ -93,6 +93,7 @@ class ResetPasswordScreen extends StatelessWidget {
                           AppTextFormField(
                             controller: cubit.passwordController,
                             validator: AppValidators.validatePassword,
+                            textDirection: TextDirection.ltr,
                             isObscureText: cubit.isPasswordObscure,
                             isFilled: true,
                             fillColor: AppColors.white,
@@ -127,6 +128,7 @@ class ResetPasswordScreen extends StatelessWidget {
                                       .passwordController
                                       .text, // مقارنة مع الحقل الأول
                                 ),
+                            textDirection: TextDirection.ltr,
                             isObscureText: cubit.isPasswordConfirmationObscure,
                             isFilled: true,
                             fillColor: AppColors.white,

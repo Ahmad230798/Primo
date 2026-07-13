@@ -109,9 +109,14 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
         if (!isClosed) emit(AdminOrdersError(failure.errorMessage));
       },
       (msg) async {
+        final index = allOrders.indexWhere((o) => o.id == orderId);
+        if (index != -1) {
+          allOrders[index] = allOrders[index].copyWith(status: newStatus);
+        }
         if (!isClosed) {
           emit(AdminOrderStatusSuccess(msg));
-          // Reactive Refresh: فوري وبدون إعادة تحميل يدوي
+          emit(AdminOrdersLoaded(
+              List.from(allOrders), activeFilter: currentFilter));
           await getOrders(status: currentFilter);
         }
       },

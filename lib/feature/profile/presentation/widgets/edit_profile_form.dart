@@ -103,8 +103,10 @@ class _EditProfileFormState extends State<EditProfileForm> {
                 ),
                 8.verticalSpace,
                 AppTextFormField(
-                  hinttText: "+966 50 123 4567",
+                  hinttText: "09xxxxxxxx",
                   controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  textDirection: TextDirection.ltr,
                   readOnly: true,
                   enabled: false,
                   focusColor: AppColors.formBorder,

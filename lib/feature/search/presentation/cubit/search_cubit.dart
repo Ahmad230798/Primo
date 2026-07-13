@@ -46,6 +46,12 @@ class SearchCubit extends Cubit<SearchState> {
         final priceB = double.tryParse(b.displayPrice) ?? 0;
         return priceA.compareTo(priceB);
       });
+    } else if (filter == "الأعلى سعراً") {
+      sorted.sort((a, b) {
+        final priceA = double.tryParse(a.displayPrice) ?? 0;
+        final priceB = double.tryParse(b.displayPrice) ?? 0;
+        return priceB.compareTo(priceA);
+      });
     } else if (filter == "وصل حديثاً") {
       sorted.sort((a, b) => (b.id ?? 0).compareTo(a.id ?? 0));
     }

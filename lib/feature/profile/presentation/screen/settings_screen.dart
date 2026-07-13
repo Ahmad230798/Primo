@@ -11,7 +11,6 @@ import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 
 import '../widgets/settings_link_item.dart';
-import '../widgets/settings_toggle_item.dart';
 
 class SettingsScreen extends StatelessWidget {
   final bool isFromBottomNav;
@@ -134,49 +133,18 @@ class SettingsScreen extends StatelessWidget {
                 _buildSectionTitle("الإشعارات"),
                 8.verticalSpace,
                 _buildSectionCard([
-                  SettingsToggleItem(
-                    title: "إشعارات العروض",
-                    icon: Icons.campaign_rounded,
-                    iconColor: AppColors.primary,
-                    iconBgColor: const Color(0xFFFFDAD6),
-                    initialValue: true,
-                    onChanged: (val) {},
-                  ),
-                  _buildDivider(),
-                  SettingsToggleItem(
-                    title: "إشعارات حالة الطلب",
-                    icon: Icons.local_shipping_rounded,
-                    iconColor: AppColors.primary,
-                    iconBgColor: const Color(0xFFFFDAD6),
-                    initialValue: true,
-                    onChanged: (val) {},
-                  ),
-                ]),
-                32.verticalSpace,
-
-                // 4. قسم التفضيلات
-                _buildSectionTitle("التفضيلات"),
-                8.verticalSpace,
-                _buildSectionCard([
                   SettingsLinkItem(
-                    title: "لغة التطبيق",
-                    icon: Icons.language_rounded,
-                    trailingText: "العربية",
-                    onTap: () {},
-                  ),
-                  _buildDivider(),
-                  SettingsToggleItem(
-                    title: "الوضع الداكن",
-                    icon: Icons.dark_mode_outlined,
-                    iconColor: AppColors.greyDark,
-                    iconBgColor: AppColors.greyBackground,
-                    initialValue: false,
-                    onChanged: (val) {},
+                    title: "تخصيص إشعارات العروض والطلبات",
+                    icon: Icons.notifications_active_outlined,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.notifications,
+                    ),
                   ),
                 ]),
                 32.verticalSpace,
 
-                // 5. قسم الأمان والحساب
+                // 4. قسم الأمان والحساب
                 _buildSectionTitle("الأمان والحساب"),
                 8.verticalSpace,
                 _buildSectionCard([
@@ -200,20 +168,35 @@ class SettingsScreen extends StatelessWidget {
                 ]),
                 32.verticalSpace,
 
-                // 6. قسم حول التطبيق
-                _buildSectionTitle("حول التطبيق"),
+                // 5. قسم حول التطبيق والدعم
+                _buildSectionTitle("حول التطبيق والدعم"),
                 8.verticalSpace,
                 _buildSectionCard([
                   SettingsLinkItem(
+                    title: "مركز المساعدة والدعم",
+                    icon: Icons.help_outline_rounded,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.helpCenter,
+                    ),
+                  ),
+                  _buildDivider(),
+                  SettingsLinkItem(
                     title: "سياسة الخصوصية",
                     icon: Icons.privacy_tip_outlined,
-                    onTap: () {},
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.privacyPolicy,
+                    ),
                   ),
                   _buildDivider(),
                   SettingsLinkItem(
                     title: "شروط الاستخدام",
                     icon: Icons.gavel_rounded,
-                    onTap: () {},
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.termsOfUse,
+                    ),
                   ),
                 ]),
               ],

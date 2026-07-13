@@ -12,9 +12,16 @@ class CustomerInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fullName = order?.user?.name ?? order?.address?.name ?? "عميل بريمو #${order?.userId ?? ''}";
-    final phone = order?.user?.phone ?? "غير متوفر";
-    final addressLine = order?.address?.description ?? order?.address?.name ?? "عنوان العميل";
+    final fullName = order?.user?.name ??
+        order?.address?.name ??
+        "عميل بريمو #${order?.userId ?? ''}";
+    final phone =
+        order?.user?.phone ?? order?.address?.phone ?? "غير متوفر";
+    final addressLine = order?.address != null
+        ? ((order?.address?.description?.isNotEmpty == true)
+            ? order!.address!.description!
+            : (order?.address?.name ?? "عنوان غير متوفر"))
+        : "عنوان غير متوفر";
     final isDelivery = order?.isDelivery ?? true;
 
     return Container(

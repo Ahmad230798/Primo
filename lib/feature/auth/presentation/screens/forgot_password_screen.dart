@@ -123,19 +123,18 @@ class ForgotPasswordScreen extends StatelessWidget {
                           8.verticalSpace,
 
                           // استخدام الويدجت العام AppTextFormField
-                          Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: AppTextFormField(
-                              controller: cubit.phoneController,
-                              validator: AppValidators.validatePhoneNumber,
-                              isFilled: true,
-                              fillColor: AppColors.white,
-                              hinttText: '05X XXX XXXX',
-                              prefixIcone: Icon(
-                                Icons.phone_rounded,
-                                color: AppColors.greyDark,
-                                size: 22.sp,
-                              ),
+                          AppTextFormField(
+                            controller: cubit.phoneController,
+                            validator: AppValidators.validatePhoneNumber,
+                            keyboardType: TextInputType.phone,
+                            textDirection: TextDirection.ltr,
+                            isFilled: true,
+                            fillColor: AppColors.white,
+                            hinttText: '09xxxxxxxx',
+                            prefixIcone: Icon(
+                              Icons.phone_rounded,
+                              color: AppColors.greyDark,
+                              size: 22.sp,
                             ),
                           ),
 

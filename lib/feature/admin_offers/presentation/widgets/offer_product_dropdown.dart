@@ -50,25 +50,57 @@ class OfferProductDropdown extends StatelessWidget {
                     ],
                   ),
                   child: DropdownMenu<VariantModel>(
+                    key: ValueKey(cubit.selectedVariant?.id ?? 'empty'),
                     width: constraints.maxWidth,
                     enableSearch: true,
                     enableFilter: true,
+                    requestFocusOnTap: true,
+                    menuHeight: 300.h,
                     initialSelection: cubit.selectedVariant,
-                    hintText: "ابحث واختر منتجاً أو نوعاً لتطبيق العرض عليه...",
+                    hintText: "اختر المنتج / النوع",
                     textStyle: AppTextStyle.font14.copyWith(
                       color: AppColors.textMain,
                     ),
                     inputDecorationTheme: InputDecorationTheme(
                       filled: true,
                       fillColor: AppColors.white,
+                      hintStyle: AppTextStyle.font14.copyWith(
+                        color: AppColors.greyDark,
+                      ),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 16.w,
                         vertical: 14.h,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide.none,
+                        borderSide: const BorderSide(
+                          color: AppColors.formBorder,
+                        ),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: const BorderSide(
+                          color: AppColors.formBorder,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: const BorderSide(
+                          color: AppColors.primary,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    menuStyle: MenuStyle(
+                      backgroundColor: WidgetStatePropertyAll(AppColors.white),
+                      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          side: const BorderSide(color: AppColors.formBorder),
+                        ),
+                      ),
+                      elevation: const WidgetStatePropertyAll(6),
                     ),
                     onSelected: (variant) {
                       cubit.selectVariant(variant);
@@ -100,6 +132,40 @@ class OfferProductDropdown extends StatelessWidget {
                       return DropdownMenuEntry<VariantModel>(
                         value: variant,
                         label: label,
+                        labelWidget: Row(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                productName,
+                                style: AppTextStyle.font14.copyWith(
+                                  color: AppColors.textMain,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                variantProp.isNotEmpty ? variantProp : "-",
+                                style: AppTextStyle.font12.copyWith(
+                                  color: AppColors.greyDark,
+                                ),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              '$price ل.س',
+                              textDirection: TextDirection.ltr,
+                              style: AppTextStyle.font12.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     }).toList(),
                   ),
