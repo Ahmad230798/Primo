@@ -8,11 +8,13 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OrderStatusTracker extends StatelessWidget {
   final OrderModel? order;
+  final bool isLoading;
   final void Function(String newStatus)? onUpdateStatus;
 
   const OrderStatusTracker({
     super.key,
     this.order,
+    this.isLoading = false,
     this.onUpdateStatus,
   });
 
@@ -124,11 +126,13 @@ class OrderStatusTracker extends StatelessWidget {
     Color color,
   ) {
     return InkWell(
-      onTap: () {
-        if (!isCurrent && onUpdateStatus != null) {
-          onUpdateStatus!(value);
-        }
-      },
+      onTap: isLoading
+          ? null
+          : () {
+              if (onUpdateStatus != null) {
+                onUpdateStatus!(value);
+              }
+            },
       borderRadius: BorderRadius.circular(12.r),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),

@@ -92,6 +92,7 @@ class OfferDateSelection extends StatelessWidget {
           child: TextFormField(
             readOnly: true,
             onTap: onTap,
+            textDirection: TextDirection.ltr,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyle.font14.copyWith(

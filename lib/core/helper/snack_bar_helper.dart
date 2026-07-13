@@ -42,7 +42,7 @@ extension SnackBarExtension on BuildContext {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
         ),
-        margin: EdgeInsets.all(16.w), // إبعاد الإشعار عن حواف الشاشة
+        margin: EdgeInsets.only(bottom: 84.h, left: 16.w, right: 16.w),
         duration: const Duration(seconds: 3),
       ),
     );

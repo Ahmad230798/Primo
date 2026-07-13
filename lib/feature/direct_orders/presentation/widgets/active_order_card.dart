@@ -112,7 +112,7 @@ class ActiveOrderCard extends StatelessWidget {
                                   ),
                                   4.horizontalSpace,
                                   Text(
-                                    "ر.س",
+                                    "ل.س",
                                     style: AppTextStyle.font14.copyWith(
                                       color: AppColors.textMain,
                                       fontWeight: FontWeight.bold,

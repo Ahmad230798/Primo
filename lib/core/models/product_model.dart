@@ -105,8 +105,9 @@ class ProductModel {
     }
     // إذا لم تكن هناك variants، لا تعيد 0 وتتسبب في "نفد الكمية"
     // افترض أن المنتج متاح (مثلاً 1) أو تعامل معها كقيمة غير معروفة
-    if (variants == null || variants!.isEmpty)
+    if (variants == null || variants!.isEmpty) {
       return 999; // 💡 تعني: متاح (أو يمكنك وضع قيمة افتراضية)
+    }
     return variants!.fold(
       0,
       (sum, item) => sum + (int.tryParse(item.stock.toString()) ?? 0),

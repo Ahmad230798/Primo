@@ -193,6 +193,7 @@ class AdminOrdersScreen extends StatelessWidget {
                   customerAvatarLetter: firstLetter,
                   orderType: order.isDelivery ? "توصيل" : "استلام من الفرع",
                   totalPrice: "${order.totalAmount} ل.س",
+                  statusText: order.statusArabic,
                   onStatusUpdate: () => _showStatusPicker(context, cubit, order),
                   onActionTap: () {
                     final nextStatus = isPending ? 'processing' : 'completed';

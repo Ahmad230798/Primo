@@ -94,6 +94,7 @@ class AdminOrderDetailsScreen extends StatelessWidget {
 
                           OrderStatusTracker(
                             order: liveOrder,
+                            isLoading: state is AdminOrdersLoading,
                             onUpdateStatus: (newStatus) {
                               if (liveOrder?.id != null) {
                                 context

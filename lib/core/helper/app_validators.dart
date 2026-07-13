@@ -59,7 +59,7 @@ class AppValidators {
     // هذا الـ Regex يسمح بوجود علامة + اختيارية في البداية، متبوعة بـ 9 إلى 15 رقم
     final phoneRegex = RegExp(r'^\+?[0-9]{9,15}$');
     if (!phoneRegex.hasMatch(value.trim())) {
-      return "أدخل رقم جوال صحيح (مثال: 966500000000+)";
+      return "أدخل رقم جوال صحيح (مثال: 0955000000 أو 963955000000+)";
     }
     return null;
   }

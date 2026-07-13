@@ -32,6 +32,10 @@ import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.d
 import 'package:primo/feature/profile/presentation/screen/change_password_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/settings_screen.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
+import 'package:primo/feature/notifications/presentation/screen/notifications_history_screen.dart';
+import 'package:primo/feature/profile/presentation/screen/help_center_screen.dart';
+import 'package:primo/feature/profile/presentation/screen/privacy_policy_screen.dart';
+import 'package:primo/feature/profile/presentation/screen/terms_of_use_screen.dart';
 import 'package:primo/feature/search/presentation/screen/search_results_screen.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
 import 'package:primo/core/models/product_model.dart';
@@ -202,7 +206,9 @@ class AppRoutes {
             } else if (arg is OfferModel) {
               initOffer = arg;
               initProduct = arg.variant?.product;
-              if (arg.variant?.productId != null) {
+              if (arg.productId != null) {
+                productId = arg.productId!;
+              } else if (arg.variant?.productId != null) {
                 productId = arg.variant!.productId!;
               } else if (arg.variant?.product?.id != null) {
                 productId = arg.variant!.product!.id!;
@@ -262,6 +268,22 @@ class AppRoutes {
             create: (context) => getIt<NotificationSettingsCubit>(),
             child: const NotificationSettingsScreen(),
           ),
+        );
+      case Routes.notificationsHistory:
+        return CupertinoPageRoute(
+          builder: (_) => const NotificationsHistoryScreen(),
+        );
+      case Routes.helpCenter:
+        return CupertinoPageRoute(
+          builder: (_) => const HelpCenterScreen(),
+        );
+      case Routes.privacyPolicy:
+        return CupertinoPageRoute(
+          builder: (_) => const PrivacyPolicyScreen(),
+        );
+      case Routes.termsOfUse:
+        return CupertinoPageRoute(
+          builder: (_) => const TermsOfUseScreen(),
         );
       case Routes.searchResults:
         return CupertinoPageRoute(

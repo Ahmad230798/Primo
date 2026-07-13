@@ -35,7 +35,7 @@ class OrderHistoryScreen extends StatelessWidget {
                   size: 26.sp,
                 ),
                 onRightIconTap: () =>
-                    Navigator.pushNamed(context, Routes.notifications),
+                    Navigator.pushNamed(context, Routes.notificationsHistory),
               ),
             ),
             Padding(

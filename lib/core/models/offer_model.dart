@@ -6,6 +6,8 @@ part 'offer_model.g.dart';
 @JsonSerializable(createFactory: false)
 class OfferModel {
   final int? id;
+  @JsonKey(name: 'product_id')
+  final int? productId;
   @JsonKey(name: 'variant_id')
   final int? variantId;
   final String? from;
@@ -26,6 +28,7 @@ class OfferModel {
 
   OfferModel({
     this.id,
+    this.productId,
     this.variantId,
     this.from,
     this.to,
@@ -60,9 +63,11 @@ class OfferModel {
       return int.tryParse(val.toString());
     }
 
-    final variantMap = json['variant'] is Map<String, dynamic>
-        ? json['variant'] as Map<String, dynamic>
-        : null;
+    final variantMap = json['variant_product'] is Map<String, dynamic>
+        ? json['variant_product'] as Map<String, dynamic>
+        : (json['variant'] is Map<String, dynamic>
+            ? json['variant'] as Map<String, dynamic>
+            : null);
     final productMap = variantMap != null && variantMap['product'] is Map<String, dynamic>
         ? variantMap['product'] as Map<String, dynamic>
         : (json['product'] is Map<String, dynamic>
@@ -88,6 +93,9 @@ class OfferModel {
 
     return OfferModel(
       id: parseInt(json['id']),
+      productId: parseInt(json['product_id'] ??
+          variantMap?['product_id'] ??
+          productMap?['id']),
       variantId: parseInt(json['variant_id'] ?? variantMap?['id']),
       from: json['from']?.toString(),
       to: json['to']?.toString(),

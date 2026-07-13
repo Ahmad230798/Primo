@@ -22,6 +22,8 @@ class AppTextFormField extends StatelessWidget {
   final double? borderWidth;
   final bool? readOnly;
   final bool? enabled;
+  final TextDirection? textDirection;
+  final TextInputType? keyboardType;
   const AppTextFormField({
     super.key,
     required this.hinttText,
@@ -42,11 +44,21 @@ class AppTextFormField extends StatelessWidget {
     this.borderWidth,
     this.readOnly,
     this.enabled,
+    this.textDirection,
+    this.keyboardType,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      textDirection: textDirection ??
+          ((isObscureText ?? false) ||
+                  keyboardType == TextInputType.phone ||
+                  keyboardType == TextInputType.number ||
+                  keyboardType == TextInputType.emailAddress
+              ? TextDirection.ltr
+              : null),
+      keyboardType: keyboardType,
       readOnly: readOnly ?? false,
       enabled: enabled ?? true,
       maxLines: (isObscureText ?? false) ? 1 : (linesCount ?? 1),

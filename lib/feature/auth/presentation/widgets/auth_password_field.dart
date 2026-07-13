@@ -48,8 +48,7 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
         TextFormField(
           obscureText: _isObscured,
           obscuringCharacter: '•',
-          textAlign:
-              TextAlign.right, // لضمان بقاء الـ Hint باللغة العربية على اليمين
+          textDirection: TextDirection.ltr,
           style: AppTextStyle.font16.copyWith(
             color: AppColors.textMain,
             letterSpacing: _isObscured ? 2.0 : 0, // تباعد النقاط

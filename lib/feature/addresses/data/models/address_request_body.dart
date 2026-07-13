@@ -5,12 +5,14 @@ class AddressRequestBody {
   final String description;
   final String locationLat;
   final String locationLng;
+  final String? phone;
 
   AddressRequestBody({
     required this.name,
     required this.description,
     required this.locationLat,
     required this.locationLng,
+    this.phone,
   });
 
   Map<String, dynamic> toJson() {
@@ -19,6 +21,7 @@ class AddressRequestBody {
       'description': description,
       'location_lat': locationLat,
       'location_lng': locationLng,
+      if (phone != null && phone!.isNotEmpty) 'phone': phone,
     };
   }
 
@@ -28,6 +31,7 @@ class AddressRequestBody {
       'description': description,
       'location_lat': locationLat,
       'location_lng': locationLng,
+      if (phone != null && phone!.isNotEmpty) 'phone': phone,
     });
   }
 
@@ -37,6 +41,7 @@ class AddressRequestBody {
       'description': description,
       'location_lat': locationLat,
       'location_lng': locationLng,
+      if (phone != null && phone!.isNotEmpty) 'phone': phone,
       '_method': 'PUT',
     });
   }

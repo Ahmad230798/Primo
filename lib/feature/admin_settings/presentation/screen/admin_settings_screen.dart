@@ -196,6 +196,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               TextFormField(
                 controller: _priceController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                textDirection: TextDirection.ltr,
                 decoration: InputDecoration(
                   hintText: "أدخل سعر التوصيل...",
                   filled: true,
@@ -266,8 +267,9 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
               TextFormField(
                 controller: _descController,
                 maxLines: 2,
+                textDirection: TextDirection.rtl,
                 decoration: InputDecoration(
-                  hintText: "الفرع الرئيسي، شارع الملك فيصل...",
+                  hintText: "الفرع الرئيسي، حمص، شارع الدبلان...",
                   filled: true,
                   fillColor: AppColors.background,
                   border: OutlineInputBorder(

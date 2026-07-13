@@ -5,6 +5,7 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/feature/addresses/data/models/address_model.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_state.dart';
@@ -69,26 +70,11 @@ class SavedAddressesScreen extends StatelessWidget {
               child: BlocConsumer<AddressesCubit, AddressesState>(
                 listener: (context, state) {
                   if (state is AddressActionSuccess) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.message),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+                    context.showSuccess(state.message);
                   } else if (state is AddressActionError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.message),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+                    context.showError(state.message);
                   } else if (state is AddressesError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.message),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
+                    context.showError(state.message);
                   }
                 },
                 builder: (context, state) {

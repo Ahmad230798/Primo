@@ -53,9 +53,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
           validator: widget.validator,
           obscureText: _isObscured, // التحكم بالإخفاء
           obscuringCharacter: '•', // شكل النقاط
-          textDirection: TextDirection
-              .ltr, // لجعل النقاط تبدأ من اليسار لليمين كما في التصميم
-          textAlign: TextAlign.right, // لكن النص يبدأ من اليمين
+          textDirection: TextDirection.ltr,
           style: AppTextStyle.font16.copyWith(
             color: AppColors.textMain,
             letterSpacing: _isObscured ? 2.0 : 0, // تباعد بين النقاط

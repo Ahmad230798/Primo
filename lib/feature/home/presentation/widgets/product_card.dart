@@ -43,11 +43,14 @@ class ProductCard extends StatelessWidget {
                     product?.fullImageUrl != null &&
                         product!.fullImageUrl!.isNotEmpty
                     ? Center(
-                        child: AppCachedNetworkImage(
-                          imageUrl: product!.fullImageUrl!,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          borderRadius: BorderRadius.circular(8.r),
+                        child: Hero(
+                          tag: 'product_image_${product?.id}',
+                          child: AppCachedNetworkImage(
+                            imageUrl: product!.fullImageUrl!,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
                         ),
                       )
                     : Center(

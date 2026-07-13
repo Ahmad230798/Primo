@@ -11,7 +11,13 @@ class SearchFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filters = ["الكل", "الأعلى تقييماً", "الأقل سعراً", "وصل حديثاً"];
+    final filters = [
+      "الكل",
+      "الأقل سعراً",
+      "الأعلى سعراً",
+      "الأعلى تقييماً",
+      "وصل حديثاً"
+    ];
 
     return BlocBuilder<SearchCubit, SearchState>(
       builder: (context, state) {

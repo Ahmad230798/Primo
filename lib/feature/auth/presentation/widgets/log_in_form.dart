@@ -45,6 +45,8 @@ class LogInForm extends StatelessWidget {
                   AppTextFormField(
                     controller: cubit.phoneController,
                     validator: AppValidators.validatePhoneNumber,
+                    keyboardType: TextInputType.phone,
+                    textDirection: TextDirection.ltr,
                     isFilled: true,
                     fillColor: AppColors.background,
                     hinttText: 'أدخل رقمك',
@@ -60,6 +62,7 @@ class LogInForm extends StatelessWidget {
                   AppTextFormField(
                     controller: cubit.passwordController,
                     validator: AppValidators.validatePassword,
+                    textDirection: TextDirection.ltr,
                     isFilled: true,
                     isObscureText: cubit.isPasswordObscure,
                     fillColor: AppColors.background,

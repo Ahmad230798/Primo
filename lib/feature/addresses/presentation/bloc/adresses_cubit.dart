@@ -77,6 +77,7 @@ class AddressesCubit extends Cubit<AddressesState> {
     required String description,
     required String locationLat,
     required String locationLng,
+    String? phone,
   }) async {
     emit(AddressActionLoading());
     final body = AddressRequestBody(
@@ -84,6 +85,7 @@ class AddressesCubit extends Cubit<AddressesState> {
       description: description,
       locationLat: locationLat,
       locationLng: locationLng,
+      phone: phone,
     );
     final result = await _createAddressUseCase.execute(body);
     result.fold(
@@ -122,6 +124,7 @@ class AddressesCubit extends Cubit<AddressesState> {
     required String description,
     required String locationLat,
     required String locationLng,
+    String? phone,
   }) async {
     emit(AddressActionLoading());
     final body = AddressRequestBody(
@@ -129,6 +132,7 @@ class AddressesCubit extends Cubit<AddressesState> {
       description: description,
       locationLat: locationLat,
       locationLng: locationLng,
+      phone: phone,
     );
     final result = await _updateAddressUseCase.execute(id, body);
     result.fold(

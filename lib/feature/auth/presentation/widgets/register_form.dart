@@ -60,6 +60,8 @@ class RegisterForm extends StatelessWidget {
                   AppTextFormField(
                     controller: cubit.phoneController,
                     validator: AppValidators.validatePhoneNumber,
+                    keyboardType: TextInputType.phone,
+                    textDirection: TextDirection.ltr,
                     isFilled: true,
                     fillColor: AppColors.background,
                     hinttText: 'أدخل رقم هاتفك',
@@ -76,7 +78,7 @@ class RegisterForm extends StatelessWidget {
                   AppTextFormField(
                     controller: cubit.passwordController,
                     validator: AppValidators.validatePassword,
-                    // القراءة من الـ Cubit بدلاً من قيمة ثابتة
+                    textDirection: TextDirection.ltr,
                     isObscureText: cubit.isPasswordObscure,
                     isFilled: true,
                     fillColor: AppColors.background,
@@ -95,7 +97,6 @@ class RegisterForm extends StatelessWidget {
                         color: AppColors.greyMedium2,
                       ),
                       onPressed: () {
-                        // إرسال الأمر للكيوبت
                         cubit.togglePasswordVisibility();
                       },
                     ),
@@ -109,6 +110,7 @@ class RegisterForm extends StatelessWidget {
                       value,
                       cubit.passwordController.text,
                     ),
+                    textDirection: TextDirection.ltr,
                     isObscureText: cubit.isConfirmPasswordObscure,
                     isFilled: true,
                     fillColor: AppColors.background,

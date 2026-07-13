@@ -26,6 +26,7 @@ class OtpInputRow extends StatelessWidget {
               controller: cubit.controllers[index],
               focusNode: cubit.focusNodes[index],
               keyboardType: TextInputType.number,
+              textDirection: TextDirection.ltr,
               textAlign: TextAlign.center,
               maxLength: 1, // رقم واحد فقط في كل حقل
               style: AppTextStyle.font32.copyWith(

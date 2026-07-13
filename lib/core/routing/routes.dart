@@ -26,6 +26,10 @@ class Routes {
   static const String addresses = '/addresses';
   static const String categories = '/categories';
   static const String categoryProducts = '/categoryProducts';
+  static const String notificationsHistory = '/notificationsHistory';
+  static const String helpCenter = '/helpCenter';
+  static const String privacyPolicy = '/privacyPolicy';
+  static const String termsOfUse = '/termsOfUse';
 
   // --- Admin App Routes ---
   static const String adminHome = '/adminHome';

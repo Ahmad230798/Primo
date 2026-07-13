@@ -14,6 +14,7 @@ class IncomingOrderCard extends StatelessWidget {
   final String customerAvatarLetter;
   final String orderType;
   final String totalPrice;
+  final String? statusText;
   final VoidCallback onStatusUpdate;
   final VoidCallback onActionTap;
   final VoidCallback? onRejectTap;
@@ -28,6 +29,7 @@ class IncomingOrderCard extends StatelessWidget {
     required this.customerAvatarLetter,
     required this.orderType,
     required this.totalPrice,
+    this.statusText,
     required this.onStatusUpdate,
     required this.onActionTap,
     this.onRejectTap,
@@ -152,9 +154,10 @@ class IncomingOrderCard extends StatelessWidget {
                               4.horizontalSpace,
                             ],
                             Text(
-                              isDelayed
-                                  ? "متأخر - قيد التجهيز"
-                                  : "قيد التجهيز",
+                              statusText ??
+                                  (isDelayed
+                                      ? "متأخر - قيد التجهيز"
+                                      : "قيد التجهيز"),
                               style: AppTextStyle.font12.copyWith(
                                 color: badgeTextColor,
                               ),

@@ -74,37 +74,40 @@ class UserProductCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: isNet
-                          ? AppCachedNetworkImage(
-                              imageUrl: imageUrl,
-                              fit: BoxFit.cover,
-                              errorWidget: Center(
+                      child: Hero(
+                        tag: 'product_image_${product?.id ?? title}',
+                        child: isNet
+                            ? AppCachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.cover,
+                                errorWidget: Center(
+                                  child: Icon(
+                                    Icons.shopping_bag_outlined,
+                                    color: AppColors.greyMedium2,
+                                    size: 36.sp,
+                                  ),
+                                ),
+                              )
+                            : imageUrl.isNotEmpty
+                            ? Image.asset(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Center(
+                                  child: Icon(
+                                    Icons.shopping_bag_outlined,
+                                    color: AppColors.greyMedium2,
+                                    size: 36.sp,
+                                  ),
+                                ),
+                              )
+                            : Center(
                                 child: Icon(
                                   Icons.shopping_bag_outlined,
                                   color: AppColors.greyMedium2,
                                   size: 36.sp,
                                 ),
                               ),
-                            )
-                          : imageUrl.isNotEmpty
-                          ? Image.asset(
-                              imageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Center(
-                                child: Icon(
-                                  Icons.shopping_bag_outlined,
-                                  color: AppColors.greyMedium2,
-                                  size: 36.sp,
-                                ),
-                              ),
-                            )
-                          : Center(
-                              child: Icon(
-                                Icons.shopping_bag_outlined,
-                                color: AppColors.greyMedium2,
-                                size: 36.sp,
-                              ),
-                            ),
+                      ),
                     ),
                   ),
 

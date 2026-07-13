@@ -173,6 +173,7 @@ class CreateOfferScreen extends StatelessWidget {
       child: TextFormField(
         controller: cubit.discountController,
         keyboardType: TextInputType.number,
+        textDirection: TextDirection.ltr,
         onChanged: (val) => cubit.onDiscountInputChanged(),
         decoration: InputDecoration(
           hintText: "أدخل قيمة الخصم",
@@ -191,7 +192,7 @@ class CreateOfferScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                cubit.isPercentage ? "%" : "ر.س",
+                cubit.isPercentage ? "%" : "ل.س",
                 style: AppTextStyle.font16.copyWith(
                   color: AppColors.greyDark,
                   fontWeight: FontWeight.bold,

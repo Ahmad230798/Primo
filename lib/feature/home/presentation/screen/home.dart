@@ -55,7 +55,7 @@ class Home extends StatelessWidget {
                       size: 28,
                     ),
                     onRightIconTap: () =>
-                        Navigator.pushNamed(context, Routes.notifications),
+                        Navigator.pushNamed(context, Routes.notificationsHistory),
                     suffixsIcon: Icon(
                       Icons.person,
                       color: AppColors.primary,

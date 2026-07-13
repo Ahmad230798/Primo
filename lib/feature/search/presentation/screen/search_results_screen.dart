@@ -145,6 +145,64 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                       SliverToBoxAdapter(
                         child: Column(
                           children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24.w),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "ترتيب وحل الفلترة:",
+                                    style: AppTextStyle.font12.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.greyDark,
+                                    ),
+                                  ),
+                                  DropdownButton<String>(
+                                    value: [
+                                      "الأقل سعراً",
+                                      "الأعلى سعراً",
+                                      "الأعلى تقييماً",
+                                      "وصل حديثاً"
+                                    ].contains(context.read<SearchCubit>().activeFilter)
+                                        ? context.read<SearchCubit>().activeFilter
+                                        : null,
+                                    hint: Text(
+                                      "ترتيب حسب السعر / التقييم",
+                                      style: AppTextStyle.font12.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    underline: const SizedBox(),
+                                    icon: Icon(
+                                      Icons.sort_rounded,
+                                      size: 18.sp,
+                                      color: AppColors.primary,
+                                    ),
+                                    items: [
+                                      "الأقل سعراً",
+                                      "الأعلى سعراً",
+                                      "الأعلى تقييماً",
+                                      "وصل حديثاً"
+                                    ]
+                                        .map((f) => DropdownMenuItem(
+                                              value: f,
+                                              child: Text(
+                                                f,
+                                                style: AppTextStyle.font12,
+                                              ),
+                                            ))
+                                        .toList(),
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        context.read<SearchCubit>().applyFilter(val);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            8.verticalSpace,
                             const SearchFilterChips(),
                             16.verticalSpace,
                           ],
@@ -193,23 +251,36 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                                     defaultVal: product.isFavorite,
                                   );
 
-                                  return UserProductCard(
-                                    title:
-                                        product.title ?? product.name ?? "منتج",
-                                    weight: product.unit ?? 'قطعة',
-                                    price: "${product.displayPrice} ل.س",
-                                    imageUrl: product.fullImageUrl ?? "",
-                                    isFavorite: isFav,
-                                    isOutOfStock:
-                                        product.stock != null &&
-                                        product.stock! <= 0,
-                                    product: product,
-                                    onFavoriteTap: () {
-                                      if (product.id != null) {
-                                        favCubit.toggleFavorite(product.id!);
-                                      }
-                                    },
-                                  );
+                                   return TweenAnimationBuilder<double>(
+                                     duration: Duration(milliseconds: 300 + (index * 50).clamp(0, 400)),
+                                     tween: Tween(begin: 0.0, end: 1.0),
+                                     builder: (context, value, child) {
+                                       return Transform.translate(
+                                         offset: Offset(0, 20 * (1.0 - value)),
+                                         child: Opacity(
+                                           opacity: value,
+                                           child: child,
+                                         ),
+                                       );
+                                     },
+                                     child: UserProductCard(
+                                       title:
+                                           product.title ?? product.name ?? "منتج",
+                                       weight: product.unit ?? 'قطعة',
+                                       price: "${product.displayPrice} ل.س",
+                                       imageUrl: product.fullImageUrl ?? "",
+                                       isFavorite: isFav,
+                                       isOutOfStock:
+                                           product.stock != null &&
+                                           product.stock! <= 0,
+                                       product: product,
+                                       onFavoriteTap: () {
+                                         if (product.id != null) {
+                                           favCubit.toggleFavorite(product.id!);
+                                         }
+                                       },
+                                     ),
+                                   );
                                 },
                               );
                             }, childCount: state.products.length),
