@@ -35,6 +35,8 @@ class AdminDashboardModel {
   final num totalAmount;
   final int pendingOrdersCount;
   final int productsCount;
+  final num weeklyTotalAmount;
+  final int weeklyOrdersCount;
   final List<OrderModel> pendingOrders;
   final List<SuggestionModel> pendingSuggestions;
 
@@ -42,6 +44,8 @@ class AdminDashboardModel {
     required this.totalAmount,
     required this.pendingOrdersCount,
     required this.productsCount,
+    required this.weeklyTotalAmount,
+    required this.weeklyOrdersCount,
     required this.pendingOrders,
     required this.pendingSuggestions,
   });
@@ -56,6 +60,12 @@ class AdminDashboardModel {
           : 0,
       productsCount: json['products_count'] != null
           ? (int.tryParse(json['products_count'].toString()) ?? 0)
+          : 0,
+      weeklyTotalAmount: json['weekly_total_amount'] != null
+          ? (num.tryParse(json['weekly_total_amount'].toString()) ?? 0)
+          : 0,
+      weeklyOrdersCount: json['weekly_orders_count'] != null
+          ? (int.tryParse(json['weekly_orders_count'].toString()) ?? 0)
           : 0,
       pendingOrders:
           (json['pending_orders'] as List<dynamic>?)

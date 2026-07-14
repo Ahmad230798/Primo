@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
@@ -17,76 +18,92 @@ class AdminHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        SystemNavigator.pop();
+      },
+      child: Scaffold(
       backgroundColor: AppColors.background,
       drawer: const AdminDrawer(currentRoute: Routes.adminHome),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomAppBar(
-                  title: "Primo",
-                  suffixsIcon: Icon(
-                    Icons.notifications_none_rounded,
-                    color: AppColors.primary,
-                    size: 28.sp,
+        child: RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () async {
+            await context.read<AdminDashboardCubit>().getDashboard();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomAppBar(
+                    title: "Primo",
+                    suffixsIcon: Icon(
+                      Icons.notifications_none_rounded,
+                      color: AppColors.primary,
+                      size: 28.sp,
+                    ),
+                    icon: Icon(
+                      Icons.menu_rounded,
+                      color: AppColors.greyDark,
+                      size: 28.sp,
+                    ),
+                    showRightIcon: true,
+                    onBackTap: () {
+                      Navigator.pushNamed(context, Routes.adminNotificationsHistory);
+                    },
                   ),
-                  icon: Icon(
-                    Icons.menu_rounded,
-                    color: AppColors.greyDark,
-                    size: 28.sp,
-                  ),
-                  showRightIcon: true,
-                  onBackTap: () {
-                    Navigator.pushNamed(context, Routes.notifications);
-                  },
-                ),
-                16.verticalSpace,
-                BlocBuilder<AdminDashboardCubit, AdminDashboardState>(
-                  builder: (context, state) {
-                    if (state is AdminDashboardLoading) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 60.h),
-                        child: const Center(
-                          child: CircularProgressIndicator(color: AppColors.primary),
-                        ),
-                      );
-                    } else if (state is AdminDashboardLoaded) {
-                      final dash = state.dashboard;
+                  16.verticalSpace,
+                  BlocBuilder<AdminDashboardCubit, AdminDashboardState>(
+                    builder: (context, state) {
+                      if (state is AdminDashboardLoading) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 60.h),
+                          child: const Center(
+                            child: CircularProgressIndicator(color: AppColors.primary),
+                          ),
+                        );
+                      } else if (state is AdminDashboardLoaded) {
+                        final dash = state.dashboard;
+                        return Column(
+                          children: [
+                            AdminStatsSection(
+                              totalAmount: dash.totalAmount,
+                              pendingOrdersCount: dash.pendingOrdersCount,
+                              productsCount: dash.productsCount,
+                              weeklyTotalAmount: dash.weeklyTotalAmount,
+                              weeklyOrdersCount: dash.weeklyOrdersCount,
+                            ),
+                            32.verticalSpace,
+                            IncomingOrdersSection(orders: dash.pendingOrders),
+                            32.verticalSpace,
+                            CustomerSuggestionsSection(suggestions: dash.pendingSuggestions),
+                          ],
+                        );
+                      }
                       return Column(
                         children: [
-                          AdminStatsSection(
-                            totalAmount: dash.totalAmount,
-                            pendingOrdersCount: dash.pendingOrdersCount,
-                            productsCount: dash.productsCount,
-                          ),
+                          const AdminStatsSection(),
                           32.verticalSpace,
-                          IncomingOrdersSection(orders: dash.pendingOrders),
+                          const IncomingOrdersSection(),
                           32.verticalSpace,
-                          CustomerSuggestionsSection(suggestions: dash.pendingSuggestions),
+                          const CustomerSuggestionsSection(),
                         ],
                       );
-                    }
-                    return Column(
-                      children: [
-                        const AdminStatsSection(),
-                        32.verticalSpace,
-                        const IncomingOrdersSection(),
-                        32.verticalSpace,
-                        const CustomerSuggestionsSection(),
-                      ],
-                    );
-                  },
-                ),
-                100.verticalSpace,
-              ],
+                    },
+                  ),
+                  100.verticalSpace,
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

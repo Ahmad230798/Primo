@@ -8,6 +8,7 @@ import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/categories/presentation/cubit/user_categories_cubit.dart';
 import 'package:primo/feature/categories/presentation/cubit/user_categories_state.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 import 'package:primo/feature/categories/presentation/widgets/category_grid_card.dart';
 
 class AllCategoriesScreen extends StatelessWidget {
@@ -40,10 +41,16 @@ class AllCategoriesScreen extends StatelessWidget {
                 builder: (context, state) {
                   if (state is UserCategoriesLoading ||
                       state is UserCategoriesInitial) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
+                    return GridView.builder(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 16.w,
+                        mainAxisSpacing: 16.h,
+                        childAspectRatio: 0.8,
                       ),
+                      itemCount: 9,
+                      itemBuilder: (context, index) => const CategoryShimmer(),
                     );
                   } else if (state is UserCategoriesLoaded) {
                     final categories = state.categories;

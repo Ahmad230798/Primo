@@ -12,6 +12,7 @@ import 'package:primo/feature/admin_product/presentation/cubit/admin_products_li
 import '../cubit/admin_offers_cubit.dart';
 import '../cubit/admin_offers_list_cubit.dart';
 import '../cubit/admin_offers_list_state.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 
 class AdminOffersScreen extends StatefulWidget {
   const AdminOffersScreen({super.key});
@@ -69,7 +70,7 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                 title: "Primo",
                 suffixsIcon: InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.notifications);
+                    Navigator.pushNamed(context, Routes.adminNotificationsHistory);
                   },
                   borderRadius: BorderRadius.circular(99.r),
                   child: Padding(
@@ -127,13 +128,12 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                         child: BlocBuilder<AdminOffersListCubit, AdminOffersListState>(
                           builder: (context, state) {
                             if (state is AdminOffersListLoading) {
-                              return Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(40.h),
-                                  child: const CircularProgressIndicator(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
+                              return ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: 5,
+                                separatorBuilder: (context, index) => 16.verticalSpace,
+                                itemBuilder: (context, index) => const ListTileShimmer(),
                               );
                             } else if (state is AdminOffersListError) {
                               return Center(
@@ -186,8 +186,9 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                               itemBuilder: (context, index) {
                                 final offer = offers[index];
                                 String formatDate(String? rawDate) {
-                                  if (rawDate == null || rawDate.trim().isEmpty)
+                                  if (rawDate == null || rawDate.trim().isEmpty) {
                                     return 'غير محدد';
+                                  }
                                   try {
                                     final parsedDate = DateTime.parse(rawDate);
                                     return "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";

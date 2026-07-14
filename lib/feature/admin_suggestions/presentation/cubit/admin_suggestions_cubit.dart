@@ -12,7 +12,7 @@ class AdminSuggestionsCubit extends Cubit<AdminSuggestionsState> {
     : super(AdminSuggestionsInitial());
 
   List<SuggestionModel> allSuggestions = [];
-  String currentTab = 'all';
+  String currentTab = 'new';
 
   Future<void> getSuggestions() async {
     emit(AdminSuggestionsLoading());
@@ -36,17 +36,20 @@ class AdminSuggestionsCubit extends Cubit<AdminSuggestionsState> {
     List<SuggestionModel> filteredList = [];
 
     // 💡 2. منطق التصفية بناءً على الـ status القادم من السيرفر والـ key الخاص بالـ Tabs
-    if (tab == 'all') {
-      filteredList = List.from(allSuggestions);
-    } else if (tab == 'new') {
-      // التبويب "الجديدة" يطابق الحالة "pending" في الـ JSON
+    if (tab == 'new') {
+      // التبويب "الجديدة" يطابق الحالة "pending" أو null أو empty في الـ JSON
       filteredList = allSuggestions
-          .where((item) => item.status == 'pending')
+          .where((item) => item.status == 'pending' || item.status == null || item.status!.trim().isEmpty)
           .toList();
     } else if (tab == 'approved') {
-      // التبويب "تم التوفير" يطابق الحالة "approved" في الـ JSON
+      // التبويب "المقبولة" يطابق الحالة "approved" في الـ JSON
       filteredList = allSuggestions
           .where((item) => item.status == 'approved')
+          .toList();
+    } else if (tab == 'rejected') {
+      // التبويب "المرفوضة" يطابق الحالة "rejected" في الـ JSON
+      filteredList = allSuggestions
+          .where((item) => item.status == 'rejected')
           .toList();
     } else {
       filteredList = List.from(allSuggestions);

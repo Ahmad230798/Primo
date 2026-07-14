@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/di/service_locator.dart';
@@ -64,12 +65,18 @@ class UserMainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        extendBody: true,
-        body: Stack(
-          children: [
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        SystemNavigator.pop();
+      },
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          extendBody: true,
+          body: Stack(
+            children: [
             // 1. محتوى الشاشات
             BlocBuilder<MainLayoutCubit, MainLayoutState>(
               buildWhen: (previous, current) =>
@@ -95,7 +102,8 @@ class UserMainLayout extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

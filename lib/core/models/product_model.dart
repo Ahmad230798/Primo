@@ -128,38 +128,43 @@ class ProductModel {
       return int.tryParse(val.toString());
     }
 
+    // Penetrate 'product' relation wrapper if it exists (e.g., in favorites list response)
+    final Map<String, dynamic> target = (json.containsKey('product') && json['product'] is Map<String, dynamic>)
+        ? json['product'] as Map<String, dynamic>
+        : json;
+
     return ProductModel(
-      id: parseInt(json['id']),
-      categoryId: json['category_id'],
+      id: parseInt(target['id']),
+      categoryId: target['category_id'],
       categoryName:
-          json['category_name']?.toString() ??
-          (json['category'] is Map
-              ? json['category']['name']?.toString()
+          target['category_name']?.toString() ??
+          (target['category'] is Map
+              ? target['category']['name']?.toString()
               : null),
-      name: json['name']?.toString(),
-      image: json['image']?.toString(),
-      description: json['description']?.toString(),
-      price: json['price'],
-      skuCode: json['sku_code']?.toString(),
-      isActive: json['is_active'],
-      category: json['category'] is Map
+      name: target['name']?.toString(),
+      image: target['image']?.toString(),
+      description: target['description']?.toString(),
+      price: target['price'],
+      skuCode: target['sku_code']?.toString(),
+      isActive: target['is_active'],
+      category: target['category'] is Map
           ? CategoryModel.fromJson(
-              Map<String, dynamic>.from(json['category'] as Map),
+              Map<String, dynamic>.from(target['category'] as Map),
             )
           : null,
-      variants: json['variants'] != null
+      variants: target['variants'] != null
           ? List<VariantModel>.from(
-              json['variants'].map(
+              target['variants'].map(
                 (x) => VariantModel.fromJson(Map<String, dynamic>.from(x)),
               ),
             )
           : [],
-      ratings: json['ratings'],
-      ratingsCount: parseInt(json['ratings_count']),
-      isFavorite: json['is_favorite'] == true || json['is_favorite'] == 1,
-      directLowestPrice: json['lowest_price']?.toString(),
+      ratings: target['ratings'],
+      ratingsCount: parseInt(target['ratings_count']),
+      isFavorite: target['is_favorite'] == true || target['is_favorite'] == 1 || json['is_favorite'] == true || json['is_favorite'] == 1,
+      directLowestPrice: target['lowest_price']?.toString(),
       directTotalStock:
-          parseInt(json['total_stack']) ?? parseInt(json['total_stock']),
+          parseInt(target['total_stack']) ?? parseInt(target['total_stock']),
     );
   }
 

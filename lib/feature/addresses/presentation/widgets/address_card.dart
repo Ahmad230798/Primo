@@ -11,6 +11,7 @@ class AddressCard extends StatelessWidget {
   final bool isDefault;
   final VoidCallback onEditTap;
   final VoidCallback onDeleteTap;
+  final String? phone;
   final VoidCallback onTap;
 
   const AddressCard({
@@ -22,6 +23,7 @@ class AddressCard extends StatelessWidget {
     required this.onEditTap,
     required this.onDeleteTap,
     required this.onTap,
+    this.phone,
   });
 
   @override
@@ -106,6 +108,26 @@ class AddressCard extends StatelessWidget {
                             height: 1.5,
                           ),
                         ),
+                        if (phone != null && phone!.isNotEmpty) ...[
+                          6.verticalSpace,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.phone_android_rounded,
+                                size: 14.sp,
+                                color: AppColors.greyMedium2,
+                              ),
+                              6.horizontalSpace,
+                              Text(
+                                phone!,
+                                style: AppTextStyle.font12.copyWith(
+                                  color: AppColors.greyMedium3,
+                                ),
+                                textDirection: TextDirection.ltr,
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),

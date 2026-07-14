@@ -146,26 +146,6 @@ class FavoriteProductCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                InkWell(
-                  onTap: onAddTap,
-                  child: Container(
-                    width: 32.w,
-                    height: 32.w,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.23),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                      shape: BoxShape.circle,
-                      color: AppColors.primary,
-                    ),
-                    child: Icon(Icons.add, color: AppColors.white, size: 20.sp),
-                  ),
-                ),
               ],
             ),
           ],

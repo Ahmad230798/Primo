@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/core/widgets/app_button.dart';
 // تأكد من استيراد مسار الـ Navigation الصحيح لديك
 // import 'package:primo/core/helper/navigation.dart';
@@ -44,7 +46,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final isLastPage = _currentIndex == _onboardingData.length - 1;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        SystemNavigator.pop();
+      },
+      child: Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
@@ -71,6 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   InkWell(
                     onTap: () {
                       // الانتقال المباشر لشاشة تسجيل الدخول
+                      AppStorage.setFirstTimeNotified();
                       Navigator.pushNamedAndRemoveUntil(
                         context,
                         Routes.login,
@@ -175,6 +184,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: () {
                       if (isLastPage) {
                         // الذهاب لصفحة تسجيل الدخول (أو الرئيسية)
+                        AppStorage.setFirstTimeNotified();
                         Navigator.pushNamedAndRemoveUntil(
                           context,
                           Routes.login,
@@ -195,7 +205,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   // ودجت مساعد لبناء نقاط المؤشر الديناميكية

@@ -108,12 +108,37 @@ class CustomerInfoCard extends StatelessWidget {
               ),
               8.horizontalSpace,
               Expanded(
-                child: Text(
-                  addressLine,
-                  style: AppTextStyle.font14.copyWith(
-                    color: AppColors.greyMedium3,
-                    height: 1.5,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      addressLine,
+                      style: AppTextStyle.font14.copyWith(
+                        color: AppColors.greyMedium3,
+                        height: 1.5,
+                      ),
+                    ),
+                    if (order?.address?.phone != null && order!.address!.phone!.isNotEmpty) ...[
+                      4.verticalSpace,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.phone_android_rounded,
+                            size: 14.sp,
+                            color: AppColors.greyMedium2,
+                          ),
+                          6.horizontalSpace,
+                          Text(
+                            "هاتف التوصيل: ${order!.address!.phone!}",
+                            style: AppTextStyle.font12.copyWith(
+                              color: AppColors.greyMedium3,
+                            ),
+                            textDirection: TextDirection.ltr,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],

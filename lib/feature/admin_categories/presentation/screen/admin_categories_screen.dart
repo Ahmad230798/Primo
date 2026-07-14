@@ -12,6 +12,7 @@ import '../cubit/admin_category_cubit.dart';
 import '../cubit/admin_categories_list_cubit.dart';
 import '../cubit/admin_categories_list_state.dart';
 import '../widgets/category_card.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 
 class AdminCategoriesScreen extends StatefulWidget {
   const AdminCategoriesScreen({super.key});
@@ -56,7 +57,7 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                 title: "Primo",
                 suffixsIcon: InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.notifications);
+                    Navigator.pushNamed(context, Routes.adminNotificationsHistory);
                   },
                   borderRadius: BorderRadius.circular(99.r),
                   child: Padding(
@@ -106,13 +107,17 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                       BlocBuilder<AdminCategoriesListCubit, AdminCategoriesListState>(
                         builder: (context, state) {
                           if (state is AdminCategoriesListLoading) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(40.h),
-                                child: const CircularProgressIndicator(
-                                  color: AppColors.primary,
-                                ),
+                            return GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: 6,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 16.w,
+                                mainAxisSpacing: 16.h,
+                                childAspectRatio: 0.75,
                               ),
+                              itemBuilder: (context, index) => const CategoryShimmer(),
                             );
                           } else if (state is AdminCategoriesListError) {
                             return AppErrorWidget(
@@ -146,6 +151,13 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                               return CategoryCard(
                                 title: category.name ?? "قسم",
                                 imagePath: category.image ?? "assets/images/honey.png",
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    Routes.adminCategoryProducts,
+                                    arguments: category,
+                                  );
+                                },
                                 onEdit: () {
                                   context.read<AdminCategoryCubit>().initForEdit(category);
                                   Navigator.pushNamed(
