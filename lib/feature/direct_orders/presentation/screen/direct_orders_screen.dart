@@ -27,7 +27,7 @@ class DirectOrdersScreen extends StatelessWidget {
                 suffixsIcon: InkWell(
                   onTap: () {
                     // الانتقال لصفحة الإشعارات
-                    Navigator.pushNamed(context, Routes.notifications);
+                    Navigator.pushNamed(context, Routes.adminNotificationsHistory);
                   },
                   borderRadius: BorderRadius.circular(99.r),
                   child: Padding(

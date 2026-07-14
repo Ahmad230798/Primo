@@ -16,9 +16,9 @@ class SuggestionsFilterTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabs = [
-      {"title": "الكل", "key": "all"},
       {"title": "الجديدة", "key": "new"},
-      {"title": "تم التوفير / معتمد", "key": "approved"},
+      {"title": "المقبولة", "key": "approved"},
+      {"title": "المرفوضة", "key": "rejected"},
     ];
 
     return SingleChildScrollView(

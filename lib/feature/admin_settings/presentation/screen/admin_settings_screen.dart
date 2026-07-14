@@ -121,7 +121,7 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                   CustomAppBar(
                     title: "إعدادات المتجر",
                     suffixsIcon: InkWell(
-                      onTap: () => Navigator.pushNamed(context, Routes.notifications),
+                      onTap: () => Navigator.pushNamed(context, Routes.adminNotificationsHistory),
                       borderRadius: BorderRadius.circular(99.r),
                       child: Padding(
                         padding: EdgeInsets.all(4.w),
@@ -140,6 +140,8 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                     showRightIcon: true,
                   ),
                   24.verticalSpace,
+                  _buildGeneralSettingsCard(context),
+                  24.verticalSpace,
                   _buildDeliveryPriceCard(),
                   24.verticalSpace,
                   _buildAddAddressCard(),
@@ -147,6 +149,46 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGeneralSettingsCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.formBorder),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => Navigator.pushNamed(context, Routes.adminGeneralSettings),
+        borderRadius: BorderRadius.circular(16.r),
+        child: Padding(
+          padding: EdgeInsets.all(20.w),
+          child: Row(
+            children: [
+              Icon(Icons.support_agent_rounded, color: AppColors.primary, size: 24.sp),
+              12.horizontalSpace,
+              Expanded(
+                child: Text(
+                  "الإعدادات العامة للدعم والتواصل",
+                  style: AppTextStyle.font16.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textMain,
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded, color: AppColors.greyMedium2, size: 16.sp),
+            ],
           ),
         ),
       ),

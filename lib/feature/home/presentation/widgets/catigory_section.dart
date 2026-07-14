@@ -9,6 +9,8 @@ import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
 import 'package:primo/feature/home/presentation/cubit/home_state.dart';
 import 'package:primo/feature/home/presentation/widgets/catigory_chip.dart';
 
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
+
 class CatigorySection extends StatelessWidget {
   const CatigorySection({super.key});
 
@@ -17,8 +19,15 @@ class CatigorySection extends StatelessWidget {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         if (state is HomeLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+          return SizedBox(
+            height: 105.h,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              itemCount: 5,
+              separatorBuilder: (context, index) => 12.horizontalSpace,
+              itemBuilder: (context, index) => const CategoryShimmer(),
+            ),
           );
         } else if (state is HomeLoaded) {
           if (state.data.categories.isEmpty) {

@@ -121,6 +121,7 @@ class SavedAddressesScreen extends StatelessWidget {
                         details: address.description ?? '',
                         icon: address.icon,
                         isDefault: address.isDefault,
+                        phone: address.phone,
                         onTap: () {
                           context.read<AddressesCubit>().setDefaultAddress(
                             address.id,

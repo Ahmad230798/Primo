@@ -37,9 +37,10 @@ class IncomingOrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color _getStatusDotColor(String? status) {
-      if (status == null)
+    Color getStatusDotColor(String? status) {
+      if (status == null) {
         return AppColors.primary; // اللون الافتراضي (الأحمر/البرتقالي الأساسي)
+      }
 
       final normalizedStatus = status.trim();
 
@@ -163,7 +164,7 @@ class IncomingOrderCard extends StatelessWidget {
                                 width: 8.w,
                                 height: 8.w,
                                 decoration: BoxDecoration(
-                                  color: _getStatusDotColor(statusText),
+                                  color: getStatusDotColor(statusText),
                                   shape: BoxShape.circle,
                                 ),
                               ),

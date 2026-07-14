@@ -6,7 +6,7 @@ import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'section_header.dart';
-import 'order_card.dart';
+import 'package:primo/feature/admin_orders/presentation/widgets/incoming_order_card.dart';
 
 class IncomingOrdersSection extends StatelessWidget {
   final List<OrderModel>? orders;
@@ -53,28 +53,46 @@ class IncomingOrdersSection extends StatelessWidget {
             separatorBuilder: (context, index) => 12.verticalSpace,
             itemBuilder: (context, index) {
               final order = list[index];
+              final st = order.status.toLowerCase();
+              final isPending = st == 'pending' || order.status == 'قيد الانتظار';
+              final customerName =
+                  order.user?.name ??
+                  order.address?.name ??
+                  "عميل بريمو #${order.userId}";
+              final firstLetter = customerName.trim().isNotEmpty
+                  ? customerName.trim()[0]
+                  : "ز";
 
-              // 1. الوصول للاسم من كائن user وليس address
-              final customerName = order.user?.name ?? "عميل #${order.userId}";
-
-              // 2. بخصوص عدد العناصر:
-              // بما أن الـ items غير موجودة في هذا الرد، سنحاول إظهار نص افتراضي
-              // أو إذا كان لديك حقل آخر في المودل مثل itemsCount تأكد من استخدامه.
-              // حالياً سنضع نصاً معبراً لتجنب ظهور "0"
-              final itemCount = order.itemCount?.toString() ?? "1";
-
-              return OrderCard(
-                customerName: customerName,
-                orderId: "#${order.id}",
-                itemCount:
-                    itemCount, // تم استبدال الـ length النصي بهذا المتغير
-                price: order.totalAmount.toString(),
-                onAccept: () {
-                  context.pushNamed(Routes.adminOrders);
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    Routes.orderDetails,
+                    arguments: order,
+                  );
                 },
-                onReject: () {
-                  context.pushNamed(Routes.adminOrders);
-                },
+                child: IncomingOrderCard(
+                  isDelayed: isPending,
+                  orderId: "طلب #${order.id}",
+                  timeText: order.formattedDate.isNotEmpty
+                      ? order.formattedDate
+                      : (order.createdAt ?? ""),
+                  customerName: customerName,
+                  customerPhone: order.user?.phone,
+                  customerAvatarLetter: firstLetter,
+                  orderType: order.isDelivery ? "توصيل" : "استلام من الفرع",
+                  totalPrice: "${order.totalAmount} ل.س",
+                  statusText: order.statusArabic,
+                  onStatusUpdate: () {
+                    context.pushNamed(Routes.adminOrders);
+                  },
+                  onActionTap: () {
+                    context.pushNamed(Routes.adminOrders);
+                  },
+                  onRejectTap: () {
+                    context.pushNamed(Routes.adminOrders);
+                  },
+                ),
               );
             },
           ),

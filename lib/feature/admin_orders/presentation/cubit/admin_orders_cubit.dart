@@ -35,6 +35,9 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
       case 'مكتمل':
       case 'completed':
         return 'completed';
+      case 'ملغي':
+      case 'canceled':
+        return 'canceled';
       default:
         return 'all';
     }

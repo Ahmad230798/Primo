@@ -15,6 +15,7 @@ import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
 import '../cubit/admin_orders_cubit.dart';
 import '../cubit/admin_orders_state.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 import '../widgets/incoming_order_card.dart';
 import '../widgets/orders_tab_bar.dart';
 
@@ -43,14 +44,6 @@ class AdminOrdersScreen extends StatelessWidget {
             builder: (context, state) {
               final cubit = context.read<AdminOrdersCubit>();
               final orders = cubit.allOrders;
-              final activeCount = orders
-                  .where(
-                    (o) =>
-                        o.status.toLowerCase() != 'completed' &&
-                        o.status.toLowerCase() != 'delivered' &&
-                        o.status != 'مكتمل',
-                  )
-                  .length;
 
               return Column(
                 children: [
@@ -148,8 +141,12 @@ class AdminOrdersScreen extends StatelessWidget {
     AdminOrdersCubit cubit,
   ) {
     if (state is AdminOrdersLoading && orders.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 5,
+        separatorBuilder: (context, index) => 16.verticalSpace,
+        itemBuilder: (context, index) => const ListTileShimmer(),
       );
     } else if (state is AdminOrdersError && orders.isEmpty) {
       return AppErrorWidget(

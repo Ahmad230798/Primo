@@ -47,5 +47,8 @@ class Routes {
   static const String createOffer = '/createOffer';
   static const String adminSuggestions = '/adminSuggestions';
   static const String adminSettings = '/adminSettings';
+  static const String adminGeneralSettings = '/adminGeneralSettings';
   static const String checkoutScreen = '/checkoutScreen';
+  static const String adminCategoryProducts = '/adminCategoryProducts';
+  static const String adminNotificationsHistory = '/adminNotificationsHistory';
 }

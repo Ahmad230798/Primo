@@ -6,12 +6,16 @@ class AdminStatsSection extends StatelessWidget {
   final num? totalAmount;
   final int? pendingOrdersCount;
   final int? productsCount;
+  final num? weeklyTotalAmount;
+  final int? weeklyOrdersCount;
 
   const AdminStatsSection({
     super.key,
     this.totalAmount,
     this.pendingOrdersCount,
     this.productsCount,
+    this.weeklyTotalAmount,
+    this.weeklyOrdersCount,
   });
 
   @override
@@ -32,6 +36,25 @@ class AdminStatsSection extends StatelessWidget {
               child: StatCard(
                 title: "طلبات معلقة",
                 value: pendingOrdersCount != null ? pendingOrdersCount.toString() : "0",
+              ),
+            ),
+          ],
+        ),
+        16.verticalSpace,
+        Row(
+          children: [
+            Expanded(
+              child: StatCard(
+                title: "مبيعات الأسبوع",
+                value: weeklyTotalAmount != null ? weeklyTotalAmount.toString() : "0",
+                currency: "ل.س",
+              ),
+            ),
+            16.horizontalSpace,
+            Expanded(
+              child: StatCard(
+                title: "طلبات الأسبوع",
+                value: weeklyOrdersCount != null ? weeklyOrdersCount.toString() : "0",
               ),
             ),
           ],

@@ -19,13 +19,9 @@ class AdminSuggestionsRepoImpl implements AdminSuggestionsRepo {
   @override
   Future<Either<Failure, List<SuggestionModel>>> getSuggestions() async {
     try {
-      final response = await _apiConsumer.get(path: ApiConstant.adminHome);
-      final data = response is Map && response.containsKey('data') ? response['data'] : response;
-      if (data is Map && data['pending_suggestions'] != null) {
-        final list = await compute(_parseSuggestionsList, data['pending_suggestions']);
-        return Right(list);
-      }
-      return const Right([]);
+      final response = await _apiConsumer.get(path: ApiConstant.adminSuggestions);
+      final list = await compute(_parseSuggestionsList, response);
+      return Right(list);
     } on ServerFailure catch (failure) {
       return Left(failure);
     } catch (e) {
