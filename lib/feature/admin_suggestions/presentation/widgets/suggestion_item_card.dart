@@ -8,6 +8,7 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 class SuggestionItemCard extends StatelessWidget {
   final String customerName;
   final String customerType;
+  final String? customerPhone;
   final String avatarLetter;
   final String date;
   final String suggestionTitle;
@@ -19,6 +20,7 @@ class SuggestionItemCard extends StatelessWidget {
     super.key,
     required this.customerName,
     required this.customerType,
+    this.customerPhone,
     required this.avatarLetter,
     required this.date,
     required this.suggestionTitle,
@@ -80,13 +82,32 @@ class SuggestionItemCard extends StatelessWidget {
                     ),
                     2.verticalSpace,
                     // 💡 التعديل 2: إزالة الـ Expanded من هنا لحل مشكلة الارتفاع اللانهائي
-                    Text(
-                      customerType,
-                      style: AppTextStyle.font12.copyWith(
-                        color: AppColors.greyMedium3,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Text(
+                          customerType,
+                          style: AppTextStyle.font12.copyWith(
+                            color: AppColors.greyMedium3,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (customerPhone != null && customerPhone!.isNotEmpty) ...[
+                          Text(
+                            " • ",
+                            style: AppTextStyle.font12.copyWith(
+                              color: AppColors.greyMedium3,
+                            ),
+                          ),
+                          Text(
+                            customerPhone!,
+                            style: AppTextStyle.font12.copyWith(
+                              color: AppColors.greyMedium3,
+                            ),
+                            textDirection: TextDirection.ltr,
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),

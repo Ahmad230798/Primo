@@ -9,6 +9,8 @@ import 'package:primo/core/routing/otp_enum.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/feature/admin_categories/presentation/cubit/admin_category_cubit.dart';
 import 'package:primo/feature/admin_categories/presentation/cubit/admin_categories_list_cubit.dart';
+import 'package:primo/feature/admin_categories/presentation/screen/admin_category_products_screen.dart';
+import 'package:primo/feature/admin_notifications/presentation/screen/admin_notifications_history_screen.dart';
 import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_cubit.dart';
 import 'package:primo/feature/admin_offers/presentation/cubit/admin_offers_list_cubit.dart';
 import 'package:primo/feature/admin_orders/presentation/cubit/admin_orders_cubit.dart';
@@ -81,6 +83,7 @@ import 'package:primo/feature/admin_suggestions/presentation/screen/admin_sugges
 import 'package:primo/feature/suggestions/presentation/screens/suggest_product_page.dart';
 import 'package:primo/feature/admin_home/presentation/cubit/admin_dashboard_cubit.dart';
 import 'package:primo/feature/admin_settings/presentation/screen/admin_settings_screen.dart';
+import 'package:primo/feature/admin_settings/presentation/screen/admin_general_settings_screen.dart';
 import 'package:primo/feature/admin_settings/presentation/cubit/store_settings_cubit.dart';
 import 'package:primo/feature/admin_settings/presentation/cubit/add_store_address_cubit.dart';
 
@@ -448,6 +451,22 @@ class AppRoutes {
             child: const InventoryScreen(),
           ),
         );
+      case Routes.adminCategoryProducts:
+        final category = settings.arguments as CategoryModel;
+        return CupertinoPageRoute(
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<AdminProductsListCubit>()),
+              BlocProvider.value(value: getIt<AdminProductCubit>()),
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
+            ],
+            child: AdminCategoryProductsScreen(category: category),
+          ),
+        );
+      case Routes.adminNotificationsHistory:
+        return CupertinoPageRoute(
+          builder: (_) => const AdminNotificationsHistoryScreen(),
+        );
       case Routes.addProducts:
         return CupertinoPageRoute(
           builder: (_) => MultiBlocProvider(
@@ -584,6 +603,10 @@ class AppRoutes {
             ],
             child: const AdminSettingsScreen(),
           ),
+        );
+      case Routes.adminGeneralSettings:
+        return CupertinoPageRoute(
+          builder: (_) => const AdminGeneralSettingsScreen(),
         );
 
       // ================== Default & Checkout ==================

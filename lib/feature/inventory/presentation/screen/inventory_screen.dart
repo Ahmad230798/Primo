@@ -13,6 +13,7 @@ import 'package:primo/feature/admin_product/presentation/cubit/admin_products_li
 
 import '../widgets/inventory_product_card.dart';
 import '../widgets/search_and_filter_widget.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -63,25 +64,31 @@ class _InventoryScreenState extends State<InventoryScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: CustomAppBar(
                 title: "Primo",
-                suffixsIcon: Container(
-                  width: 44.w,
-                  height: 44.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                suffixsIcon: InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, Routes.adminNotificationsHistory);
+                  },
+                  borderRadius: BorderRadius.circular(99.r),
+                  child: Container(
+                    width: 44.w,
+                    height: 44.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.notifications_none_rounded,
+                        color: AppColors.textMain,
+                        size: 28.sp,
                       ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.notifications_none_rounded,
-                      color: AppColors.textMain,
-                      size: 28.sp,
                     ),
                   ),
                 ),
@@ -129,13 +136,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       >(
                         builder: (context, state) {
                           if (state is AdminProductsListLoading) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(32.h),
-                                child: const CircularProgressIndicator(
-                                  color: AppColors.primary,
-                                ),
-                              ),
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: 5,
+                              separatorBuilder: (context, index) => 16.verticalSpace,
+                              itemBuilder: (context, index) => const ListTileShimmer(),
                             );
                           } else if (state is AdminProductsListError) {
                             return AppErrorWidget(

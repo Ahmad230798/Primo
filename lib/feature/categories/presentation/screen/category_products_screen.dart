@@ -8,6 +8,7 @@ import 'package:primo/feature/categories/presentation/cubit/category_products_cu
 import 'package:primo/feature/categories/presentation/cubit/category_products_state.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:primo/feature/search/presentation/widgets/user_product_card.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 
 class CategoryProductsScreen extends StatelessWidget {
   final String categoryName;
@@ -30,10 +31,18 @@ class CategoryProductsScreen extends StatelessWidget {
                 builder: (context, state) {
                   if (state is CategoryProductsLoading ||
                       state is CategoryProductsInitial) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
+                    return GridView.builder(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16.w,
+                        mainAxisSpacing: 16.h,
+                        childAspectRatio: 0.6,
                       ),
+                      itemCount: 4,
+                      itemBuilder: (BuildContext context, int index) {
+                        return const ProductCardShimmer();
+                      },
                     );
                   } else if (state is CategoryProductsError) {
                     return Center(

@@ -12,29 +12,24 @@ class ServerFailure extends Failure {
   factory ServerFailure.fromDioError(DioException dioError) {
     switch (dioError.type) {
       case DioExceptionType.connectionTimeout:
-        return const ServerFailure("Connection to the server timed out");
       case DioExceptionType.sendTimeout:
-        return const ServerFailure("Request sending timed out");
       case DioExceptionType.receiveTimeout:
-        return const ServerFailure("Response receiving timed out");
+      case DioExceptionType.connectionError:
+        return const ServerFailure("لا يوجد اتصال بالإنترنت");
       case DioExceptionType.badCertificate:
-        return const ServerFailure("Invalid server certificate");
+        return const ServerFailure("شهادة خادم غير صالحة");
       case DioExceptionType.badResponse:
         return ServerFailure.fromResponse(
           dioError.response?.statusCode,
           dioError.response?.data,
         );
       case DioExceptionType.cancel:
-        return const ServerFailure("Request was cancelled");
-      case DioExceptionType.connectionError:
-        return const ServerFailure("No internet connection");
+        return const ServerFailure("تم إلغاء الطلب");
       case DioExceptionType.unknown:
         if (dioError.error is SocketException) {
-          return const ServerFailure("No internet connection");
+          return const ServerFailure("لا يوجد اتصال بالإنترنت");
         }
-        return const ServerFailure(
-          "Unexpected error occurred. Please try again",
-        );
+        return const ServerFailure("لا يوجد اتصال بالإنترنت");
       default:
         return const ServerFailure(
           "Unexpected error occurred. Please try again",

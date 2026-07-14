@@ -42,9 +42,11 @@ abstract class ApiConstant {
   // --- Notifications & Suggestions ---
   static const String userNotifications = "/user/notifications";
   static const String userSuggestions = "/user/suggestions";
+  static const String userGeneralSettings = "/user/settings/general";
 
   // --- Admin Endpoints ---
   static const String adminHome = "/admin/home";
+  static const String adminGeneralSettings = "/admin/settings/general";
   static const String adminDeliveryPrice = "/admin/settings/delivery-price";
   static const String adminAddress = "/admin/address";
   static const String adminOrders = "/admin/ordars";

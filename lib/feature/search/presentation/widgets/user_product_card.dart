@@ -206,33 +206,6 @@ class UserProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                Container(
-                  width: 32.w,
-                  height: 32.w,
-                  decoration: BoxDecoration(
-                    color: isOutOfStock
-                        ? AppColors.formBorder
-                        : AppColors.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: isOutOfStock
-                        ? null
-                        : [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                  ),
-                  child: Icon(
-                    Icons.add_rounded,
-                    color: isOutOfStock
-                        ? AppColors.greyMedium3
-                        : AppColors.white,
-                    size: 20.sp,
-                  ),
-                ),
               ],
             ),
           ],

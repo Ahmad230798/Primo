@@ -18,6 +18,7 @@ import '../cubit/admin_suggestions_cubit.dart';
 import '../cubit/admin_suggestions_state.dart';
 import '../widgets/suggestion_item_card.dart';
 import '../widgets/suggestions_filter_tabs.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 
 class AdminSuggestionsScreen extends StatelessWidget {
   const AdminSuggestionsScreen({super.key});
@@ -60,7 +61,7 @@ class AdminSuggestionsScreen extends StatelessWidget {
                       title: "مقترحات الزبائن",
                       suffixsIcon: InkWell(
                         onTap: () =>
-                            Navigator.pushNamed(context, Routes.notifications),
+                            Navigator.pushNamed(context, Routes.adminNotificationsHistory),
                         borderRadius: BorderRadius.circular(99.r),
                         child: Padding(
                           padding: EdgeInsets.all(4.w),
@@ -117,8 +118,12 @@ class AdminSuggestionsScreen extends StatelessWidget {
     AdminSuggestionsCubit cubit,
   ) {
     if (state is AdminSuggestionsLoading && dynamicSuggestions.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 5,
+        separatorBuilder: (context, index) => 16.verticalSpace,
+        itemBuilder: (context, index) => const ListTileShimmer(),
       );
     } else if (state is AdminSuggestionsError && dynamicSuggestions.isEmpty) {
       return AppErrorWidget(
@@ -174,6 +179,7 @@ class AdminSuggestionsScreen extends StatelessWidget {
               SuggestionItemCard(
                 customerName: realCustomerName,
                 customerType: "زبون بريمو",
+                customerPhone: user?.phone,
                 avatarLetter: firstChar,
                 date: displayDate,
                 suggestionTitle: item.name ?? "منتج مقترح",

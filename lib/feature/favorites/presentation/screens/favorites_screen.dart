@@ -10,7 +10,6 @@ import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 
 import 'package:primo/core/utils/appcolor/app_colors.dart';
-import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
 import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
@@ -137,69 +136,22 @@ class FavoritesPage extends StatelessWidget {
                           );
                         },
                       ),
-                      );
-                    } else if (state is FavoritesError) {
-                      return AppErrorWidget(
-                        message: state.errorMessage,
-                        onRetry: () =>
-                            context.read<FavoritesCubit>().fetchFavorites(),
-                      );
-                    }
-                    return const SizedBox();
-                  },
-                ),
-              ),
-              BlocBuilder<FavoritesCubit, FavoritesState>(
-                builder: (context, state) {
-                  if (state is FavoritesLoaded && state.favorites.isNotEmpty) {
-                    return Container(
-                      padding: EdgeInsets.only(
-                        left: 24.w,
-                        right: 24.w,
-                        bottom: 24.h,
-                        top: 16.h,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: AppColors.background,
-                      ),
-                      child: BlocBuilder<CartCubit, CartState>(
-                        bloc: getIt<CartCubit>(),
-                        builder: (context, cartState) {
-                          return AppButton(
-                            isLoading: cartState is CartLoading,
-                            text: "إضافة الكل إلى السلة",
-                            icon: Icons.add_shopping_cart,
-                            onPressed: () async {
-                              if (cartState is CartLoading) return;
-                              // 💡 5. برمجة زر "إضافة الكل" ليمر على كل المنتجات ويضيفها
-
-                              for (var item in state.favorites) {
-                                final variantId =
-                                    (item.variants != null &&
-                                        item.variants!.isNotEmpty)
-                                    ? item.variants!.first.id
-                                    : item.id;
-
-                                if (variantId != null) {
-                                  await getIt<CartCubit>().addToCart(
-                                    variantId,
-                                    1,
-                                  );
-                                }
-                              }
-                            },
-                          );
-                        },
-                      ),
+                    );
+                  } else if (state is FavoritesError) {
+                    return AppErrorWidget(
+                      message: state.errorMessage,
+                      onRetry: () =>
+                          context.read<FavoritesCubit>().fetchFavorites(),
                     );
                   }
-                  return const SizedBox.shrink();
+                  return const SizedBox();
                 },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

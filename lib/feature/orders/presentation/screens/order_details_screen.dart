@@ -191,22 +191,25 @@ class OrderDetailsScreen extends StatelessWidget {
                                 if (cartState is CartLoading) return;
 
                                 bool hasErrors = false;
+                                final cartCubit = getIt<CartCubit>();
 
                                 for (final item in liveOrder.items) {
-                                  await getIt<CartCubit>().addToCart(
+                                  await cartCubit.addToCart(
                                     item.id,
                                     item.quantity,
                                   );
 
-                                  if (getIt<CartCubit>().state is CartError) {
+                                  if (cartCubit.state is CartError) {
                                     hasErrors = true;
                                     break;
                                   }
                                 }
 
-                                if (context.mounted && !hasErrors) {
+                                if (!context.mounted) return;
+
+                                if (!hasErrors) {
                                   context.showSuccess(
-                                    "تم إضافة المنتجات لسلة المشتريات",
+                                    "تم إضافة المنتجات لسلة المشتريات بنجاح!",
                                   );
                                   Navigator.pushNamed(context, Routes.cart);
                                 }

@@ -7,6 +7,8 @@ import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
 import 'package:primo/feature/home/presentation/cubit/home_state.dart';
 import 'package:primo/feature/home/presentation/widgets/product_card.dart';
 
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
+
 class LatestProduct extends StatelessWidget {
   const LatestProduct({super.key});
 
@@ -15,11 +17,19 @@ class LatestProduct extends StatelessWidget {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         if (state is HomeLoading) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 40.h),
-            child: const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+          return GridView.builder(
+            itemCount: 4,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16.w,
+              mainAxisSpacing: 16.39.h,
+              childAspectRatio: 0.6,
             ),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (BuildContext context, int index) {
+              return const ProductCardShimmer();
+            },
           );
         } else if (state is HomeLoaded) {
           if (state.data.products.isEmpty) {

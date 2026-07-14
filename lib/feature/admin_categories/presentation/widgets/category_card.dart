@@ -12,29 +12,33 @@ class CategoryCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
+  final VoidCallback? onTap;
+
   const CategoryCard({
     super.key,
     required this.title,
     required this.imagePath,
     required this.onEdit,
     required this.onDelete,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.formBorder, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 16.r,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -127,6 +131,6 @@ class CategoryCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }

@@ -38,9 +38,9 @@ class AddressesRepoImpl implements AddressesRepo {
   @override
   Future<Either<Failure, AddressSingleResponse>> createAddress(AddressRequestBody body) async {
     try {
-      final response = await _apiConsumer.postFormData(
+      final response = await _apiConsumer.post(
         path: ApiConstant.addresses,
-        formData: body.toFormData(),
+        body: body.toJson(),
       );
       return Right(AddressSingleResponse.fromJson(response));
     } on ServerFailure catch (failure) {
@@ -53,9 +53,12 @@ class AddressesRepoImpl implements AddressesRepo {
   @override
   Future<Either<Failure, AddressSingleResponse>> updateAddress(int id, AddressRequestBody body) async {
     try {
-      final response = await _apiConsumer.postFormData(
+      final response = await _apiConsumer.post(
         path: '${ApiConstant.addresses}/$id',
-        formData: body.toUpdateFormData(),
+        body: {
+          ...body.toJson(),
+          '_method': 'PUT',
+        },
       );
       return Right(AddressSingleResponse.fromJson(response));
     } on ServerFailure catch (failure) {
