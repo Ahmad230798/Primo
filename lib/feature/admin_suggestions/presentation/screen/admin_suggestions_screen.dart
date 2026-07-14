@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/di/service_locator.dart';
+import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
@@ -179,7 +180,8 @@ class AdminSuggestionsScreen extends StatelessWidget {
                 suggestionText:
                     '"${item.description ?? 'لا يوجد تفاصيل إضافية'}"',
                 onAccept: () {
-                  cubit.updateStatus(item.id, "approved");
+                  context.pushNamed(Routes.addProducts);
+                  cubit.updateStatus(item.id, "rejected");
                 },
                 onIgnore: () {
                   cubit.updateStatus(item.id, "rejected");
