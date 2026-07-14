@@ -269,7 +269,7 @@ class AppRoutes {
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
             create: (context) => getIt<NotificationSettingsCubit>(),
-            child: const NotificationSettingsScreen(),
+            child: const NotificationSettingsScreen(isFromBottomNav: false),
           ),
         );
       case Routes.notificationsHistory:
@@ -443,6 +443,7 @@ class AppRoutes {
             providers: [
               BlocProvider.value(value: getIt<AdminProductsListCubit>()),
               BlocProvider.value(value: getIt<AdminProductCubit>()),
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
             ],
             child: const InventoryScreen(),
           ),

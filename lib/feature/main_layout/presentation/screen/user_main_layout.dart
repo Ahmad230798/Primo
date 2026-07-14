@@ -46,7 +46,7 @@ class UserMainLayout extends StatelessWidget {
     const Home(), // Index 4 (الرئيسية)
     BlocProvider(
       create: (context) => getIt<NotificationSettingsCubit>(),
-      child: const NotificationSettingsScreen(), // Index 5 (الإشعارات)
+      child: const NotificationSettingsScreen(isFromBottomNav: true,), // Index 5 (الإشعارات)
     ),
     BlocProvider(
       create: (context) => getIt<ProfileCubit>(),
