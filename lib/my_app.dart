@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.system,
         theme: AppTheme.lightTheme,
-        initialRoute: Routes.login,
+        initialRoute: Routes.onboarding,
         onGenerateRoute: AppRoutes.onGenerateRoute,
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,

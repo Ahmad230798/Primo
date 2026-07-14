@@ -8,6 +8,7 @@ class Routes {
   static const String forgotPassword = "/forgotPassword";
   static const String otpVerification = "/otpVerification";
   static const String resetPassword = "/resetPassword";
+  static const String onboarding = "/onboarding";
 
   // --- User App Routes ---
   static const String home = '/home';

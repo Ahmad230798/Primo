@@ -27,6 +27,7 @@ import 'package:primo/feature/main_layout/presentation/cubit/main_layout_cubit.d
 import 'package:primo/feature/main_layout/presentation/screen/user_main_layout.dart';
 import 'package:primo/feature/notifications/presentation/screen/notification_settings_screen.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
+import 'package:primo/feature/onboarding/onboardingscreen.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.dart';
 import 'package:primo/feature/profile/presentation/screen/change_password_screen.dart';
@@ -91,6 +92,8 @@ class AppRoutes {
       // ================== Auth & Splash ==================
       case Routes.splash:
         return CupertinoPageRoute(builder: (_) => const SplashScreen());
+      case Routes.onboarding:
+        return CupertinoPageRoute(builder: (_) => const OnboardingScreen());
       case Routes.login:
         return CupertinoPageRoute(
           builder: (_) => BlocProvider(
@@ -424,8 +427,13 @@ class AppRoutes {
       // ================== Admin App ==================
       case Routes.adminHome:
         return CupertinoPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => getIt<AdminDashboardCubit>()..getDashboard(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => getIt<AdminDashboardCubit>()..getDashboard(),
+              ),
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
+            ],
             child: const AdminHomeScreen(),
           ),
         );
@@ -449,6 +457,7 @@ class AppRoutes {
                   ..loadCategories(),
               ),
               BlocProvider.value(value: getIt<AdminProductsListCubit>()),
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
             ],
             child: const AddProductScreen(),
           ),
@@ -505,6 +514,7 @@ class AppRoutes {
             providers: [
               BlocProvider.value(value: getIt<AdminCategoriesListCubit>()),
               BlocProvider.value(value: getIt<AdminCategoryCubit>()),
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
             ],
             child: const AdminCategoriesScreen(),
           ),
@@ -541,6 +551,7 @@ class AppRoutes {
               BlocProvider(
                 create: (context) => getIt<AdminOffersListCubit>()..getOffers(),
               ),
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
             ],
             child: const AdminOffersScreen(),
           ),
@@ -568,6 +579,7 @@ class AppRoutes {
             providers: [
               BlocProvider(create: (_) => getIt<StoreSettingsCubit>()),
               BlocProvider(create: (_) => getIt<AddStoreAddressCubit>()),
+              BlocProvider(create: (context) => getIt<ProfileCubit>()),
             ],
             child: const AdminSettingsScreen(),
           ),

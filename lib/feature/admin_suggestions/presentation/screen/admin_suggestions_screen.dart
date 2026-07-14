@@ -11,6 +11,7 @@ import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_home/data/models/admin_dashboard_model.dart';
+import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
 
 import '../cubit/admin_suggestions_cubit.dart';
 import '../cubit/admin_suggestions_state.dart';
@@ -22,8 +23,13 @@ class AdminSuggestionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<AdminSuggestionsCubit>()..getSuggestions(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<AdminSuggestionsCubit>()..getSuggestions(),
+        ),
+        BlocProvider(create: (context) => getIt<ProfileCubit>()),
+      ],
       child: Scaffold(
         backgroundColor: AppColors.white,
         drawer: const AdminDrawer(currentRoute: Routes.adminSuggestions),

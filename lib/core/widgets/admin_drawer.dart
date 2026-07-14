@@ -1,12 +1,17 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
+import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
+import 'package:primo/feature/profile/presentation/cubit/profile_state.dart';
 
 class AdminDrawer extends StatelessWidget {
   final String currentRoute; // لمعرفة أي صفحة نشطة حالياً لتمييزها
@@ -150,32 +155,40 @@ class AdminDrawer extends StatelessWidget {
               Divider(color: AppColors.formBorder, height: 1),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: ListTile(
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await AppStorage.clearAllData();
-                    if (context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        Routes.login,
-                        (route) => false,
-                      );
+                child: BlocListener<ProfileCubit, ProfileState>(
+                  listener: (context, state) {
+                    if (state is LogoutSuccess) {
+                      // إغلاق الـ Drawer المفتوح أولاً
+                      Navigator.pop(context);
+
+                      // إظهار الرسالة الجميلة
+                      context.showSuccess(state.message);
+
+                      // الانتقال للوجن ومسح كل الشاشات السابقة
+                      context.pushNamedAndRemoveUntil(Routes.login);
+                    } else if (state is ProfileError) {
+                      context.showError(state.message);
                     }
                   },
-                  leading: Icon(
-                    Icons.logout_rounded,
-                    color: AppColors.primary,
-                    size: 24.sp,
-                  ),
-                  title: Text(
-                    "تسجيل الخروج",
-                    style: AppTextStyle.font16.copyWith(
+                  child: ListTile(
+                    onTap: () async {
+                      context.read<ProfileCubit>().logout();
+                    },
+                    leading: Icon(
+                      Icons.logout_rounded,
                       color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
+                      size: 24.sp,
                     ),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+                    title: Text(
+                      "تسجيل الخروج",
+                      style: AppTextStyle.font16.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
                   ),
                 ),
               ),

@@ -64,18 +64,15 @@ class OrderTracking extends StatelessWidget {
                     OrderState(order: passedOrder),
                     32.verticalSpace,
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        AdditionalOptions(
-                          iconData: Icons.support_agent_outlined,
-                          text: "المساعدة",
-                          onTap: () {
-                            context.pushNamed(Routes.helpCenter);
-                          },
-                        ),
-                        const AdditionalOptions(
-                          iconData: Icons.description_outlined,
-                          text: 'الفاتورة',
+                        Expanded(
+                          child: AdditionalOptions(
+                            iconData: Icons.support_agent_outlined,
+                            text: "المساعدة",
+                            onTap: () {
+                              context.pushNamed(Routes.helpCenter);
+                            },
+                          ),
                         ),
                       ],
                     ),

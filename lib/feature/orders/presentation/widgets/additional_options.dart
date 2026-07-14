@@ -8,11 +8,12 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 class AdditionalOptions extends StatelessWidget {
   final IconData iconData;
   final String text;
- final void Function()? onTap;
+  final void Function()? onTap;
   const AdditionalOptions({
     super.key,
     required this.iconData,
-    required this.text, this.onTap,
+    required this.text,
+    this.onTap,
   });
 
   @override
@@ -34,6 +35,7 @@ class AdditionalOptions extends StatelessWidget {
           ],
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(iconData, size: 30, color: AppColors.textMain),
             8.horizontalSpace,

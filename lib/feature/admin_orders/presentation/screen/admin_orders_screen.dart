@@ -12,6 +12,7 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
 import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
 import '../cubit/admin_orders_cubit.dart';
 import '../cubit/admin_orders_state.dart';
 import '../widgets/incoming_order_card.dart';
@@ -22,8 +23,11 @@ class AdminOrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<AdminOrdersCubit>()..getOrders(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<AdminOrdersCubit>()..getOrders()),
+        BlocProvider(create: (context) => getIt<ProfileCubit>()),
+      ],
       child: Scaffold(
         backgroundColor: AppColors.background,
         drawer: const AdminDrawer(currentRoute: Routes.adminOrders),
@@ -85,7 +89,7 @@ class AdminOrdersScreen extends StatelessWidget {
                             ],
                           ),
                           child: Text(
-                            "$activeCount نشط",
+                            "// نشط",
                             style: AppTextStyle.font12.copyWith(
                               color: AppColors.white,
                             ),

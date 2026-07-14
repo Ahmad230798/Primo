@@ -46,7 +46,9 @@ class _SuggestProductPageState extends State<SuggestProductPage> {
               );
               productNameController.clear();
               productDetailsController.clear();
-              Navigator.pop(context);
+              if (!widget.isFromBottomNav) {
+                Navigator.pop(context);
+              }
             } else if (state is SuggestionsError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
