@@ -9,7 +9,7 @@ import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart'
 import 'package:primo/feature/favorites/presentation/screens/favorites_screen.dart';
 import 'package:primo/feature/main_layout/widgets/floating_circular_nav_bar.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
-import 'package:primo/feature/notifications/presentation/screen/notification_settings_screen.dart';
+import 'package:primo/feature/notifications/presentation/screen/notifications_history_screen.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
 
@@ -47,7 +47,7 @@ class UserMainLayout extends StatelessWidget {
     const Home(), // Index 4 (الرئيسية)
     BlocProvider(
       create: (context) => getIt<NotificationSettingsCubit>(),
-      child: const NotificationSettingsScreen(
+      child: const NotificationsHistoryScreen(
         isFromBottomNav: true,
       ), // Index 5 (الإشعارات)
     ),
@@ -79,33 +79,33 @@ class UserMainLayout extends StatelessWidget {
           extendBody: true,
           body: Stack(
             children: [
-            // 1. محتوى الشاشات
-            BlocBuilder<MainLayoutCubit, MainLayoutState>(
-              buildWhen: (previous, current) =>
-                  previous.currentIndex != current.currentIndex,
-              builder: (context, state) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 85.h),
-                  child: FadeIndexedStack(
-                    index: state.currentIndex,
-                    children: _screens,
-                  ),
-                );
-              },
-            ),
+              // 1. محتوى الشاشات
+              BlocBuilder<MainLayoutCubit, MainLayoutState>(
+                buildWhen: (previous, current) =>
+                    previous.currentIndex != current.currentIndex,
+                builder: (context, state) {
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 85.h),
+                    child: FadeIndexedStack(
+                      index: state.currentIndex,
+                      children: _screens,
+                    ),
+                  );
+                },
+              ),
 
-            // 2. شريط التنقل والقائمة المنبثقة (ويدجت معزول بالكامل)
-            const Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: FloatingCircularNavBar(),
-            ),
-          ],
+              // 2. شريط التنقل والقائمة المنبثقة (ويدجت معزول بالكامل)
+              const Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: FloatingCircularNavBar(),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 

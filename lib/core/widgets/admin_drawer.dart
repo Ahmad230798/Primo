@@ -170,25 +170,43 @@ class AdminDrawer extends StatelessWidget {
                       context.showError(state.message);
                     }
                   },
-                  child: ListTile(
-                    onTap: () async {
-                      context.read<ProfileCubit>().logout();
+                  child: BlocBuilder<ProfileCubit, ProfileState>(
+                    builder: (context, state) {
+                      // التحقق من حالة التحميل (تأكد أن اسم الحالة ProfileLoading يطابق ما لديك)
+                      final isLoading = state is LogoutLoading;
+                      return ListTile(
+                        onTap: isLoading
+                            ? null
+                            : () async {
+                                context.read<ProfileCubit>().logout();
+                              },
+                        leading: isLoading
+                            ? SizedBox(
+                                width: 24.sp,
+                                height: 24.sp,
+                                child: const CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : Icon(
+                                Icons.logout_rounded,
+                                color: AppColors.primary,
+                                size: 24.sp,
+                              ),
+                        // تغيير النص ليعطي تجربة مستخدم أفضل
+                        title: Text(
+                          isLoading ? "جاري تسجيل الخروج..." : "تسجيل الخروج",
+                          style: AppTextStyle.font16.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      );
                     },
-                    leading: Icon(
-                      Icons.logout_rounded,
-                      color: AppColors.primary,
-                      size: 24.sp,
-                    ),
-                    title: Text(
-                      "تسجيل الخروج",
-                      style: AppTextStyle.font16.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
                   ),
                 ),
               ),

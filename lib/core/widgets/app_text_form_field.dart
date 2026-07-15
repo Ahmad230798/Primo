@@ -50,63 +50,94 @@ class AppTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      textDirection: textDirection ??
-          ((isObscureText ?? false) ||
-                  keyboardType == TextInputType.phone ||
-                  keyboardType == TextInputType.number ||
-                  keyboardType == TextInputType.emailAddress
-              ? TextDirection.ltr
-              : null),
-      keyboardType: keyboardType,
-      readOnly: readOnly ?? false,
-      enabled: enabled ?? true,
-      maxLines: (isObscureText ?? false) ? 1 : (linesCount ?? 1),
-      onChanged: onChanged,
-      validator: validator,
-      controller: controller,
-      decoration: InputDecoration(
-        filled: isFilled,
-        fillColor: fillColor,
-        isDense: true,
-        contentPadding:
-            contentPadding ??
-            EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
-        focusedBorder:
-            focusedBorder ??
-            OutlineInputBorder(
-              borderSide: BorderSide(
-                color: focusColor ?? AppColors.quantityBackground,
-                width: borderWidth ?? 1.3,
-              ),
+    final bool isAlwaysLtr =
+        (isObscureText ?? false) ||
+        keyboardType == TextInputType.phone ||
+        keyboardType == TextInputType.number ||
+        keyboardType == TextInputType.emailAddress;
+
+    // 2. تحديد الاتجاه المبدئي بناءً على نوع الكيبورد
+    final ValueNotifier<TextDirection> textDirectionNotifier =
+        ValueNotifier<TextDirection>(
+          isAlwaysLtr ? TextDirection.ltr : TextDirection.rtl,
+        );
+    return ValueListenableBuilder(
+      valueListenable: textDirectionNotifier,
+      builder: (context, textDirection, child) {
+        return TextFormField(
+          textDirection: textDirection,
+          keyboardType: keyboardType,
+          readOnly: readOnly ?? false,
+          enabled: enabled ?? true,
+          maxLines: (isObscureText ?? false) ? 1 : (linesCount ?? 1),
+          onChanged: (text) {
+            if (isAlwaysLtr) return;
+
+            // 4. أما إذا كان نصاً عادياً، نطبق منطق الفحص الديناميكي
+            if (text.trim().isEmpty) {
+              textDirectionNotifier.value = TextDirection.rtl;
+              return;
+            }
+
+            // فحص الحرف الأول ديناميكياً
+            final isEnglishOrNumeric = RegExp(
+              r'^[a-zA-Z0-9٠-٩]',
+            ).hasMatch(text.trim());
+            final newDirection = isEnglishOrNumeric
+                ? TextDirection.ltr
+                : TextDirection.rtl;
+
+            // تحديث القيمة فقط إذا تغيرت لتجنب إعادة البناء غير الضرورية
+            if (textDirectionNotifier.value != newDirection) {
+              textDirectionNotifier.value = newDirection;
+            }
+          },
+          validator: validator,
+          controller: controller,
+          decoration: InputDecoration(
+            filled: isFilled,
+            fillColor: fillColor,
+            isDense: true,
+            contentPadding:
+                contentPadding ??
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
+            focusedBorder:
+                focusedBorder ??
+                OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: focusColor ?? AppColors.quantityBackground,
+                    width: borderWidth ?? 1.3,
+                  ),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+            enabledBorder:
+                enabledBorder ??
+                OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: focusColor ?? AppColors.quantityBackground,
+                    width: borderWidth ?? 1.3,
+                  ),
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.primary, width: 1.3),
               borderRadius: BorderRadius.circular(16.r),
             ),
-        enabledBorder:
-            enabledBorder ??
-            OutlineInputBorder(
-              borderSide: BorderSide(
-                color: focusColor ?? AppColors.quantityBackground,
-                width: borderWidth ?? 1.3,
-              ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: AppColors.primary, width: 1.3),
               borderRadius: BorderRadius.circular(16.r),
             ),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.primary, width: 1.3),
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.primary, width: 1.3),
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        hintStyle:
-            hintStyle ??
-            AppTextStyle.font16.copyWith(color: AppColors.greyMedium3),
-        hintText: hinttText,
-        suffixIcon: suffixIcone,
-        prefixIcon: prefixIcone,
-      ),
-      obscureText: isObscureText ?? false,
-      style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium3),
+            hintStyle:
+                hintStyle ??
+                AppTextStyle.font16.copyWith(color: AppColors.greyMedium3),
+            hintText: hinttText,
+            suffixIcon: suffixIcone,
+            prefixIcon: prefixIcone,
+          ),
+          obscureText: isObscureText ?? false,
+          style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium3),
+        );
+      },
     );
   }
 }

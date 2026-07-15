@@ -11,7 +11,7 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
   final ManageProductUseCase _manageProductUseCase;
 
   AdminProductsListCubit(this._getProductsUseCase, this._manageProductUseCase)
-      : super(AdminProductsListInitial());
+    : super(AdminProductsListInitial());
 
   List<ProductModel> currentProducts = [];
   List<ProductModel> allProducts = [];
@@ -23,8 +23,9 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
       final cached = await AppStorage.getCachedData('cache_admin_products');
       if (cached != null) {
         final List<dynamic> jsonList = jsonDecode(cached);
-        final cachedProducts =
-            jsonList.map((e) => ProductModel.fromJson(e)).toList();
+        final cachedProducts = jsonList
+            .map((e) => ProductModel.fromJson(e))
+            .toList();
         allProducts = cachedProducts;
         filteredProducts = cachedProducts;
         currentProducts = cachedProducts;
@@ -49,8 +50,9 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
         filteredProducts = products;
         currentProducts = products;
         try {
-          final jsonString =
-              jsonEncode(products.map((e) => e.toJson()).toList());
+          final jsonString = jsonEncode(
+            products.map((e) => e.toJson()).toList(),
+          );
           AppStorage.cacheData('cache_admin_products', jsonString);
         } catch (_) {}
         if (!isClosed) emit(AdminProductsListLoaded(filteredProducts));
@@ -101,13 +103,84 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
   }
 
   Future<void> toggleProductStatus(int productId) async {
+    // 1. إيجاد المنتج المستهدف في القائمة المحلية
+    final index = currentProducts.indexWhere((p) => p.id == productId);
+    if (index == -1) return;
+
+    // 2. حفظ الكائن القديم بالكامل للرجوع إليه (Rollback) في حال فشل الـ API
+    final oldProduct = currentProducts[index];
+    final oldStatus = oldProduct.isActiveBool;
+
+    // 3. التحديث المتفائل (Optimistic Update) بدون copyWith:
+    // نقوم ببناء كائن جديد ممررين له نفس بيانات القديم مع تغيير قيمة isActive فقط
+    final updatedProduct = ProductModel(
+      id: oldProduct.id,
+      categoryId: oldProduct.categoryId,
+      categoryName: oldProduct.categoryName,
+      name: oldProduct.name,
+      image: oldProduct.image,
+      description: oldProduct.description,
+      price: oldProduct.price,
+      skuCode: oldProduct.skuCode,
+      isActive: !oldStatus, // 💡 الحالة الجديدة المعكوسة
+      category: oldProduct.category,
+      variants: oldProduct.variants,
+      ratings: oldProduct.ratings,
+      ratingsCount: oldProduct.ratingsCount,
+      isFavorite: oldProduct.isFavorite,
+      directLowestPrice: oldProduct.directLowestPrice,
+      directTotalStock: oldProduct.directTotalStock,
+    );
+
+    // تحديث العنصر في المصفوفة فوراً
+    currentProducts[index] = updatedProduct;
+
+    // إطلاق حالة التحديث الفورية لتغيير السلايدر في الواجهة بلمح البصر (0ms)
+    if (!isClosed) {
+      emit(AdminProductsListLoaded(List.from(currentProducts)));
+    }
+
+    // 4. إرسال الطلب للسيرفر في الخلفية باستخدام الـ UseCase المتاح لديك فعلياً
     final result = await _manageProductUseCase.toggleStatus(productId);
+
     result.fold(
-      (failure) => emit(AdminProductsListError(failure.errorMessage)),
+      (failure) {
+        // 5. في حال الفشل: تراجع فوري وإعادة المنتج لحالته السابقة لتنبيه المستخدم
+        currentProducts[index] = oldProduct;
+        if (!isClosed) {
+          emit(
+            AdminProductsListLoaded(List.from(currentProducts)),
+          ); // إعادة السلايدر لوضعه القديم
+          emit(
+            AdminProductsListError(failure.errorMessage),
+          ); // إظهار رسالة الخطأ
+        }
+      },
       (_) {
-        emit(const AdminProductsListActionSuccess("تم تغيير حالة المنتج بنجاح"));
-        getProducts();
+        if (!isClosed) {}
+        {
+          emit(
+            const AdminProductsListActionSuccess("تم تغيير حالة المنتج بنجاح"),
+          );
+        }
+        try {
+          final jsonString = jsonEncode(
+            allProducts.map((e) => e.toJson()).toList(),
+          );
+          AppStorage.cacheData('cache_admin_products', jsonString);
+        } catch (_) {}
       },
     );
   }
+
+  // Future<void> toggleProductStatus(int productId) async {
+  //   final result = await _manageProductUseCase.toggleStatus(productId);
+  //   result.fold(
+  //     (failure) => emit(AdminProductsListError(failure.errorMessage)),
+  //     (_) {
+  //       emit(const AdminProductsListActionSuccess("تم تغيير حالة المنتج بنجاح"));
+  //       getProducts();
+  //     },
+  //   );
+  // }
 }

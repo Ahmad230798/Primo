@@ -277,7 +277,8 @@ class AppRoutes {
         );
       case Routes.notificationsHistory:
         return CupertinoPageRoute(
-          builder: (_) => const NotificationsHistoryScreen(),
+          builder: (_) =>
+              const NotificationsHistoryScreen(isFromBottomNav: false),
         );
       case Routes.helpCenter:
         return CupertinoPageRoute(builder: (_) => const HelpCenterScreen());

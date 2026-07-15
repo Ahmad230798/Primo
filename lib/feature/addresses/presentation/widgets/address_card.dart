@@ -60,8 +60,7 @@ class AddressCard extends StatelessWidget {
                     child: Icon(icon, color: AppColors.greyDark, size: 22.sp),
                   ),
 
-                  const Spacer(),
-
+                  12.horizontalSpace,
                   // تفاصيل العنوان والنصوص (المنتصف)
                   Expanded(
                     flex: 9,
@@ -70,11 +69,15 @@ class AddressCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              title,
-                              style: AppTextStyle.font18.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textMain,
+                            Flexible(
+                              child: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyle.font18.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textMain,
+                                ),
                               ),
                             ),
                             8.horizontalSpace,

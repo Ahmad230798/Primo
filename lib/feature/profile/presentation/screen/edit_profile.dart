@@ -7,9 +7,14 @@ import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import '../widgets/edit_profile_form.dart';
 
-class EditProfile extends StatelessWidget {
+class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
 
+  @override
+  State<EditProfile> createState() => _EditProfileState();
+}
+
+class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
