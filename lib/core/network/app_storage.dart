@@ -65,9 +65,18 @@ class AppStorage {
   }
 
   static Future<void> clearAllData() async {
+    // 1. مسح التوكنز والبيانات الحساسة من التخزين المشفر
     await clearTokens();
     await _secureStorage.deleteAll();
-    await _prefs?.clear();
+
+    // 2. بدلاً من _prefs?.clear() التي تدمر كل شيء (بما فيها Onboarding)،
+    // نقوم بمسح بيانات الجلسة (Session) الخاصة بالمستخدم فقط:
+    await _prefs?.remove(_userNameKey);
+    await _prefs?.remove(_userPhoneKey);
+    await _prefs?.remove(_userAvatarKey);
+    await _prefs?.remove(_defaultAddressKey);
+
+    // (يمكنك إضافة remove لأي مفتاح كاش آخر تستخدمه مثل 'cache_admin_products')
   }
 
   // =====================================

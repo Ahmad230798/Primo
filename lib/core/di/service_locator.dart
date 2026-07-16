@@ -50,6 +50,8 @@ import 'package:primo/feature/addresses/domain/usecases/create_address_usecase.d
 import 'package:primo/feature/addresses/domain/usecases/update_address_usecase.dart';
 import 'package:primo/feature/addresses/domain/usecases/delete_address_usecase.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
+import 'package:primo/feature/notifications/domain/usecases/get_notifications_usecase.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:primo/feature/orders/data/repos/orders_repo_impl.dart';
 import 'package:primo/feature/orders/domain/repos/orders_repo.dart';
 import 'package:primo/feature/orders/domain/usecases/confirm_order_usecase.dart';
@@ -422,7 +424,9 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => GetAdminDashboardUseCase(getIt<AdminDashboardRepo>()),
   );
-  getIt.registerFactory(() => AdminDashboardCubit(getIt<GetAdminDashboardUseCase>()));
+  getIt.registerFactory(
+    () => AdminDashboardCubit(getIt<GetAdminDashboardUseCase>()),
+  );
 
   // --- Store Settings ---
   getIt.registerLazySingleton<StoreSettingsRepo>(
@@ -443,7 +447,9 @@ void setupServiceLocator() {
       getIt<UpdateDeliveryPriceUseCase>(),
     ),
   );
-  getIt.registerFactory(() => AddStoreAddressCubit(getIt<AddStoreAddressUseCase>()));
+  getIt.registerFactory(
+    () => AddStoreAddressCubit(getIt<AddStoreAddressUseCase>()),
+  );
 
   // --- Admin Orders ---
   getIt.registerLazySingleton<AdminOrdersRepo>(
@@ -481,5 +487,20 @@ void setupServiceLocator() {
       getIt<GetAdminSuggestionsUseCase>(),
       getIt<UpdateSuggestionStatusUseCase>(),
     ),
+  );
+  // ==========================================
+  // ميزة الإشعارات (Notifications Feature)
+  // ==========================================
+
+  // 1. تسجيل الـ Cubit (نستخدم Factory لكي يتم إنشاء نسخة جديدة كلما فتحنا الشاشة)
+  getIt.registerFactory(() => NotificationsCubit(getIt()));
+
+  // 2. تسجيل الـ UseCase (نستخدم LazySingleton لأنه لا يخزن حالة)
+  getIt.registerLazySingleton(() => GetNotificationsUseCase(getIt()));
+
+  // 3. تسجيل الـ Repository
+  getIt.registerLazySingleton<NotificationSettingsRepoImpl>(
+    () => NotificationSettingsRepoImpl(getIt()),
+    // 💡 ملاحظة: getIt() هنا سيقوم تلقائياً بجلب ApiConsumer الذي قمت بتسجيله مسبقاً في مشروعك
   );
 }

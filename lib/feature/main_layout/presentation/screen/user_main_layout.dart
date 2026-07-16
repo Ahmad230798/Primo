@@ -8,8 +8,8 @@ import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:primo/feature/favorites/presentation/screens/favorites_screen.dart';
 import 'package:primo/feature/main_layout/widgets/floating_circular_nav_bar.dart';
-import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
-import 'package:primo/feature/notifications/presentation/screen/notifications_history_screen.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
+import 'package:primo/feature/notifications/presentation/screen/notifications_screen.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
 
@@ -46,8 +46,8 @@ class UserMainLayout extends StatelessWidget {
     const AllCategoriesScreen(isFromBottomNav: true), // Index 3 (الأقسام)
     const Home(), // Index 4 (الرئيسية)
     BlocProvider(
-      create: (context) => getIt<NotificationSettingsCubit>(),
-      child: const NotificationsHistoryScreen(
+      create: (context) => getIt<NotificationsCubit>()..getNotifications(),
+      child: const NotificationsScreen(
         isFromBottomNav: true,
       ), // Index 5 (الإشعارات)
     ),

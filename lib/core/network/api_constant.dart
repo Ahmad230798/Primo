@@ -32,6 +32,7 @@ abstract class ApiConstant {
   static const String userCategories = "/user/categories";
   static const String userFavorites = "/user/favorites";
   static const String toggleFavorite = "/user/favorites/toggle";
+  static const String notifications = '/user/notifications/history';
 
   // --- Cart & Orders ---
   static const String userCart = "/user/cart";

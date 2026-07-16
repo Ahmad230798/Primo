@@ -27,8 +27,10 @@ import 'package:primo/feature/auth/presentation/screens/reset_password_screen.da
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/main_layout/presentation/cubit/main_layout_cubit.dart';
 import 'package:primo/feature/main_layout/presentation/screen/user_main_layout.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:primo/feature/notifications/presentation/screen/notification_settings_screen.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notification_settings_cubit.dart';
+import 'package:primo/feature/notifications/presentation/screen/notifications_screen.dart';
 import 'package:primo/feature/onboarding/onboardingscreen.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.dart';
@@ -276,9 +278,13 @@ class AppRoutes {
           ),
         );
       case Routes.notificationsHistory:
-        return CupertinoPageRoute(
-          builder: (_) =>
-              const NotificationsHistoryScreen(isFromBottomNav: false),
+        return MaterialPageRoute(
+          builder: (context) => BlocProvider(
+            // 💡 نستخدم (..) لاستدعاء دالة الجلب فور إنشاء الكيوبت
+            create: (context) =>
+                getIt<NotificationsCubit>()..getNotifications(),
+            child: const NotificationsScreen(isFromBottomNav: false),
+          ),
         );
       case Routes.helpCenter:
         return CupertinoPageRoute(builder: (_) => const HelpCenterScreen());

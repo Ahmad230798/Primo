@@ -1,142 +1,125 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import '../../data/models/notification_model.dart';
 
 class NotificationCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String time;
-  final IconData icon;
-  final bool isUnread;
+  final NotificationModel notification;
 
-  const NotificationCard({
-    super.key,
-    required this.title,
-    required this.description,
-    required this.time,
-    required this.icon,
-    this.isUnread = false, // افتراضياً مقروء
-  });
+  const NotificationCard({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {
-    // الألوان الديناميكية بناءً على حالة القراءة
-    final bgColor = isUnread
-        ? const Color(0xFFFEF2F2)
-        : AppColors.white; // أحمر فاتح جداً أو أبيض
-    final borderColor = isUnread
-        ? AppColors.primary.withOpacity(0.1)
-        : AppColors.formBorder;
-    final iconBgColor = isUnread ? AppColors.white : AppColors.greyBackground;
-    final iconColor = isUnread ? AppColors.primary : AppColors.textMain;
-
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: AppColors.formBorder),
         boxShadow: [
-          if (!isUnread) // الظل يظهر فقط للبطاقات البيضاء كما في التصميم
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // النقطة الحمراء للإشعار غير المقروء (متموضعة في أقصى اليمين)
-          if (isUnread)
-            Positioned(
-              right: -4.w,
-              top: 16.h, // لضبط النقطة في المنتصف عمودياً بجانب الأيقونة
-              child: Container(
-                width: 8.w,
-                height: 8.w,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
+          Container(
+            width: 48.w,
+            height: 48.w,
+            decoration: const BoxDecoration(
+              color: AppColors.background,
+              shape: BoxShape.circle,
             ),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // الأيقونة الدائرية (يمين)
-              Container(
-                width: 48.w,
-                height: 48.w,
-                margin: EdgeInsets.only(
-                  right: isUnread ? 12.w : 0,
-                ), // مساحة إضافية للنقطة الحمراء إن وجدت
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    if (isUnread) // توهج أحمر حول الأيقونة إذا كان غير مقروء
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                  ],
-                ),
-                child: Icon(icon, color: iconColor, size: 24.sp),
-              ),
-              16.horizontalSpace,
-
-              // المحتوى النصي (يسار)
-              Expanded(
-                child: Column(
+            child: Icon(
+              notification.orderId != null
+                  ? Icons.local_shipping_rounded
+                  : Icons.notifications_active_rounded,
+              color: AppColors.primary,
+              size: 24.sp,
+            ),
+          ),
+          16.horizontalSpace,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // العنوان والوقت
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: AppTextStyle.font14.copyWith(
-                              color: AppColors.textMain,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                    Expanded(
+                      child: Text(
+                        notification.title,
+                        style: AppTextStyle.font16.copyWith(
+                          color: AppColors.textMain,
+                          fontWeight: FontWeight.bold,
                         ),
-                        8.horizontalSpace,
-                        Text(
-                          time,
-                          style: AppTextStyle.font12.copyWith(
-                            color: AppColors.greyMedium3,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    4.verticalSpace,
-                    // الوصف
+                    8.horizontalSpace,
                     Text(
-                      description,
-                      style: AppTextStyle.font14.copyWith(
-                        color: AppColors.greyDark,
-                        height: 1.4, // تباعد الأسطر المريح للقراءة
+                      _formatDate(notification.createdAt),
+                      style: AppTextStyle.font12.copyWith(
+                        color: AppColors.greyMedium3,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                6.verticalSpace,
+                Text(
+                  notification.body,
+                  style: AppTextStyle.font14.copyWith(
+                    color: AppColors.greyDark,
+                    height: 1.4,
+                  ),
+                ),
+                if (notification.orderId != null) ...[
+                  8.verticalSpace,
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Text(
+                      "طلب رقم #${notification.orderId}",
+                      style: AppTextStyle.font12.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateString) {
+    if (dateString.isEmpty) return "";
+    try {
+      final date = DateTime.parse(dateString).toLocal();
+      final year = date.year;
+      final month = date.month.toString().padLeft(2, '0');
+      final day = date.day.toString().padLeft(2, '0');
+      final hour = date.hour.toString().padLeft(2, '0');
+      final minute = date.minute.toString().padLeft(2, '0');
+      return "$year/$month/$day - $hour:$minute";
+    } catch (e) {
+      return "";
+    }
   }
 }
