@@ -9,4 +9,6 @@ abstract class AddressesRepo {
   Future<Either<Failure, AddressSingleResponse>> createAddress(AddressRequestBody body);
   Future<Either<Failure, AddressSingleResponse>> updateAddress(int id, AddressRequestBody body);
   Future<Either<Failure, AddressSingleResponse>> deleteAddress(int id);
+  Future<void> saveDefaultAddressId(int id);
+  Future<int?> getDefaultAddressId();
 }

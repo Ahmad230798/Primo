@@ -37,7 +37,6 @@ import 'package:primo/feature/suggestions/presentation/cubit/suggestions_cubit.d
 import 'package:primo/feature/profile/presentation/screen/change_password_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/settings_screen.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
-import 'package:primo/feature/notifications/presentation/screen/notifications_history_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/help_center_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/privacy_policy_screen.dart';
 import 'package:primo/feature/profile/presentation/screen/terms_of_use_screen.dart';

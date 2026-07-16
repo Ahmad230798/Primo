@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:primo/core/services/firebase_messaging_service.dart';
+import 'package:primo/feature/addresses/domain/usecases/get_default_address_usecase.dart';
+import 'package:primo/feature/addresses/domain/usecases/save_default_address_usecase.dart';
 import 'package:primo/feature/admin_orders/data/repos/admin_orders_repo_impl.dart';
 import 'package:primo/feature/admin_orders/domain/repo/admin_orders_repo.dart';
 import 'package:primo/feature/admin_orders/domain/usecases/get_admin_order_details_usecase.dart';
@@ -278,7 +280,9 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton(
     () => DeleteAddressUseCase(getIt<AddressesRepo>()),
-  );
+  ); // قسم العناوين
+  getIt.registerLazySingleton(() => GetDefaultAddressUseCase(getIt()));
+  getIt.registerLazySingleton(() => SaveDefaultAddressUseCase(getIt()));
   getIt.registerFactory(
     () => AddressesCubit(
       getIt<GetAddressesUseCase>(),
@@ -379,6 +383,8 @@ void setupServiceLocator() {
     () => CheckoutCubit(
       getIt<GetOrderPriceUseCase>(),
       getIt<ConfirmOrderUseCase>(),
+      getIt<GetDefaultAddressUseCase>(),
+      getIt<SaveDefaultAddressUseCase>(),
     ),
   );
 

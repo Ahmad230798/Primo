@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/network/app_storage.dart'; // 💡 استيراد ملف التخزين
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -87,8 +88,25 @@ class AddressSelectionSheet extends StatelessWidget {
                         final idStr = address.id.toString();
 
                         return InkWell(
+                          // 💡 التعديل هنا: إضافة حفظ العنوان
                           onTap: () {
-                            context.read<CheckoutCubit>().changeAddress(idStr);
+                            final address = addresses[index];
+                            final idStr = address.id.toString();
+
+                            if (address.id != null) {
+                              int? addressId = address.id is int
+                                  ? address.id
+                                  : int.tryParse(idStr) ?? 0;
+
+                              // 💡 سطر واحد نظيف يكلم الكيوبت فقط
+                              context
+                                  .read<CheckoutCubit>()
+                                  .changeAddressAndSaveDefault(
+                                    idStr,
+                                    addressId!,
+                                  );
+                            }
+
                             Navigator.pop(context);
                           },
                           child: Row(
@@ -131,12 +149,27 @@ class AddressSelectionSheet extends StatelessWidget {
                                 value: idStr,
                                 groupValue: selectedId,
                                 activeColor: AppColors.primary,
-                                onChanged: (value) {
+                                // 💡 التعديل هنا أيضاً
+                                onChanged: (value) async {
                                   if (value != null) {
                                     context.read<CheckoutCubit>().changeAddress(
                                       value,
                                     );
-                                    Navigator.pop(context);
+
+                                    // حفظ الـ id كعنوان افتراضي
+                                    if (address.id != null) {
+                                      int? addressId = address.id is int
+                                          ? address.id
+                                          : int.tryParse(
+                                                  address.id.toString(),
+                                                ) ??
+                                                0;
+                                      await AppStorage.saveDefaultAddressId(
+                                        addressId!,
+                                      );
+                                    }
+
+                                    if (context.mounted) Navigator.pop(context);
                                   }
                                 },
                               ),

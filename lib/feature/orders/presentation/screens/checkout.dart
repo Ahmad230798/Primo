@@ -18,8 +18,33 @@ import 'package:primo/feature/orders/presentation/widgets/adress_selection_sheet
 import 'package:primo/feature/orders/presentation/widgets/delivery_method_card.dart';
 import 'package:primo/feature/orders/presentation/widgets/summary_row.dart';
 
-class CheckoutScreen extends StatelessWidget {
+// 💡 1. تحويل الشاشة إلى StatefulWidget لاستخدام initState بأمان
+class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
+
+  @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 💡 2. التحقق من العناوين فور فتح الشاشة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final addressesCubit = context.read<AddressesCubit>();
+
+      if (addressesCubit.addresses.isNotEmpty) {
+        // إذا كانت العناوين محملة مسبقاً، اختر العنوان الافتراضي فوراً
+        context.read<CheckoutCubit>().loadDefaultAddress(
+          addressesCubit.addresses,
+        );
+      } else {
+        // إذا لم تكن محملة، اطلب جلبها من السيرفر
+        addressesCubit.getAddresses();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,17 +53,15 @@ class CheckoutScreen extends StatelessWidget {
       body: SafeArea(
         child: BlocConsumer<AddressesCubit, AddressesState>(
           listenWhen: (previous, current) {
-            if (previous is AddressesLoaded && current is AddressesLoaded) {
-              return previous.defaultAddressId != current.defaultAddressId;
-            }
+            // الاستماع لحالة النجاح أو تغير العنوان الافتراضي من شاشة أخرى
+            if (current is AddressesLoaded) return true;
             return false;
           },
           listener: (context, addrState) {
-            if (addrState is AddressesLoaded &&
-                addrState.defaultAddressId != null) {
-              // 💡 3. بمجرد تغير الافتراضي، نغيره فوراً في كيوبت الدفع
-              context.read<CheckoutCubit>().changeAddress(
-                addrState.defaultAddressId.toString(),
+            if (addrState is AddressesLoaded) {
+              // 💡 3. بمجرد وصول العناوين من السيرفر بنجاح، قم بتحديد العنوان الافتراضي
+              context.read<CheckoutCubit>().loadDefaultAddress(
+                addrState.addresses,
               );
             }
           },
@@ -119,7 +142,6 @@ class CheckoutScreen extends StatelessWidget {
                                           .read<AddressesCubit>();
                                       showModalBottomSheet(
                                         context: context,
-
                                         isScrollControlled: true,
                                         backgroundColor: Colors.transparent,
                                         builder: (_) => MultiBlocProvider(
@@ -178,19 +200,22 @@ class CheckoutScreen extends StatelessWidget {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                selectedAddr?.name ??
-                                                    "لم يتم تحديد عنوان",
-                                                style: AppTextStyle.font16
-                                                    .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: AppColors.textMain,
-                                                    ),
+                                                addresses.isEmpty
+                                                    ? "لم تقم بإضافة عنوان بعد" // يظهر للمستخدم الجديد
+                                                    : (selectedAddr?.name ??
+                                                          "الرجاء النقر على (تغيير) لاختيار عنوان"),
+                                                style: AppTextStyle.font16.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: addresses.isEmpty
+                                                      ? AppColors.primary
+                                                      : AppColors
+                                                            .textMain, // تلوين بالأحمر لجذب الانتباه إذا لم يكن هناك عنوان
+                                                ),
                                               ),
                                               8.verticalSpace,
                                               Text(
                                                 selectedAddr?.description ??
-                                                    "الرجاء النقر على (تغيير) لاختيار عنوان توصيل",
+                                                    "الرجاء الانتظار أو النقر على (تغيير)",
                                                 style: AppTextStyle.font14
                                                     .copyWith(
                                                       color:
@@ -334,7 +359,6 @@ class CheckoutScreen extends StatelessWidget {
                               );
                               return;
                             }
-                            // تم إزالة فحص الـ lat و lng ليتوافق مع الـ AddressModel الخاص بك
                           }
 
                           cubit.submitOrder();

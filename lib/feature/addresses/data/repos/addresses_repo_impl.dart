@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_error_handler.dart';
 import 'package:primo/core/network/api_constant.dart';
+import 'package:primo/core/network/app_storage.dart';
 import '../../domain/repo/addresses_repo.dart';
 import '../models/address_request_body.dart';
 import '../models/address_response.dart';
@@ -78,5 +79,14 @@ class AddressesRepoImpl implements AddressesRepo {
     } catch (error) {
       return Left(ServerFailure("حدث خطأ غير متوقع: $error"));
     }
+  }
+  @override
+  Future<void> saveDefaultAddressId(int id) async {
+    await AppStorage.saveDefaultAddressId(id);
+  }
+
+  @override
+  Future<int?> getDefaultAddressId() async {
+    return await AppStorage.getDefaultAddressId();
   }
 }
