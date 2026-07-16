@@ -7,4 +7,7 @@ abstract class NotificationSettingsRepo {
   Future<Either<Failure, NotificationSettingsModel>> getNotificationSettings();
   Future<Either<Failure, NotificationSettingsModel>> updateNotificationSettings(NotificationSettingsModel settings);
   Future<Either<Failure, List<NotificationModel>>> getNotifications();
+  // 💡 إضافة دالتي التتبع المحلي
+  Future<void> saveLastSeenNotificationId(int id);
+  Future<int> getLastSeenNotificationId();
 }

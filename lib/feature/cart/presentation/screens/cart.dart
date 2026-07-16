@@ -13,6 +13,8 @@ import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 import 'package:primo/feature/cart/presentation/widgets/cart_item_list.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notificatins_state.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 
 class Cart extends StatelessWidget {
   final bool isFromBottomNav;
@@ -39,12 +41,34 @@ class Cart extends StatelessWidget {
                   child: CustomAppBar(
                     title: "Primo",
                     suffixsIcon: isFromBottomNav ? const SizedBox() : null,
-                    icon: Icon(
-                      Icons.notifications_none,
-                      color: AppColors.greyMedium1,
-                    ),
-                    onRightIconTap: () =>
-                        context.pushNamed(Routes.notificationsHistory),
+                    icon: BlocBuilder<NotificationsCubit, NotificationsState>(
+                        builder: (context, state) {
+                          // قراءة المتغير من النسخة الموحدة في الـ context
+                          final hasUnread = context
+                              .read<NotificationsCubit>()
+                              .hasUnreadNotifications;
+
+                          return Badge(
+                            isLabelVisible: hasUnread,
+                            backgroundColor: Colors.redAccent,
+                            smallSize: 12,
+                            alignment: Alignment.topRight,
+                            child: const Icon(
+                              Icons.notifications_none_rounded,
+                              color: AppColors.primary,
+                              size: 28,
+                            ),
+                          );
+                        },
+                      ),
+                      onRightIconTap: () {
+                        // تحديث الإشعارات محلياً والانتقال للشاشة
+                        context.read<NotificationsCubit>().markAllAsRead();
+                        context.pushNamed(
+                          
+                          Routes.notificationsHistory,
+                        );
+                      },
                   ),
                 ),
                 20.verticalSpace,

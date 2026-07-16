@@ -3,10 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/di/service_locator.dart';
+import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notificatins_state.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 
@@ -82,13 +86,32 @@ class SettingsScreen extends StatelessWidget {
                   child: CustomAppBar(
                     title: "Primo",
                     // أيقونة الإشعارات (يسار)
-                    icon: Icon(
-                      Icons.notifications_none_rounded,
-                      color: AppColors.primary,
-                      size: 26.sp,
+                    icon: BlocBuilder<NotificationsCubit, NotificationsState>(
+                      bloc: getIt<NotificationsCubit>(),
+                      builder: (context, state) {
+                        // قراءة المتغير من النسخة الموحدة في الـ context
+                        final hasUnread = context
+                            .read<NotificationsCubit>()
+                            .hasUnreadNotifications;
+
+                        return Badge(
+                          isLabelVisible: hasUnread,
+                          backgroundColor: Colors.redAccent,
+                          smallSize: 12,
+                          alignment: Alignment.topRight,
+                          child: const Icon(
+                            Icons.notifications_none_rounded,
+                            color: AppColors.primary,
+                            size: 28,
+                          ),
+                        );
+                      },
                     ),
-                    onRightIconTap: () =>
-                        Navigator.pushNamed(context, Routes.notifications),
+                    onRightIconTap: () {
+                      // تحديث الإشعارات محلياً والانتقال للشاشة
+                      context.read<NotificationsCubit>().markAllAsRead();
+                      context.pushNamed(Routes.notificationsHistory);
+                    },
                     // أيقونة الموقع (يمين)
                     suffixsIcon: isFromBottomNav
                         ? const SizedBox()
@@ -136,10 +159,8 @@ class SettingsScreen extends StatelessWidget {
                   SettingsLinkItem(
                     title: "تخصيص إشعارات العروض والطلبات",
                     icon: Icons.notifications_active_outlined,
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      Routes.notifications,
-                    ),
+                    onTap: () =>
+                        Navigator.pushNamed(context, Routes.notifications),
                   ),
                 ]),
                 32.verticalSpace,
@@ -175,28 +196,22 @@ class SettingsScreen extends StatelessWidget {
                   SettingsLinkItem(
                     title: "مركز المساعدة والدعم",
                     icon: Icons.help_outline_rounded,
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      Routes.helpCenter,
-                    ),
+                    onTap: () =>
+                        Navigator.pushNamed(context, Routes.helpCenter),
                   ),
                   _buildDivider(),
                   SettingsLinkItem(
                     title: "سياسة الخصوصية",
                     icon: Icons.privacy_tip_outlined,
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      Routes.privacyPolicy,
-                    ),
+                    onTap: () =>
+                        Navigator.pushNamed(context, Routes.privacyPolicy),
                   ),
                   _buildDivider(),
                   SettingsLinkItem(
                     title: "شروط الاستخدام",
                     icon: Icons.gavel_rounded,
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      Routes.termsOfUse,
-                    ),
+                    onTap: () =>
+                        Navigator.pushNamed(context, Routes.termsOfUse),
                   ),
                 ]),
               ],

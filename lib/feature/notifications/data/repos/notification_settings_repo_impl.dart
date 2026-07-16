@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:primo/core/network/api_consumer.dart';
 import 'package:primo/core/network/api_constant.dart';
 import 'package:primo/core/network/api_error_handler.dart';
+import 'package:primo/core/network/app_storage.dart';
 import 'package:primo/feature/notifications/data/models/notification_model.dart';
 import 'package:primo/feature/notifications/data/models/notification_settings_model.dart';
 import 'package:primo/feature/notifications/domain/repos/notification_settings_repo.dart';
@@ -80,5 +80,14 @@ class NotificationSettingsRepoImpl implements NotificationSettingsRepo {
     } catch (e) {
       return Left(ServerFailure("حدث خطأ في جلب الإشعارات: $e"));
     }
+  }
+  @override
+  Future<void> saveLastSeenNotificationId(int id) async {
+    await AppStorage.saveLastSeenNotificationId(id);
+  }
+
+  @override
+  Future<int> getLastSeenNotificationId() async {
+    return await AppStorage.getLastSeenNotificationId();
   }
 }

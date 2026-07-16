@@ -173,6 +173,9 @@ class AppRoutes {
             providers: [
               BlocProvider(create: (_) => getIt<HomeCubit>()..fetchHomeData()),
               BlocProvider.value(value: getIt<FavoritesCubit>()),
+              BlocProvider.value(value: getIt<FavoritesCubit>()),
+              // 💡 إضافة كيوبت الإشعارات ليكون متاحاً في الشاشة الرئيسية
+              BlocProvider.value(value: getIt<NotificationsCubit>()),
             ],
             child: const Home(),
           ),
@@ -312,8 +315,11 @@ class AppRoutes {
           builder: (_) {
             final cubit =
                 settings.arguments as ProfileCubit? ?? getIt<ProfileCubit>();
-            return BlocProvider.value(
-              value: cubit,
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: cubit),
+                BlocProvider.value(value: getIt<NotificationsCubit>()),
+              ],
               child: const SettingsScreen(isFromBottomNav: false),
             );
           },
@@ -365,8 +371,13 @@ class AppRoutes {
         );
       case Routes.orderHistory:
         return CupertinoPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) => getIt<OrdersCubit>()..getOrders(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => getIt<OrdersCubit>()..getOrders(),
+              ),
+            BlocProvider.value(value: getIt<NotificationsCubit>()),
+            ],
             child: const OrderHistoryScreen(isFromBottomNav: false),
           ),
         );

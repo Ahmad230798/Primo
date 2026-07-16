@@ -23,6 +23,18 @@ class AppStorage {
   static const String _roleKey = 'user_role';
   static const String _isFirstTimeKey = 'is_first_time';
   static const String _lastOtpTimeKey = 'last_otp_time';
+  static const String _lastSeenNotificationIdKey = 'last_seen_notification_id';
+
+  static Future<void> saveLastSeenNotificationId(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_lastSeenNotificationIdKey, id);
+  }
+
+  static Future<int> getLastSeenNotificationId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_lastSeenNotificationIdKey) ??
+        0; // نرجع 0 إذا لم يكن هناك إشعارات سابقة
+  }
 
   // حفظ وقت آخر محاولة إرسال
   static Future<void> saveLastOtpTime() async {

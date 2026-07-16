@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
 import 'package:primo/core/widgets/app_error_widget.dart';
@@ -28,11 +29,37 @@ class NotificationsScreen extends StatelessWidget {
               child: CustomAppBar(
                 title: "الإشعارات",
                 suffixsIcon: isFromBottomNav ? SizedBox() : null,
-                showRightIcon: false,
+                showRightIcon: true,
+                icon: BlocBuilder<NotificationsCubit, NotificationsState>(
+                  bloc: getIt<NotificationsCubit>()
+                    ..getNotifications(), // مهم لربطه بالكيوبت المعزول
+                  builder: (context, state) {
+                    // قراءة المتغير الذكي من الكيوبت
+                    final hasUnread =
+                        getIt<NotificationsCubit>().hasUnreadNotifications;
+
+                    return Badge(
+                      isLabelVisible:
+                          hasUnread, // تختفي النقطة إذا كانت القيمة false
+                      backgroundColor: Colors.redAccent,
+                      smallSize: 12,
+                      alignment: Alignment.topRight,
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: AppColors.primary,
+                        size: 28,
+                      ),
+                    );
+                  },
+                ),
+                onRightIconTap: () {
+                  // 💡 السحر هنا: بمجرد النقر، نخفي النقطة ونحفظ الـ ID محلياً
+                  getIt<NotificationsCubit>().markAllAsRead();
+                },
                 onBackTap: () => Navigator.pop(context),
               ),
             ),
-        
+
             // 2. قائمة الإشعارات الديناميكية المربوطة بالكيوبت
             Expanded(
               child: LayoutBuilder(
@@ -44,75 +71,71 @@ class NotificationsScreen extends StatelessWidget {
                           .read<NotificationsCubit>()
                           .getNotifications();
                     },
-                    child:
-                        BlocBuilder<NotificationsCubit, NotificationsState>(
-                          builder: (context, state) {
-                            // --- حالة التحميل ---
-                            if (state is NotificationsLoading) {
-                              return ListView.separated(
-                                physics:
-                                    const AlwaysScrollableScrollPhysics(),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 24.w,
-                                  vertical: 24.h,
+                    child: BlocBuilder<NotificationsCubit, NotificationsState>(
+                      builder: (context, state) {
+                        // --- حالة التحميل ---
+                        if (state is NotificationsLoading) {
+                          return ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24.w,
+                              vertical: 24.h,
+                            ),
+                            itemCount: 6,
+                            separatorBuilder: (context, index) =>
+                                16.verticalSpace,
+                            itemBuilder: (context, index) =>
+                                const ListTileShimmer(),
+                          );
+                        }
+                        // --- حالة الخطأ ---
+                        // --- حالة الخطأ ---
+                        else if (state is NotificationsError) {
+                          return CustomScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            slivers: [
+                              SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: AppErrorWidget(
+                                  message: state.message,
+                                  onRetry: () => context
+                                      .read<NotificationsCubit>()
+                                      .getNotifications(),
                                 ),
-                                itemCount: 6,
-                                separatorBuilder: (context, index) =>
-                                    16.verticalSpace,
-                                itemBuilder: (context, index) =>
-                                    const ListTileShimmer(),
+                              ),
+                            ],
+                          );
+                        }
+                        // --- حالة النجاح ---
+                        else if (state is NotificationsLoaded) {
+                          final notifications = state.notifications;
+
+                          if (notifications.isEmpty) {
+                            return const AppEmptyState(
+                              icon: Icons.notifications_none_rounded,
+                              message: "لا توجد إشعارات حالياً",
+                            );
+                          }
+
+                          return ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24.w,
+                              vertical: 24.h,
+                            ),
+                            itemCount: notifications.length,
+                            separatorBuilder: (context, index) =>
+                                16.verticalSpace,
+                            itemBuilder: (context, index) {
+                              return NotificationCard(
+                                notification: notifications[index],
                               );
-                            }
-                            // --- حالة الخطأ ---
-                            // --- حالة الخطأ ---
-                            else if (state is NotificationsError) {
-                              return CustomScrollView(
-                                physics:
-                                    const AlwaysScrollableScrollPhysics(),
-                                slivers: [
-                                  SliverFillRemaining(
-                                    hasScrollBody: false,
-                                    child: AppErrorWidget(
-                                      message: state.message,
-                                      onRetry: () => context
-                                          .read<NotificationsCubit>()
-                                          .getNotifications(),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }
-                            // --- حالة النجاح ---
-                            else if (state is NotificationsLoaded) {
-                              final notifications = state.notifications;
-        
-                              if (notifications.isEmpty) {
-                                return const AppEmptyState(
-                                  icon: Icons.notifications_none_rounded,
-                                  message: "لا توجد إشعارات حالياً",
-                                );
-                              }
-        
-                              return ListView.separated(
-                                physics:
-                                    const AlwaysScrollableScrollPhysics(),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 24.w,
-                                  vertical: 24.h,
-                                ),
-                                itemCount: notifications.length,
-                                separatorBuilder: (context, index) =>
-                                    16.verticalSpace,
-                                itemBuilder: (context, index) {
-                                  return NotificationCard(
-                                    notification: notifications[index],
-                                  );
-                                },
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
+                            },
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   );
                 },
               ),

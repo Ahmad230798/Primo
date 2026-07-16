@@ -16,6 +16,8 @@ import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
 import 'package:primo/feature/home/presentation/widgets/activities_list.dart';
 import 'package:primo/feature/home/presentation/widgets/catigory_section.dart';
 import 'package:primo/feature/home/presentation/widgets/latest_product.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notificatins_state.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -35,90 +37,117 @@ class Home extends StatelessWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: EdgeInsets.only(bottom: 120.h),
               child: BlocListener<CartCubit, CartState>(
-              bloc: getIt<CartCubit>(),
-              listener: (context, cartState) {
-                if (cartState is CartLoaded &&
-                    cartState.actionMessage != null) {
-                  context.showSuccess(cartState.actionMessage!);
-                } else if (cartState is CartError) {
-                  context.showError(cartState.errorMessage);
-                }
-              },
-              child: Column(
-                children: [
-                  CustomAppBar(
-                    title: "Primo",
-                    showRightIcon: true,
-                    icon: Icon(
-                      Icons.notifications_none_rounded,
-                      color: AppColors.primary,
-                      size: 28,
+                bloc: getIt<CartCubit>(),
+                listener: (context, cartState) {
+                  if (cartState is CartLoaded &&
+                      cartState.actionMessage != null) {
+                    context.showSuccess(cartState.actionMessage!);
+                  } else if (cartState is CartError) {
+                    context.showError(cartState.errorMessage);
+                  }
+                },
+                child: Column(
+                  children: [
+                    CustomAppBar(
+                      title: "Primo",
+                      showRightIcon: true,
+                      // داخل شاشة الـ Home في الـ CustomAppBar
+                      icon: BlocBuilder<NotificationsCubit, NotificationsState>(
+                        bloc: getIt<NotificationsCubit>(),
+                        builder: (context, state) {
+                          // قراءة المتغير من النسخة الموحدة في الـ context
+                          final hasUnread = context
+                              .read<NotificationsCubit>()
+                              .hasUnreadNotifications;
+
+                          return Badge(
+                            isLabelVisible: hasUnread,
+                            backgroundColor: Colors.redAccent,
+                            smallSize: 12,
+                            alignment: Alignment.topRight,
+                            child: const Icon(
+                              Icons.notifications_none_rounded,
+                              color: AppColors.primary,
+                              size: 28,
+                            ),
+                          );
+                        },
+                      ),
+                      onRightIconTap: () async {
+                        // تحديث الإشعارات محلياً والانتقال للشاشة
+                        await context
+                            .read<NotificationsCubit>()
+                            .markAllAsRead();
+                        if (context.mounted) {
+                          Navigator.pushNamed(
+                            context,
+                            Routes.notificationsHistory,
+                          );
+                        }
+                      },
+                      suffixsIcon: Icon(
+                        Icons.person,
+                        color: AppColors.primary,
+                        size: 28,
+                      ),
+                      onTap: () {
+                        context.pushNamed(Routes.profile);
+                      },
                     ),
-                    onRightIconTap: () =>
-                        Navigator.pushNamed(context, Routes.notificationsHistory),
-                    suffixsIcon: Icon(
-                      Icons.person,
-                      color: AppColors.primary,
-                      size: 28,
-                    ),
-                    onTap: () {
-                      context.pushNamed(Routes.profile);
-                    },
-                  ),
-                  8.verticalSpace,
-                  // في ملف home.dart ، استبدل AppTextFormField بهذا الكود:
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, Routes.searchResults);
-                    },
-                    // وضعنا AbsorbPointer لمنع الكيبورد من الظهور في الشاشة الرئيسية، ليتم النقر فقط ونقله لشاشة البحث
-                    child: AbsorbPointer(
-                      child: AppTextFormField(
-                        prefixIcone: const Icon(
-                          Icons.search,
-                          size: 25,
-                          color: AppColors.primary,
+                    8.verticalSpace,
+                    // في ملف home.dart ، استبدل AppTextFormField بهذا الكود:
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, Routes.searchResults);
+                      },
+                      // وضعنا AbsorbPointer لمنع الكيبورد من الظهور في الشاشة الرئيسية، ليتم النقر فقط ونقله لشاشة البحث
+                      child: AbsorbPointer(
+                        child: AppTextFormField(
+                          prefixIcone: const Icon(
+                            Icons.search,
+                            size: 25,
+                            color: AppColors.primary,
+                          ),
+                          hinttText: "ابحث في Primo...",
+                          borderWidth: 0,
+                          fillColor: AppColors.formBorder,
+                          isFilled: true,
                         ),
-                        hinttText: "ابحث في Primo...",
-                        borderWidth: 0,
-                        fillColor: AppColors.formBorder,
-                        isFilled: true,
                       ),
                     ),
-                  ),
-                  33.verticalSpace,
-                  const ActivitiesList(),
-                  41.verticalSpace,
-                  const CatigorySection(),
-                  32.verticalSpace,
-                  Row(
-                    children: [
-                      Container(
-                        width: 6.w,
-                        height: 24.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999),
-                          color: AppColors.primary,
+                    33.verticalSpace,
+                    const ActivitiesList(),
+                    41.verticalSpace,
+                    const CatigorySection(),
+                    32.verticalSpace,
+                    Row(
+                      children: [
+                        Container(
+                          width: 6.w,
+                          height: 24.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            color: AppColors.primary,
+                          ),
                         ),
-                      ),
-                      8.horizontalSpace,
-                      Text(
-                        "أضيف مؤخرا",
-                        style: AppTextStyle.font20.copyWith(
-                          color: AppColors.textMain,
+                        8.horizontalSpace,
+                        Text(
+                          "أضيف مؤخرا",
+                          style: AppTextStyle.font20.copyWith(
+                            color: AppColors.textMain,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  16.verticalSpace,
-                  const LatestProduct(),
-                ],
+                      ],
+                    ),
+                    16.verticalSpace,
+                    const LatestProduct(),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

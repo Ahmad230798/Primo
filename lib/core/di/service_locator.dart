@@ -52,7 +52,9 @@ import 'package:primo/feature/addresses/domain/usecases/create_address_usecase.d
 import 'package:primo/feature/addresses/domain/usecases/update_address_usecase.dart';
 import 'package:primo/feature/addresses/domain/usecases/delete_address_usecase.dart';
 import 'package:primo/feature/addresses/presentation/bloc/adresses_cubit.dart';
+import 'package:primo/feature/notifications/domain/usecases/get_last_seen_notification_usecase.dart';
 import 'package:primo/feature/notifications/domain/usecases/get_notifications_usecase.dart';
+import 'package:primo/feature/notifications/domain/usecases/save_last_seen_notification_usecase.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:primo/feature/orders/data/repos/orders_repo_impl.dart';
 import 'package:primo/feature/orders/domain/repos/orders_repo.dart';
@@ -497,9 +499,12 @@ void setupServiceLocator() {
   // ==========================================
   // ميزة الإشعارات (Notifications Feature)
   // ==========================================
-
+  getIt.registerLazySingleton(() => GetLastSeenNotificationUseCase(getIt()));
+  getIt.registerLazySingleton(() => SaveLastSeenNotificationUseCase(getIt()));
   // 1. تسجيل الـ Cubit (نستخدم Factory لكي يتم إنشاء نسخة جديدة كلما فتحنا الشاشة)
-  getIt.registerFactory(() => NotificationsCubit(getIt()));
+  getIt.registerLazySingleton(
+    () => NotificationsCubit(getIt(), getIt(), getIt()),
+  );
 
   // 2. تسجيل الـ UseCase (نستخدم LazySingleton لأنه لا يخزن حالة)
   getIt.registerLazySingleton(() => GetNotificationsUseCase(getIt()));

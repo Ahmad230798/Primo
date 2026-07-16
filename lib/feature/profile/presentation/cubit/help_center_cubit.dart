@@ -26,13 +26,15 @@ class HelpCenterCubit extends Cubit<HelpCenterState> {
         )));
       }
     } catch (e) {
-      emit(const HelpCenterLoaded(HelpCenterModel(
+     if (!isClosed) {
+       
+     } {emit(const HelpCenterLoaded(HelpCenterModel(
         supportPhone: '',
         managerPhone: '',
         facebookAccount: '',
         workingHours: '',
         address: '',
-      )));
+      )));}
     }
   }
 }

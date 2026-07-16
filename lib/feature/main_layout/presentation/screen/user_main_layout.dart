@@ -45,12 +45,7 @@ class UserMainLayout extends StatelessWidget {
     ), // Index 2 (السلة)
     const AllCategoriesScreen(isFromBottomNav: true), // Index 3 (الأقسام)
     const Home(), // Index 4 (الرئيسية)
-    BlocProvider(
-      create: (context) => getIt<NotificationsCubit>()..getNotifications(),
-      child: const NotificationsScreen(
-        isFromBottomNav: true,
-      ), // Index 5 (الإشعارات)
-    ),
+    const NotificationsScreen(isFromBottomNav: true), // Index 5 (الإشعارات)
     BlocProvider(
       create: (context) => getIt<ProfileCubit>(),
       child: const SettingsScreen(isFromBottomNav: true),
@@ -62,7 +57,7 @@ class UserMainLayout extends StatelessWidget {
     BlocProvider(
       create: (context) => getIt<SuggestionsCubit>(),
       child: const SuggestProductPage(isFromBottomNav: true),
-    ), // Index 7 (المفضلة)
+    ), // Index 7 (الاقتراحات)
   ];
 
   @override
@@ -73,35 +68,53 @@ class UserMainLayout extends StatelessWidget {
         if (didPop) return;
         SystemNavigator.pop();
       },
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: AppColors.background,
-          extendBody: true,
-          body: Stack(
-            children: [
-              // 1. محتوى الشاشات
-              BlocBuilder<MainLayoutCubit, MainLayoutState>(
-                buildWhen: (previous, current) =>
-                    previous.currentIndex != current.currentIndex,
-                builder: (context, state) {
-                  return Padding(
-                    padding: EdgeInsets.only(bottom: 85.h),
-                    child: FadeIndexedStack(
-                      index: state.currentIndex,
-                      children: _screens,
-                    ),
-                  );
-                },
-              ),
+      child: BlocProvider(
+        create: (context) => getIt<NotificationsCubit>()..getNotifications(),
+        child: BlocListener<MainLayoutCubit, MainLayoutState>(
+          // 💡 السحر هنا: عند الانتقال بين أي صفحة وصفحة، يتم تحديث حالة الإشعارات في الخلفية فوراً
+          listener: (context, state) async {
+            // 💡 أضف async
+            final notifCubit = context.read<NotificationsCubit>();
 
-              // 2. شريط التنقل والقائمة المنبثقة (ويدجت معزول بالكامل)
-              const Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: FloatingCircularNavBar(),
+            // 💡 إذا ذهب المستخدم لشاشة الإشعارات (Index 5)، أخفِ النقطة فوراً!
+            if (state.currentIndex == 5) {
+              await notifCubit.markAllAsRead();
+            }
+
+            // جلب الإشعارات في الخلفية
+            notifCubit.getNotifications();
+          },
+          child: SafeArea(
+            child: Scaffold(
+              backgroundColor: AppColors.background,
+              extendBody: true,
+              body: Stack(
+                children: [
+                  // 1. محتوى الشاشات
+                  BlocBuilder<MainLayoutCubit, MainLayoutState>(
+                    buildWhen: (previous, current) =>
+                        previous.currentIndex != current.currentIndex,
+                    builder: (context, state) {
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: 85.h),
+                        child: FadeIndexedStack(
+                          index: state.currentIndex,
+                          children: _screens,
+                        ),
+                      );
+                    },
+                  ),
+
+                  // 2. شريط التنقل والقائمة المنبثقة (ويدجت معزول بالكامل)
+                  const Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: FloatingCircularNavBar(),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

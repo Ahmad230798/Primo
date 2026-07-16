@@ -8,6 +8,8 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
 import 'package:primo/core/widgets/app_error_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notificatins_state.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_cubit.dart';
 import 'package:primo/feature/orders/presentation/bloc/orders_state.dart';
 import 'package:primo/feature/orders/presentation/widgets/order_history_card.dart';
@@ -28,14 +30,31 @@ class OrderHistoryScreen extends StatelessWidget {
               child: CustomAppBar(
                 title: "Primo",
                 suffixsIcon: isFromBottomNav ? const SizedBox() : null,
-                showRightIcon: true,
-                icon: Icon(
-                  Icons.notifications_none,
-                  color: AppColors.textMain,
-                  size: 26.sp,
+                icon: BlocBuilder<NotificationsCubit, NotificationsState>(
+                  builder: (context, state) {
+                    // قراءة المتغير من النسخة الموحدة في الـ context
+                    final hasUnread = context
+                        .read<NotificationsCubit>()
+                        .hasUnreadNotifications;
+
+                    return Badge(
+                      isLabelVisible: hasUnread,
+                      backgroundColor: Colors.redAccent,
+                      smallSize: 12,
+                      alignment: Alignment.topRight,
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: AppColors.primary,
+                        size: 28,
+                      ),
+                    );
+                  },
                 ),
-                onRightIconTap: () =>
-                    Navigator.pushNamed(context, Routes.notificationsHistory),
+                onRightIconTap: () {
+                  // تحديث الإشعارات محلياً والانتقال للشاشة
+                  context.read<NotificationsCubit>().markAllAsRead();
+                  context.pushNamed(Routes.notificationsHistory);
+                },
               ),
             ),
             Padding(
