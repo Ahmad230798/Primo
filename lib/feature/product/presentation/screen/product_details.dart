@@ -11,6 +11,7 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
 import 'package:primo/core/widgets/app_button.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/core/widgets/custom_counter.dart';
 import 'package:primo/core/di/service_locator.dart';
@@ -51,7 +52,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: CircularProgressIndicator(color: AppColors.primary),
               );
             } else if (state is ProductError && product == null) {
-              return Center(child: Text(state.errorMessage));
+              return CustomErrorRetryWidget(
+                message: state.errorMessage,
+                onRetry: () => context.read<ProductCubit>().getProductDetails(
+                      widget.initialProduct?.id ?? widget.initialOffer?.productId ?? 0,
+                    ),
+              );
             }
 
             final cubit = context.read<ProductCubit>();

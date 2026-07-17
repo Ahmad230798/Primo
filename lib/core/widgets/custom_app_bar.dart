@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
@@ -21,7 +22,7 @@ class CustomAppBar extends StatelessWidget {
     this.showRightIcon = true,
     this.onTap,
     this.onBackTap,
-    this.onRightIconTap, // أضفنا هذا المتغير
+    this.onRightIconTap, // أضفناه في البنّاء
   });
 
   @override
@@ -51,6 +52,8 @@ class CustomAppBar extends StatelessWidget {
                   onTap!();
                 } else if (Navigator.canPop(context)) {
                   Navigator.pop(context);
+                } else {
+                  Navigator.pushNamedAndRemoveUntil(context, Routes.adminHome, (r) => false);
                 }
               },
               borderRadius: BorderRadius.circular(99.r),

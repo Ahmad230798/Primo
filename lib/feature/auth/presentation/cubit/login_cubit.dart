@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/service_locator.dart';
+import '../../../../core/helper/phone_helper.dart';
 import '../../../../core/network/app_storage.dart';
 import '../../../../core/services/firebase_messaging_service.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -15,6 +16,8 @@ class LoginCubit extends Cubit<LoginState> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+
+  String get cleanedPhoneNumber => PhoneHelper.cleanPhone(phoneController.text);
 
   bool isPasswordObscure = true;
   int _failedAttempts = 0; // عداد المحاولات الفاشلة
@@ -52,7 +55,7 @@ class LoginCubit extends Cubit<LoginState> {
     final fcmToken = await getIt<FirebaseCloudMessagingService>()
         .getDeviceToken();
     final requestBody = LoginRequestBody(
-      phoneNumber: phoneController.text,
+      phoneNumber: cleanedPhoneNumber,
       password: passwordController.text,
       fcmToken: fcmToken,
     );

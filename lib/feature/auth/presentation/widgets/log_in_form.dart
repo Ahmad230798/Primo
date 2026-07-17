@@ -43,6 +43,8 @@ class LogInForm extends StatelessWidget {
                     controller: cubit.phoneController,
                     validator: AppValidators.validatePhoneNumber,
                     keyboardType: TextInputType.phone,
+                    maxLength: 10,
+                    prefixText: '+963 ',
                     textDirection: TextDirection.ltr,
                     isFilled: true,
                     fillColor: AppColors.background,

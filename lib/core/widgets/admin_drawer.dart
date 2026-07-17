@@ -252,7 +252,13 @@ class AdminDrawer extends StatelessWidget {
           onTap: () {
             Navigator.pop(context);
             if (!isActive) {
-              Navigator.pushReplacementNamed(context, route);
+              if (route == Routes.adminHome) {
+                Navigator.pushNamedAndRemoveUntil(context, Routes.adminHome, (r) => false);
+              } else if (currentRoute == Routes.adminHome) {
+                Navigator.pushNamed(context, route);
+              } else {
+                Navigator.pushReplacementNamed(context, route);
+              }
             }
           },
           leading: Icon(

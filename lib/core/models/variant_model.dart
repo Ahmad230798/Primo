@@ -22,6 +22,8 @@ class VariantModel {
   @JsonKey(name: 'new_price')
   final dynamic newPrice;
   final ProductModel? product;
+  @JsonKey(name: 'is_dollar')
+  final bool isDollar;
 
   VariantModel({
     this.id,
@@ -35,10 +37,18 @@ class VariantModel {
     this.discountAmount,
     this.newPrice,
     this.product,
+    this.isDollar = false,
   });
 
   bool get isActiveBool =>
       isActive == 1 || isActive.toString().toLowerCase() == 'true';
+
+  String formatPrice(dynamic priceValue) {
+    if (isDollar) {
+      return "\$ $priceValue";
+    }
+    return "$priceValue ل.س";
+  }
 
   factory VariantModel.fromJson(Map<String, dynamic> json) {
     int? parseInt(dynamic val) {
@@ -70,6 +80,7 @@ class VariantModel {
       product: json['product'] is Map
           ? ProductModel.fromJson(Map<String, dynamic>.from(json['product'] as Map))
           : null,
+      isDollar: parseBool(json['is_dollar']) ?? false,
     );
   }
 

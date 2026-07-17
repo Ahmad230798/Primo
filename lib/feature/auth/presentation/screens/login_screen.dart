@@ -44,8 +44,7 @@ class LoginScreen extends StatelessWidget {
                 // جلب الرقم من الحقل
                 final phoneNumber = context
                     .read<LoginCubit>()
-                    .phoneController
-                    .text;
+                    .cleanedPhoneNumber;
 
                 // التوجيه إلى شاشة الـ OTP مع اعتبارها عملية "تسجيل" ليكمل التفعيل
                 context.pushNamed(

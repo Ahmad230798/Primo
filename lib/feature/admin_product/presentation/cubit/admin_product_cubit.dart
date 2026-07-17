@@ -17,6 +17,7 @@ class VariantItemController {
   final TextEditingController propertyController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController stockController = TextEditingController();
+  bool isDollar = false;
 
   void dispose() {
     propertyController.dispose();
@@ -100,6 +101,7 @@ class AdminProductCubit extends Cubit<AdminProductState> {
         ctrl.propertyController.text = variant.property ?? '';
         ctrl.priceController.text = variant.price?.toString() ?? '';
         ctrl.stockController.text = variant.stock?.toString() ?? '';
+        ctrl.isDollar = variant.isDollar;
         variants.add(ctrl);
       }
     } else {
@@ -133,6 +135,13 @@ class AdminProductCubit extends Cubit<AdminProductState> {
     }
   }
 
+  void toggleVariantDollar(int index, bool val) {
+    if (index >= 0 && index < variants.length) {
+      variants[index].isDollar = val;
+      _updateUI();
+    }
+  }
+
   void _updateUI() {
     emit(AdminProductUIChanged(DateTime.now().millisecondsSinceEpoch));
   }
@@ -156,6 +165,7 @@ class AdminProductCubit extends Cubit<AdminProductState> {
             property: v.propertyController.text.trim(),
             price: v.priceController.text.trim(),
             stock: v.stockController.text.trim(),
+            isDollar: v.isDollar ? 1 : 0,
           ),
         )
         .toList();
@@ -169,20 +179,24 @@ class AdminProductCubit extends Cubit<AdminProductState> {
       }
     }
 
-    final requestBody = AddProductRequestBody(
-      categoryId: selectedCategoryId!,
-      name: nameController.text.trim(),
-      description: descController.text.trim(),
-      image: selectedImage,
-      variants: variantsList,
-    );
+    try {
+      final requestBody = AddProductRequestBody(
+        categoryId: selectedCategoryId!,
+        name: nameController.text.trim(),
+        description: descController.text.trim(),
+        image: selectedImage,
+        variants: variantsList,
+      );
 
-    final response = await _manageProductUseCase.create(requestBody);
+      final response = await _manageProductUseCase.create(requestBody);
 
-    response.fold(
-      (failure) => emit(AdminProductError(failure.errorMessage)),
-      (success) => emit(const AdminProductSuccess("تم إضافة المنتج بنجاح")),
-    );
+      response.fold(
+        (failure) => emit(AdminProductError(failure.errorMessage)),
+        (success) => emit(const AdminProductSuccess("تم إضافة المنتج بنجاح")),
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminProductError(e.toString()));
+    }
   }
 
   void updateProduct() async {
@@ -218,6 +232,7 @@ class AdminProductCubit extends Cubit<AdminProductState> {
         price: prc,
         stock: stk,
         isActive: 1,
+        isDollar: v.isDollar ? 1 : 0,
       );
       if (v.id != null) {
         updateVariantsList.add(model);
@@ -226,25 +241,29 @@ class AdminProductCubit extends Cubit<AdminProductState> {
       }
     }
 
-    final requestBody = UpdateProductRequestBody(
-      categoryId: selectedCategoryId!,
-      name: nameController.text.trim(),
-      description: descController.text.trim(),
-      isActive: isActive,
-      image: selectedImage, // will be ignored in toFormData if null
-      updateVariants: updateVariantsList,
-      addVariants: addVariantsList,
-    );
+    try {
+      final requestBody = UpdateProductRequestBody(
+        categoryId: selectedCategoryId!,
+        name: nameController.text.trim(),
+        description: descController.text.trim(),
+        isActive: isActive,
+        image: selectedImage, // will be ignored in toFormData if null
+        updateVariants: updateVariantsList,
+        addVariants: addVariantsList,
+      );
 
-    final response = await _manageProductUseCase.update(
-      editingProductId!,
-      requestBody,
-    );
+      final response = await _manageProductUseCase.update(
+        editingProductId!,
+        requestBody,
+      );
 
-    response.fold(
-      (failure) => emit(AdminProductError(failure.errorMessage)),
-      (success) => emit(const AdminProductSuccess("تم تحديث المنتج بنجاح")),
-    );
+      response.fold(
+        (failure) => emit(AdminProductError(failure.errorMessage)),
+        (success) => emit(const AdminProductSuccess("تم تحديث المنتج بنجاح")),
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminProductError(e.toString()));
+    }
   }
 
   @override

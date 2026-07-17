@@ -8,6 +8,7 @@ import 'package:primo/feature/home/presentation/cubit/home_state.dart';
 import 'package:primo/feature/home/presentation/widgets/product_card.dart';
 
 import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 
 class LatestProduct extends StatelessWidget {
   const LatestProduct({super.key});
@@ -59,7 +60,10 @@ class LatestProduct extends StatelessWidget {
             },
           );
         } else if (state is HomeError) {
-          return Center(child: Text(state.errorMessage));
+          return CustomErrorRetryWidget(
+            message: state.errorMessage,
+            onRetry: () => context.read<HomeCubit>().getHomeData(),
+          );
         }
         return const SizedBox();
       },

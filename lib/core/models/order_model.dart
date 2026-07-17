@@ -12,6 +12,7 @@ class OrderItemModel {
   final num price;
   final bool hasActiveOffer;
   final num? newPrice;
+  final bool isDollar;
 
   OrderItemModel({
     required this.id,
@@ -24,6 +25,7 @@ class OrderItemModel {
     this.newPrice,
     required this.productId,
     required this.productRatings,
+    this.isDollar = false,
   });
 
   String? get fullImageUrl {
@@ -36,6 +38,13 @@ class OrderItemModel {
       return '$baseUrl$image';
     }
     return '$baseUrl/$image';
+  }
+
+  String formatPrice(dynamic priceVal) {
+    if (isDollar) {
+      return "\$ $priceVal";
+    }
+    return "$priceVal ل.س";
   }
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
@@ -87,6 +96,7 @@ class OrderItemModel {
           json['has_active_offer'] == "1" ||
           parsedNewPrice != null,
       newPrice: parsedNewPrice,
+      isDollar: json['is_dollar'] == 1 || json['is_dollar'] == true || json['is_dollar'] == '1' || json['is_dollar'] == 'true',
     );
   }
 
@@ -140,6 +150,7 @@ class OrderModel {
   final UserModel? user;
   final int? itemCount;
   final List<OrderItemModel> items;
+  final bool isDollar;
 
   OrderModel({
     required this.id,
@@ -156,7 +167,23 @@ class OrderModel {
     this.user,
     required this.items,
     this.itemCount,
+    this.isDollar = false,
   });
+
+  bool get isDollarBool {
+    if (isDollar) return true;
+    if (items.isNotEmpty) {
+      return items.any((item) => item.isDollar);
+    }
+    return false;
+  }
+
+  String formatPrice(dynamic priceVal) {
+    if (isDollarBool) {
+      return "\$ $priceVal";
+    }
+    return "$priceVal ل.س";
+  }
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
@@ -195,11 +222,11 @@ class OrderModel {
       user: json['user'] != null && json['user'] is Map
           ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
-      items:
-          (json['items'] as List<dynamic>?)
+      items: (json['items'] as List<dynamic>?)
               ?.map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      isDollar: json['is_dollar'] == 1 || json['is_dollar'] == true || json['is_dollar'] == '1' || json['is_dollar'] == 'true',
     );
   }
 

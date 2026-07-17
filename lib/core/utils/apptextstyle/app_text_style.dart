@@ -22,6 +22,13 @@ class AppTextStyle {
     height: 14.4 / 12,
     letterSpacing: 0,
   );
+  static final font10 = TextStyle(
+    fontFamily: 'Cairo',
+    fontSize: 10,
+    fontWeight: FontWeight.w700,
+    height: 12.0 / 10,
+    letterSpacing: 0,
+  );
   static final font14 = TextStyle(
     fontFamily: 'Cairo',
     fontSize: 14,

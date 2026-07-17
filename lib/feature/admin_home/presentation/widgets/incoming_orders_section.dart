@@ -15,7 +15,15 @@ class IncomingOrdersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final list = orders ?? [];
+    final list = (orders ?? []).where((order) {
+      final st = order.status.trim().toLowerCase();
+      return st != 'canceled' &&
+          st != 'cancelled' &&
+          st != 'rejected' &&
+          st != 'refused' &&
+          st != 'ملغي' &&
+          st != 'مرفوض';
+    }).toList();
     return Column(
       children: [
         SectionHeader(
@@ -73,6 +81,7 @@ class IncomingOrdersSection extends StatelessWidget {
                 },
                 child: IncomingOrderCard(
                   isDelayed: isPending,
+                  showActions: false,
                   orderId: "طلب #${order.id}",
                   timeText: order.formattedDate.isNotEmpty
                       ? order.formattedDate
@@ -81,17 +90,8 @@ class IncomingOrdersSection extends StatelessWidget {
                   customerPhone: order.user?.phone,
                   customerAvatarLetter: firstLetter,
                   orderType: order.isDelivery ? "توصيل" : "استلام من الفرع",
-                  totalPrice: "${order.totalAmount} ل.س",
+                  totalPrice: order.formatPrice(order.totalAmount),
                   statusText: order.statusArabic,
-                  onStatusUpdate: () {
-                    context.pushNamed(Routes.adminOrders);
-                  },
-                  onActionTap: () {
-                    context.pushNamed(Routes.adminOrders);
-                  },
-                  onRejectTap: () {
-                    context.pushNamed(Routes.adminOrders);
-                  },
                 ),
               );
             },

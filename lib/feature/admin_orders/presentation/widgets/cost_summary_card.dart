@@ -43,7 +43,7 @@ class CostSummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                "$amount ل.س",
+                order != null ? order!.formatPrice(amount) : "$amount ل.س",
                 style: AppTextStyle.font14.copyWith(
                   color: AppColors.greyMedium3,
                 ),
@@ -62,7 +62,7 @@ class CostSummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                "$delivery ل.س",
+                order != null ? order!.formatPrice(delivery) : "$delivery ل.س",
                 style: AppTextStyle.font14.copyWith(
                   color: AppColors.greyMedium3,
                 ),
@@ -84,7 +84,7 @@ class CostSummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                "$total ل.س",
+                order != null ? order!.formatPrice(total) : "$total ل.س",
                 style: AppTextStyle.font18.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,

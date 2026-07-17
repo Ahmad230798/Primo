@@ -17,6 +17,7 @@ class InventoryProductCard extends StatelessWidget {
   final int quantity;
   final bool isAvailable;
   final String imagePath;
+  final bool isDollar;
   final VoidCallback? onToggle;
   final VoidCallback? onTap;
 
@@ -29,6 +30,7 @@ class InventoryProductCard extends StatelessWidget {
     required this.quantity,
     required this.isAvailable,
     required this.imagePath,
+    this.isDollar = false,
     this.onToggle,
     this.onTap,
   });
@@ -72,15 +74,62 @@ class InventoryProductCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // صورة المنتج
-                      Opacity(
-                        opacity: isAvailable ? 1.0 : 0.5,
-                        child: AppCachedNetworkImage(
-                          imageUrl: imagePath,
-                          width: 80.w,
-                          height: 80.w,
-                          fit: BoxFit.cover,
-                          borderRadius: BorderRadius.circular(8.r),
+                      // صورة المنتج مع شارة الدولار
+                      SizedBox(
+                        width: 80.w,
+                        height: 80.w,
+                        child: Stack(
+                          children: [
+                            Opacity(
+                              opacity: isAvailable ? 1.0 : 0.5,
+                              child: AppCachedNetworkImage(
+                                imageUrl: imagePath,
+                                width: 80.w,
+                                height: 80.w,
+                                fit: BoxFit.cover,
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                            ),
+                            if (isDollar)
+                              Positioned(
+                                top: 4.w,
+                                right: 4.w,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 5.w,
+                                    vertical: 2.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2E7D32), // Dark green
+                                    borderRadius: BorderRadius.circular(4.r),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.attach_money_rounded,
+                                        color: Colors.white,
+                                        size: 11.sp,
+                                      ),
+                                      Text(
+                                        "USD",
+                                        style: AppTextStyle.font10.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       16.horizontalSpace,
@@ -134,17 +183,10 @@ class InventoryProductCard extends StatelessWidget {
                                     child: Row(
                                       children: [
                                         Text(
-                                          price,
+                                          isDollar ? "\$ $price" : "$price ل.س",
                                           style: AppTextStyle.font20.copyWith(
                                             color: AppColors.primary,
                                             fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        4.horizontalSpace,
-                                        Text(
-                                          "ل.س",
-                                          style: AppTextStyle.font12.copyWith(
-                                            color: AppColors.greyMedium3,
                                           ),
                                         ),
                                       ],

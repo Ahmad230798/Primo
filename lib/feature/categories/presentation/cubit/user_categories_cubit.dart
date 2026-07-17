@@ -29,24 +29,30 @@ class UserCategoriesCubit extends Cubit<UserCategoriesState> {
       emit(UserCategoriesLoading());
     }
 
-    final result = await _getUserCategoriesUseCase.execute();
-    result.fold(
-      (failure) {
-        if (!hasCache && !isClosed) {
-          emit(UserCategoriesError(failure.errorMessage));
-        }
-      },
-      (list) {
-        categories = list;
-        try {
-          final jsonString =
-              jsonEncode(list.map((e) => e.toJson()).toList());
-          AppStorage.cacheData('cache_user_categories', jsonString);
-        } catch (_) {}
-        if (!isClosed) {
-          emit(UserCategoriesLoaded(list));
-        }
-      },
-    );
+    try {
+      final result = await _getUserCategoriesUseCase.execute();
+      result.fold(
+        (failure) {
+          if (!hasCache && !isClosed) {
+            emit(UserCategoriesError(failure.errorMessage));
+          }
+        },
+        (list) {
+          categories = list;
+          try {
+            final jsonString =
+                jsonEncode(list.map((e) => e.toJson()).toList());
+            AppStorage.cacheData('cache_user_categories', jsonString);
+          } catch (_) {}
+          if (!isClosed) {
+            emit(UserCategoriesLoaded(list));
+          }
+        },
+      );
+    } catch (e) {
+      if (!hasCache && !isClosed) {
+        emit(UserCategoriesError(e.toString()));
+      }
+    }
   }
 }

@@ -136,7 +136,38 @@ class ProductVariantsSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildLabel("السعر"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildLabel("السعر"),
+                        InkWell(
+                          onTap: () => cubit.toggleVariantDollar(index, !variant.isDollar),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "بالدولار",
+                                style: AppTextStyle.font12.copyWith(
+                                  color: variant.isDollar ? AppColors.primary : AppColors.greyDark,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 20.h,
+                                child: Transform.scale(
+                                  scale: 0.75,
+                                  child: Switch(
+                                    value: variant.isDollar,
+                                    activeColor: AppColors.primary,
+                                    onChanged: (val) => cubit.toggleVariantDollar(index, val),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                     8.verticalSpace,
                     TextFormField(
                       controller: variant.priceController,
@@ -166,9 +197,10 @@ class ProductVariantsSection extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "ل.س",
+                              variant.isDollar ? "\$" : "ل.س",
                               style: AppTextStyle.font12.copyWith(
-                                color: AppColors.greyMedium3,
+                                color: variant.isDollar ? AppColors.primary : AppColors.greyMedium3,
+                                fontWeight: variant.isDollar ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
                           ],

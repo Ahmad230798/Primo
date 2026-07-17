@@ -40,29 +40,35 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     if (!hasCache && showLoading && !isClosed) {
       emit(FavoritesLoading());
     }
-    final result = await _getFavoritesUseCase.execute();
-    result.fold(
-      (failure) {
-        if (!hasCache && favorites.isEmpty && !isClosed) {
-          emit(FavoritesError(failure.errorMessage));
-        }
-      },
-      (list) {
-        favorites = list;
-        favoriteStatusMap.clear();
-        for (var prod in list) {
-          if (prod.id != null) {
-            favoriteStatusMap[prod.id!] = true;
+    try {
+      final result = await _getFavoritesUseCase.execute();
+      result.fold(
+        (failure) {
+          if (!hasCache && favorites.isEmpty && !isClosed) {
+            emit(FavoritesError(failure.errorMessage));
           }
-        }
-        try {
-          final jsonString =
-              jsonEncode(list.map((e) => e.toJson()).toList());
-          AppStorage.cacheData('cache_user_favorites', jsonString);
-        } catch (_) {}
-        if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
-      },
-    );
+        },
+        (list) {
+          favorites = list;
+          favoriteStatusMap.clear();
+          for (var prod in list) {
+            if (prod.id != null) {
+              favoriteStatusMap[prod.id!] = true;
+            }
+          }
+          try {
+            final jsonString =
+                jsonEncode(list.map((e) => e.toJson()).toList());
+            AppStorage.cacheData('cache_user_favorites', jsonString);
+          } catch (_) {}
+          if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
+        },
+      );
+    } catch (e) {
+      if (!hasCache && favorites.isEmpty && !isClosed) {
+        emit(FavoritesError(e.toString()));
+      }
+    }
   }
 
   Future<void> toggleFavorite(int productId) async {
@@ -72,32 +78,36 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       favorites = favorites.where((item) => item.id != productId).toList();
     }
     if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
-    final result = await _toggleFavoriteUseCase.execute(productId);
-    result.fold(
-      (failure) {
-        // التراجع عن التغيير إذا فشل السيرفر
-        favoriteStatusMap[productId] = isCurrentlyFav;
-        fetchFavorites(showLoading: false);
-        if (!isClosed) emit(FavoritesError(failure.errorMessage));
-      },
-      (isFavorited) {
-        favoriteStatusMap[productId] = isFavorited;
-
-        if (!isFavorited) {
-          favorites = favorites.where((item) => item.id != productId).toList();
-        } else {
-          // 💡 السّر هنا: عندما نضيف منتجاً، يجب جلب بياناته الكاملة (صورته واسمه) من السيرفر بصمت
+    try {
+      final result = await _toggleFavoriteUseCase.execute(productId);
+      result.fold(
+        (failure) {
+          favoriteStatusMap[productId] = isCurrentlyFav;
           fetchFavorites(showLoading: false);
-        }
+          if (!isClosed) emit(FavoritesError(failure.errorMessage));
+        },
+        (isFavorited) {
+          favoriteStatusMap[productId] = isFavorited;
 
-        final msg = isFavorited
-            ? "تم إضافة المنتج إلى المفضلة"
-            : "تم حذف المنتج من المفضلة";
-        if (!isClosed) emit(FavoriteToggleSuccess(productId, isFavorited, msg));
+          if (!isFavorited) {
+            favorites = favorites.where((item) => item.id != productId).toList();
+          } else {
+            fetchFavorites(showLoading: false);
+          }
 
-        if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
-      },
-    );
+          final msg = isFavorited
+              ? "تم إضافة المنتج إلى المفضلة"
+              : "تم حذف المنتج من المفضلة";
+          if (!isClosed) emit(FavoriteToggleSuccess(productId, isFavorited, msg));
+
+          if (!isClosed) emit(FavoritesLoaded(List.from(favorites)));
+        },
+      );
+    } catch (e) {
+      favoriteStatusMap[productId] = isCurrentlyFav;
+      fetchFavorites(showLoading: false);
+      if (!isClosed) emit(FavoritesError(e.toString()));
+    }
   }
 
   bool isProductFavorited(int productId, {bool? defaultVal}) {

@@ -9,6 +9,8 @@ import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import '../cubit/admin_general_settings_cubit.dart';
 import '../cubit/admin_general_settings_state.dart';
+import '../cubit/admin_dollar_cubit.dart';
+import '../cubit/admin_dollar_state.dart';
 
 class AdminGeneralSettingsScreen extends StatefulWidget {
   const AdminGeneralSettingsScreen({super.key});
@@ -23,8 +25,10 @@ class _AdminGeneralSettingsScreenState extends State<AdminGeneralSettingsScreen>
   final _facebookController = TextEditingController();
   final _workingHoursController = TextEditingController();
   final _addressController = TextEditingController();
+  final _dollarController = TextEditingController();
 
   bool _initialized = false;
+  bool _dollarInitialized = false;
 
   @override
   void dispose() {
@@ -33,6 +37,7 @@ class _AdminGeneralSettingsScreenState extends State<AdminGeneralSettingsScreen>
     _facebookController.dispose();
     _workingHoursController.dispose();
     _addressController.dispose();
+    _dollarController.dispose();
     super.dispose();
   }
 
@@ -43,22 +48,49 @@ class _AdminGeneralSettingsScreenState extends State<AdminGeneralSettingsScreen>
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: SafeArea(
-          child: BlocConsumer<AdminGeneralSettingsCubit, AdminGeneralSettingsState>(
-            listener: (context, state) {
-              if (state is AdminGeneralSettingsSuccess) {
-                context.showSuccess(state.message);
-              } else if (state is AdminGeneralSettingsError) {
-                context.showError(state.message);
-              } else if (state is AdminGeneralSettingsLoaded && !_initialized) {
-                final model = state.model;
-                _supportPhoneController.text = model.supportPhone;
-                _managerPhoneController.text = model.managerPhone;
-                _facebookController.text = model.facebookAccount;
-                _workingHoursController.text = model.workingHours;
-                _addressController.text = model.address;
-                _initialized = true;
-              }
-            },
+          child: MultiBlocListener(
+            listeners: [
+              BlocListener<AdminGeneralSettingsCubit, AdminGeneralSettingsState>(
+                listener: (context, state) {
+                  if (state is AdminGeneralSettingsSuccess) {
+                    context.showSuccess(state.message);
+                  } else if (state is AdminGeneralSettingsError) {
+                    context.showError(state.message);
+                  } else if (state is AdminGeneralSettingsLoaded && !_initialized) {
+                    final model = state.model;
+                    _supportPhoneController.text = model.supportPhone;
+                    _managerPhoneController.text = model.managerPhone;
+                    _facebookController.text = model.facebookAccount;
+                    _workingHoursController.text = model.workingHours;
+                    _addressController.text = model.address;
+                    _initialized = true;
+                  }
+                },
+              ),
+              BlocListener<AdminDollarCubit, AdminDollarState>(
+                listener: (context, state) {
+                  if (state is AdminDollarLoaded && !_dollarInitialized) {
+                    _dollarController.text = state.dollarValue.toString();
+                    _dollarInitialized = true;
+                  } else if (state is AdminDollarUpdateSuccess) {
+                    context.showSuccess(state.message);
+                  } else if (state is AdminDollarError) {
+                    context.showError(state.message);
+                  }
+                },
+              ),
+            ],
+            child: BlocBuilder<AdminDollarCubit, AdminDollarState>(
+              builder: (context, dollarState) {
+                if (dollarState is AdminDollarLoaded && !_dollarInitialized) {
+                  _dollarController.text = dollarState.dollarValue.toString();
+                  _dollarInitialized = true;
+                } else if (_dollarController.text.isEmpty && context.read<AdminDollarCubit>().currentDollarValue > 0) {
+                  _dollarController.text = context.read<AdminDollarCubit>().currentDollarValue.toString();
+                }
+
+                return BlocConsumer<AdminGeneralSettingsCubit, AdminGeneralSettingsState>(
+                  listener: (context, state) {},
             builder: (context, state) {
               if (state is AdminGeneralSettingsLoaded && !_initialized) {
                 final model = state.model;
@@ -93,6 +125,14 @@ class _AdminGeneralSettingsScreenState extends State<AdminGeneralSettingsScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildTextField(
+                            controller: _dollarController,
+                            label: "سعر صرف الدولار (ل.س / \$)",
+                            hint: "130",
+                            isNumber: true,
+                            prefixIcon: const Icon(Icons.attach_money_rounded, color: AppColors.primary),
+                          ),
+                          16.verticalSpace,
                           _buildTextField(
                             controller: _supportPhoneController,
                             label: "هاتف خدمة العملاء",
@@ -138,6 +178,10 @@ class _AdminGeneralSettingsScreenState extends State<AdminGeneralSettingsScreen>
                                     workingHours: _workingHoursController.text.trim(),
                                     address: _addressController.text.trim(),
                                   );
+                              final dollarVal = num.tryParse(_dollarController.text.trim());
+                              if (dollarVal != null && dollarVal > 0) {
+                                context.read<AdminDollarCubit>().updateDollarValue(dollarVal);
+                              }
                             },
                           ),
                           40.verticalSpace,
@@ -148,11 +192,14 @@ class _AdminGeneralSettingsScreenState extends State<AdminGeneralSettingsScreen>
                 ],
               );
             },
-          ),
-        ),
+          );
+        },
       ),
-    );
-  }
+    ),
+  ),
+        ),
+      );
+    }
 
   Widget _buildTextField({
     required TextEditingController controller,

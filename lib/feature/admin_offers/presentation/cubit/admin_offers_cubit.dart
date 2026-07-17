@@ -161,22 +161,26 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
 
     emit(AdminOffersLoading());
 
-    final body = CreateOfferRequestBody(
-      variantId: selectedVariantId,
-      fromDate: startDateText,
-      toDate: endDateText,
-      discountPercentage: isPercentage ? discountController.text.trim() : null,
-      discountValue: !isPercentage ? discountController.text.trim() : null,
-    );
+    try {
+      final body = CreateOfferRequestBody(
+        variantId: selectedVariantId,
+        fromDate: startDateText,
+        toDate: endDateText,
+        discountPercentage: isPercentage ? discountController.text.trim() : null,
+        discountValue: !isPercentage ? discountController.text.trim() : null,
+      );
 
-    final response = await _manageOffersUseCase.createOffer(body);
+      final response = await _manageOffersUseCase.createOffer(body);
 
-    response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
-      success,
-    ) {
-      _resetForm();
-      emit(AdminOffersSuccess(success.message ?? "تم إضافة العرض بنجاح"));
-    });
+      response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
+        success,
+      ) {
+        _resetForm();
+        emit(AdminOffersSuccess(success.message ?? "تم إضافة العرض بنجاح"));
+      });
+    } catch (e) {
+      if (!isClosed) emit(AdminOffersError(e.toString()));
+    }
   }
 
   void updateOffer() async {
@@ -192,26 +196,29 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
 
     emit(AdminOffersLoading());
 
-    // optional image rule applied
-    final body = UpdateOfferRequestBody(
-      variantId: selectedVariantId,
-      fromDate: startDateText,
-      toDate: endDateText,
-      discountPercentage: isPercentage ? discountController.text.trim() : null,
-      discountValue: !isPercentage ? discountController.text.trim() : null,
-      image: selectedImage,
-    );
+    try {
+      final body = UpdateOfferRequestBody(
+        variantId: selectedVariantId,
+        fromDate: startDateText,
+        toDate: endDateText,
+        discountPercentage: isPercentage ? discountController.text.trim() : null,
+        discountValue: !isPercentage ? discountController.text.trim() : null,
+        image: selectedImage,
+      );
 
-    final response = await _manageOffersUseCase.updateOffer(
-      editingOfferId!,
-      body,
-    );
+      final response = await _manageOffersUseCase.updateOffer(
+        editingOfferId!,
+        body,
+      );
 
-    response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
-      success,
-    ) {
-      emit(AdminOffersSuccess(success.message ?? "تم تعديل العرض بنجاح"));
-    });
+      response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
+        success,
+      ) {
+        emit(AdminOffersSuccess(success.message ?? "تم تعديل العرض بنجاح"));
+      });
+    } catch (e) {
+      if (!isClosed) emit(AdminOffersError(e.toString()));
+    }
   }
 
   void _resetForm() {

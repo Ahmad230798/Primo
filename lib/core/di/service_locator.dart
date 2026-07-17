@@ -118,6 +118,9 @@ import 'package:primo/feature/admin_settings/domain/usecases/get_delivery_price_
 import 'package:primo/feature/admin_settings/domain/usecases/update_delivery_price_usecase.dart';
 import 'package:primo/feature/admin_settings/presentation/cubit/add_store_address_cubit.dart';
 import 'package:primo/feature/admin_settings/presentation/cubit/store_settings_cubit.dart';
+import 'package:primo/feature/admin_settings/data/repos/admin_dollar_repo_impl.dart';
+import 'package:primo/feature/admin_settings/domain/repos/admin_dollar_repo.dart';
+import 'package:primo/feature/admin_settings/presentation/cubit/admin_dollar_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/admin_categories/domain/usecases/manage_category_usecase.dart';
 import 'package:primo/feature/admin_categories/presentation/cubit/admin_categories_list_cubit.dart';
@@ -457,6 +460,12 @@ void setupServiceLocator() {
   );
   getIt.registerFactory(
     () => AddStoreAddressCubit(getIt<AddStoreAddressUseCase>()),
+  );
+  getIt.registerLazySingleton<AdminDollarRepo>(
+    () => AdminDollarRepoImpl(getIt<ApiConsumer>()),
+  );
+  getIt.registerFactory(
+    () => AdminDollarCubit(getIt<AdminDollarRepo>()),
   );
 
   // --- Admin Orders ---

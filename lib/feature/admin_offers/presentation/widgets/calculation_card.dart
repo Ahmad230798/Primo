@@ -44,7 +44,7 @@ class CalculationCard extends StatelessWidget {
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: Text(
-                      "${before.toStringAsFixed(0)} ل.س",
+                      cubit.selectedVariant?.formatPrice(before.toStringAsFixed(0)) ?? "${before.toStringAsFixed(0)} ل.س",
                       key: ValueKey<double>(before),
                       style: AppTextStyle.font16.copyWith(
                         color: AppColors.white.withValues(alpha: 0.6),
@@ -71,7 +71,7 @@ class CalculationCard extends StatelessWidget {
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: Text(
-                      "${after.toStringAsFixed(0)} ل.س",
+                      cubit.selectedVariant?.formatPrice(after.toStringAsFixed(0)) ?? "${after.toStringAsFixed(0)} ل.س",
                       key: ValueKey<double>(after),
                       style: AppTextStyle.font24.copyWith(
                         color: AppColors.primary,

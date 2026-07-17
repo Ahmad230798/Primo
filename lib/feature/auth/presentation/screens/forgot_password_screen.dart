@@ -45,7 +45,7 @@ class ForgotPasswordScreen extends StatelessWidget {
               context.pushNamed(
                 Routes.otpVerification,
                 arguments: OtpVerificationArgs(
-                  phoneNumber: cubit.phoneController.text,
+                  phoneNumber: cubit.cleanedPhoneNumber,
                   otpType:
                       OtpType.forgotPassword, // تحديد النوع كـ forgotPassword
                 ),
@@ -127,6 +127,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                             controller: cubit.phoneController,
                             validator: AppValidators.validatePhoneNumber,
                             keyboardType: TextInputType.phone,
+                            maxLength: 10,
+                            prefixText: '+963 ',
                             textDirection: TextDirection.ltr,
                             isFilled: true,
                             fillColor: AppColors.white,

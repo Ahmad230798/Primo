@@ -4,7 +4,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notificatins_state.dart';
@@ -96,7 +96,7 @@ class NotificationsScreen extends StatelessWidget {
                             slivers: [
                               SliverFillRemaining(
                                 hasScrollBody: false,
-                                child: AppErrorWidget(
+                                child: CustomErrorRetryWidget(
                                   message: state.message,
                                   onRetry: () => context
                                       .read<NotificationsCubit>()

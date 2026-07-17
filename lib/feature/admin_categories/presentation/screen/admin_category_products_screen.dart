@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/models/category_model.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_state.dart';
 import 'package:primo/feature/inventory/presentation/widgets/inventory_product_card.dart';
+import 'package:primo/core/widgets/app_shimmer_skeletons.dart';
 
 class AdminCategoryProductsScreen extends StatefulWidget {
   final CategoryModel category;
@@ -82,23 +84,70 @@ class _AdminCategoryProductsScreenState
                           color: AppColors.greyMedium3,
                         ),
                       ),
+                      20.verticalSpace,
+                      Container(
+                        height: 48.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(99.r),
+                          border: Border.all(color: AppColors.formBorder),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.search_rounded,
+                              color: AppColors.greyMedium3,
+                              size: 24.sp,
+                            ),
+                            12.horizontalSpace,
+                            Expanded(
+                              child: TextField(
+                                onChanged: (val) {
+                                  context.read<AdminProductsListCubit>().searchProducts(val);
+                                },
+                                decoration: InputDecoration(
+                                  hintText: "البحث برقم المنتج أو الاسم...",
+                                  hintStyle: AppTextStyle.font14.copyWith(
+                                    color: AppColors.greyMedium3,
+                                  ),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                ),
+                                style: AppTextStyle.font14.copyWith(
+                                  color: AppColors.textMain,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       24.verticalSpace,
-                      BlocBuilder<
+                      BlocConsumer<
                         AdminProductsListCubit,
                         AdminProductsListState
                       >(
+                        listener: (context, state) {
+                          if (state is AdminProductsListActionSuccess) {
+                            context.showSuccess(state.message);
+                          } else if (state is AdminProductsListError &&
+                              context.read<AdminProductsListCubit>().currentProducts.isNotEmpty) {
+                            context.showError(state.message);
+                          }
+                        },
                         builder: (context, state) {
                           if (state is AdminProductsListLoading) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(32.h),
-                                child: const CircularProgressIndicator(
-                                  color: AppColors.primary,
-                                ),
-                              ),
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: 5,
+                              separatorBuilder: (context, index) => 16.verticalSpace,
+                              itemBuilder: (context, index) => const AdminInventoryCardShimmer(),
                             );
-                          } else if (state is AdminProductsListError) {
-                            return AppErrorWidget(
+                          } else if (state is AdminProductsListError &&
+                              context.read<AdminProductsListCubit>().currentProducts.isEmpty) {
+                            return CustomErrorRetryWidget(
                               message: state.message,
                               onRetry: () {
                                 final cubit = context.read<AdminProductsListCubit>();
@@ -119,7 +168,8 @@ class _AdminCategoryProductsScreenState
                           if (products.isEmpty) {
                             return AppEmptyState(
                               icon: Icons.inventory_2_outlined,
-                              message: "لا توجد منتجات في هذا القسم حالياً",
+                              title: "لا توجد بيانات",
+                              subtitle: "كل شيء هادئ هنا في الوقت الحالي",
                               onRetry: () {
                                 final cubit = context.read<AdminProductsListCubit>();
                                 cubit.getProducts().then((_) {
@@ -153,6 +203,7 @@ class _AdminCategoryProductsScreenState
                                 price: priceStr,
                                 quantity: totalStock,
                                 isAvailable: product.isActiveBool,
+                                isDollar: product.isDollarBool,
                                 imagePath: product.image ??
                                     "assets/images/honey.png",
                                 onToggle: () {

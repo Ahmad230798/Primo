@@ -14,32 +14,38 @@ class ProductCubit extends Cubit<ProductState> {
 
   Future<void> getProductDetails(int productId) async {
     emit(ProductLoading());
-    final result = await _getProductDetailsUseCase.execute(productId);
-    result.fold(
-      (failure) {
-        if (!isClosed) {
-          emit(ProductError(failure.errorMessage));
-        }
-      },
-      (product) {
-        currentProduct = product;
-        quantity = 1;
-        if (product.variants != null && product.variants!.isNotEmpty) {
-          selectedVariant = product.variants!.first;
-        } else {
-          selectedVariant = null;
-        }
-        if (!isClosed) {
-          emit(
-            ProductLoaded(
-              product,
-              selectedVariant: selectedVariant,
-              quantity: quantity,
-            ),
-          );
-        }
-      },
-    );
+    try {
+      final result = await _getProductDetailsUseCase.execute(productId);
+      result.fold(
+        (failure) {
+          if (!isClosed) {
+            emit(ProductError(failure.errorMessage));
+          }
+        },
+        (product) {
+          currentProduct = product;
+          quantity = 1;
+          if (product.variants != null && product.variants!.isNotEmpty) {
+            selectedVariant = product.variants!.first;
+          } else {
+            selectedVariant = null;
+          }
+          if (!isClosed) {
+            emit(
+              ProductLoaded(
+                product,
+                selectedVariant: selectedVariant,
+                quantity: quantity,
+              ),
+            );
+          }
+        },
+      );
+    } catch (e) {
+      if (!isClosed) {
+        emit(ProductError(e.toString()));
+      }
+    }
   }
 
   void selectVariant(VariantModel variant) {

@@ -41,24 +41,27 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> getProfile() async {
     if (!isClosed) emit(ProfileLoading());
-    final response = await _getProfileUseCase.execute();
+    try {
+      final response = await _getProfileUseCase.execute();
 
-    response.fold(
-      (failure) {
-        if (!isClosed) emit(ProfileError(failure.errorMessage)); // 💡 حماية
-      },
-      (data) {
-        user = data.data;
-        if (!isClosed) {
-          // 💡 حماية
-          if (user != null) {
-            emit(ProfileLoaded(user!));
-          } else {
-            emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
+      response.fold(
+        (failure) {
+          if (!isClosed) emit(ProfileError(failure.errorMessage));
+        },
+        (data) {
+          user = data.data;
+          if (!isClosed) {
+            if (user != null) {
+              emit(ProfileLoaded(user!));
+            } else {
+              emit(const ProfileError("لم يتم العثور على بيانات المستخدم"));
+            }
           }
-        }
-      },
-    );
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(ProfileError(e.toString()));
+    }
   }
 
   Future<void> updateProfile({
@@ -67,31 +70,35 @@ class ProfileCubit extends Cubit<ProfileState> {
     File? avatar,
   }) async {
     if (!isClosed) emit(UpdateProfileLoading());
-    final body = UpdateProfileRequestBody(
-      name: name,
-      phone: phone,
-      avatar: avatar ?? selectedAvatar,
-    );
-    final response = await _updateProfileUseCase.execute(body);
-    response.fold((failure) {
-      if (!isClosed) emit(UpdateProfileError(failure.errorMessage));
-    }, (data) {
-      if (data.data != null) {
-        user = data.data;
-        selectedAvatar = null;
-        if (!isClosed) {
-          emit(
-            UpdateProfileSuccess(
-              user!,
-              data.message ?? "تم تحديث الملف الشخصي بنجاح",
-            ),
-          );
-          emit(ProfileLoaded(user!));
+    try {
+      final body = UpdateProfileRequestBody(
+        name: name,
+        phone: phone,
+        avatar: avatar ?? selectedAvatar,
+      );
+      final response = await _updateProfileUseCase.execute(body);
+      response.fold((failure) {
+        if (!isClosed) emit(UpdateProfileError(failure.errorMessage));
+      }, (data) {
+        if (data.data != null) {
+          user = data.data;
+          selectedAvatar = null;
+          if (!isClosed) {
+            emit(
+              UpdateProfileSuccess(
+                user!,
+                data.message ?? "تم تحديث الملف الشخصي بنجاح",
+              ),
+            );
+            emit(ProfileLoaded(user!));
+          }
+        } else {
+          if (!isClosed) emit(const UpdateProfileError("فشل تحديث البيانات"));
         }
-      } else {
-        if (!isClosed) emit(const UpdateProfileError("فشل تحديث البيانات"));
-      }
-    });
+      });
+    } catch (e) {
+      if (!isClosed) emit(UpdateProfileError(e.toString()));
+    }
   }
 
   Future<void> changePassword({
@@ -104,45 +111,57 @@ class ProfileCubit extends Cubit<ProfileState> {
       return;
     }
     if (!isClosed) emit(ChangePasswordLoading());
-    final body = ChangePasswordRequestBody(
-      currentPassword: currentPassword,
-      newPassword: newPassword,
-      newPasswordConfirmation: newPasswordConfirmation,
-    );
-    final response = await _changePasswordUseCase.execute(body);
-    response.fold(
-      (failure) {
-        if (!isClosed) emit(ChangePasswordError(failure.errorMessage));
-      },
-      (message) {
-        if (!isClosed) emit(ChangePasswordSuccess(message));
-      },
-    );
+    try {
+      final body = ChangePasswordRequestBody(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        newPasswordConfirmation: newPasswordConfirmation,
+      );
+      final response = await _changePasswordUseCase.execute(body);
+      response.fold(
+        (failure) {
+          if (!isClosed) emit(ChangePasswordError(failure.errorMessage));
+        },
+        (message) {
+          if (!isClosed) emit(ChangePasswordSuccess(message));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(ChangePasswordError(e.toString()));
+    }
   }
 
   Future<void> deleteAccount() async {
     if (!isClosed) emit(DeleteAccountLoading());
-    final response = await _deleteAccountUseCase.execute();
-    response.fold((failure) {
-      if (!isClosed) emit(DeleteAccountError(failure.errorMessage));
-    }, (message) async {
-      await AppStorage.clearAllData();
-      if (!isClosed) emit(DeleteAccountSuccess(message));
-    });
+    try {
+      final response = await _deleteAccountUseCase.execute();
+      response.fold((failure) {
+        if (!isClosed) emit(DeleteAccountError(failure.errorMessage));
+      }, (message) async {
+        await AppStorage.clearAllData();
+        if (!isClosed) emit(DeleteAccountSuccess(message));
+      });
+    } catch (e) {
+      if (!isClosed) emit(DeleteAccountError(e.toString()));
+    }
   }
 
   Future<void> logout() async {
     if (!isClosed) emit(LogoutLoading());
-    final response = await _logoutUseCase.execute();
+    try {
+      final response = await _logoutUseCase.execute();
 
-    response.fold(
-      (failure) {
-        if (!isClosed) emit(LogoutError(failure.errorMessage)); // 💡 حماية
-      },
-      (message) async {
-        await AppStorage.clearAllData();
-        if (!isClosed) emit(LogoutSuccess(message)); // 💡 حماية
-      },
-    );
+      response.fold(
+        (failure) {
+          if (!isClosed) emit(LogoutError(failure.errorMessage));
+        },
+        (message) async {
+          await AppStorage.clearAllData();
+          if (!isClosed) emit(LogoutSuccess(message));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(LogoutError(e.toString()));
+    }
   }
 }

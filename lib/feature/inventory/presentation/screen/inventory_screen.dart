@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_state.dart';
@@ -130,10 +131,18 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       const SearchAndFilterWidget(),
                       24.verticalSpace,
 
-                      BlocBuilder<
+                      BlocConsumer<
                         AdminProductsListCubit,
                         AdminProductsListState
                       >(
+                        listener: (context, state) {
+                          if (state is AdminProductsListActionSuccess) {
+                            context.showSuccess(state.message);
+                          } else if (state is AdminProductsListError &&
+                              context.read<AdminProductsListCubit>().currentProducts.isNotEmpty) {
+                            context.showError(state.message);
+                          }
+                        },
                         builder: (context, state) {
                           if (state is AdminProductsListLoading) {
                             return ListView.separated(
@@ -141,10 +150,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: 5,
                               separatorBuilder: (context, index) => 16.verticalSpace,
-                              itemBuilder: (context, index) => const ListTileShimmer(),
+                              itemBuilder: (context, index) => const AdminInventoryCardShimmer(),
                             );
-                          } else if (state is AdminProductsListError) {
-                            return AppErrorWidget(
+                          } else if (state is AdminProductsListError &&
+                              context.read<AdminProductsListCubit>().currentProducts.isEmpty) {
+                            return CustomErrorRetryWidget(
                               message: state.message,
                               onRetry: () => context.read<AdminProductsListCubit>().getProducts(),
                             );
@@ -158,7 +168,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           if (products.isEmpty) {
                             return AppEmptyState(
                               icon: Icons.inventory_2_outlined,
-                              message: "لا توجد منتجات في المخزون حالياً",
+                              title: "لا توجد بيانات",
+                              subtitle: "كل شيء هادئ هنا في الوقت الحالي",
                               onRetry: () => context.read<AdminProductsListCubit>().getProducts(),
                             );
                           }
@@ -183,6 +194,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                               price: priceStr,
                               quantity: totalStock,
                               isAvailable: product.isActiveBool,
+                              isDollar: product.isDollarBool,
                               imagePath: product.image ?? "assets/images/honey.png",
                               onToggle: () {
                                 if (product.id != null) {

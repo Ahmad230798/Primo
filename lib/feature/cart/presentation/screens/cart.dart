@@ -8,7 +8,7 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
@@ -86,7 +86,7 @@ class Cart extends StatelessWidget {
       return const Center(child: CircularProgressIndicator(color: AppColors.primary));
     } else if (state is CartError &&
         context.read<CartCubit>().currentItems.isEmpty) {
-      return AppErrorWidget(
+      return CustomErrorRetryWidget(
         message: state.errorMessage,
         onRetry: () => context.read<CartCubit>().getCart(),
       );

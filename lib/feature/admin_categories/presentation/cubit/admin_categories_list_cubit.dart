@@ -29,34 +29,44 @@ class AdminCategoriesListCubit extends Cubit<AdminCategoriesListState> {
       emit(AdminCategoriesListLoading());
     }
 
-    final result = await _useCase.getAllCategories();
-    result.fold(
-      (failure) {
-        if (!hasCache && !isClosed) {
-          emit(AdminCategoriesListError(failure.errorMessage));
-        }
-      },
-      (data) {
-        categories = data;
-        try {
-          final jsonString =
-              jsonEncode(data.map((e) => e.toJson()).toList());
-          AppStorage.cacheData('cache_admin_categories', jsonString);
-        } catch (_) {}
-        if (!isClosed) emit(AdminCategoriesListLoaded(categories));
-      },
-    );
+    try {
+      final result = await _useCase.getAllCategories();
+      result.fold(
+        (failure) {
+          if (!hasCache && !isClosed) {
+            emit(AdminCategoriesListError(failure.errorMessage));
+          }
+        },
+        (data) {
+          categories = data;
+          try {
+            final jsonString =
+                jsonEncode(data.map((e) => e.toJson()).toList());
+            AppStorage.cacheData('cache_admin_categories', jsonString);
+          } catch (_) {}
+          if (!isClosed) emit(AdminCategoriesListLoaded(categories));
+        },
+      );
+    } catch (e) {
+      if (!hasCache && !isClosed) {
+        emit(AdminCategoriesListError(e.toString()));
+      }
+    }
   }
 
   Future<void> deleteCategory(int categoryId) async {
-    final result = await _useCase.deleteCategory(categoryId);
-    result.fold(
-      (failure) => emit(AdminCategoriesListError(failure.errorMessage)),
-      (success) {
-        categories.removeWhere((c) => c.id == categoryId);
-        emit(const AdminCategoryDeleteSuccess("تم حذف القسم بنجاح"));
-        emit(AdminCategoriesListLoaded(categories));
-      },
-    );
+    try {
+      final result = await _useCase.deleteCategory(categoryId);
+      result.fold(
+        (failure) => emit(AdminCategoriesListError(failure.errorMessage)),
+        (success) {
+          categories.removeWhere((c) => c.id == categoryId);
+          emit(const AdminCategoryDeleteSuccess("تم حذف القسم بنجاح"));
+          emit(AdminCategoriesListLoaded(categories));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminCategoriesListError(e.toString()));
+    }
   }
 }

@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
+import 'package:primo/core/widgets/app_cached_network_image.dart';
 
 class ProfileImageHolder extends StatelessWidget {
   final String imagePath;
@@ -100,19 +100,12 @@ class ProfileImageHolder extends StatelessWidget {
       }
     }
 
-    return CachedNetworkImage(
+    return AppCachedNetworkImage(
       imageUrl: networkUrl,
       fit: BoxFit.cover,
       width: w,
       height: h,
-      placeholder: (context, url) => Center(
-        child: SizedBox(
-          width: 24.w,
-          height: 24.h,
-          child: const CircularProgressIndicator(strokeWidth: 2),
-        ),
-      ),
-      errorWidget: (context, url, error) => _buildFallbackIcon(w),
+      errorWidget: _buildFallbackIcon(w),
     );
   }
 

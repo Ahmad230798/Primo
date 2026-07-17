@@ -16,17 +16,20 @@ class AdminSuggestionsCubit extends Cubit<AdminSuggestionsState> {
 
   Future<void> getSuggestions() async {
     emit(AdminSuggestionsLoading());
-    final result = await _getSuggestionsUseCase();
-    result.fold(
-      (failure) {
-        if (!isClosed) emit(AdminSuggestionsError(failure.errorMessage));
-      },
-      (list) {
-        allSuggestions = list;
-        // 💡 تحديث: عند جلب البيانات، نطبق الفلتر الحالي فوراً بدل إرسال القائمة كاملة
-        if (!isClosed) filterSuggestions(currentTab);
-      },
-    );
+    try {
+      final result = await _getSuggestionsUseCase();
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(AdminSuggestionsError(failure.errorMessage));
+        },
+        (list) {
+          allSuggestions = list;
+          if (!isClosed) filterSuggestions(currentTab);
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminSuggestionsError(e.toString()));
+    }
   }
 
   void filterSuggestions(String tab) {
@@ -63,44 +66,41 @@ class AdminSuggestionsCubit extends Cubit<AdminSuggestionsState> {
 
   Future<void> updateStatus(int id, String status) async {
     emit(AdminSuggestionUpdating(id));
-    final result = await _updateStatusUseCase(id, status);
+    try {
+      final result = await _updateStatusUseCase(id, status);
 
-    result.fold(
-      (failure) {
-        if (!isClosed) {
-          emit(AdminSuggestionsError(failure.errorMessage));
-          // 💡 نطبق الفلتر لتعود الشاشة لحالتها الطبيعية في حال الفشل
-          filterSuggestions(currentTab);
-        }
-      },
-      (msg) {
-        // 💡 1. بدلاً من الحذف، نقوم بتحديث حالة المقترح محلياً (لكي يظهر في التبويب الآخر)
-        final index = allSuggestions.indexWhere((item) => item.id == id);
-        if (index != -1) {
-          final oldItem = allSuggestions[index];
-          // نقوم باستبدال العنصر القديم بنسخة محدثة تحمل الحالة الجديدة (approved أو rejected)
-          // ملاحظة: إذا كان لديك دالة copyWith في المودل استخدمها، أو اكتب المتغيرات هكذا:
-          allSuggestions[index] = SuggestionModel(
-            id: oldItem.id,
-            name: oldItem.name,
-            description: oldItem.description,
-            status: status, // الحالة الجديدة القادمة من الزر
-            createdAt: oldItem.createdAt,
-            user: oldItem.user,
-          );
-        }
+      result.fold(
+        (failure) {
+          if (!isClosed) {
+            emit(AdminSuggestionsError(failure.errorMessage));
+            filterSuggestions(currentTab);
+          }
+        },
+        (msg) {
+          final index = allSuggestions.indexWhere((item) => item.id == id);
+          if (index != -1) {
+            final oldItem = allSuggestions[index];
+            allSuggestions[index] = SuggestionModel(
+              id: oldItem.id,
+              name: oldItem.name,
+              description: oldItem.description,
+              status: status,
+              createdAt: oldItem.createdAt,
+              user: oldItem.user,
+            );
+          }
 
-        if (!isClosed) {
-          emit(AdminSuggestionStatusSuccess(msg));
-
-          // 💡 2. هنا السحر: نستدعي الفلتر!
-          // إذا كنا في تبويب "الجديدة"، سيختفي المقترح فوراً لأنه لم يعد pending
-          // وإذا ذهبنا لتبويب "تم التوفير"، سنجده هناك دون الحاجة لجلبه من السيرفر!
-          filterSuggestions(currentTab);
-
-          // 💡 3. قمنا بحذف await getSuggestions() لأن التطبيق أصبح يعتمد على التحديث المحلي السريع جداً
-        }
-      },
-    );
+          if (!isClosed) {
+            emit(AdminSuggestionStatusSuccess(msg));
+            filterSuggestions(currentTab);
+          }
+        },
+      );
+    } catch (e) {
+      if (!isClosed) {
+        emit(AdminSuggestionsError(e.toString()));
+        filterSuggestions(currentTab);
+      }
+    }
   }
 }

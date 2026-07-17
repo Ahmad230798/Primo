@@ -127,7 +127,7 @@ class OfferProductDropdown extends StatelessWidget {
 
                       // 5. إضافة السعر داخل أقواس محمية بعلامة (RTL) لمنع انقلاب القوس
                       const rlm = '\u200F';
-                      label += " $rlm($price ل.س)$rlm";
+                      label += " $rlm(${variant.formatPrice(price)})$rlm";
 
                       return DropdownMenuEntry<VariantModel>(
                         value: variant,
@@ -157,7 +157,7 @@ class OfferProductDropdown extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '$price ل.س',
+                              variant.formatPrice(price),
                               textDirection: TextDirection.ltr,
                               style: AppTextStyle.font12.copyWith(
                                 color: AppColors.primary,

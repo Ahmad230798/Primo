@@ -6,18 +6,28 @@ import 'package:primo/core/widgets/app_button.dart';
 
 class AppEmptyState extends StatelessWidget {
   final IconData icon;
-  final String message;
+  final String? message;
+  final String? title;
+  final String? subtitle;
   final VoidCallback? onRetry;
 
   const AppEmptyState({
     super.key,
-    required this.icon,
-    required this.message,
+    this.icon = Icons.inbox_outlined,
+    this.message,
+    this.title,
+    this.subtitle,
     this.onRetry,
   });
 
   @override
   Widget build(BuildContext context) {
+    final displayTitle = title ?? message ?? "لا توجد بيانات";
+    final displaySubtitle = subtitle ??
+        (message != null && title == null
+            ? null
+            : "كل شيء هادئ هنا في الوقت الحالي");
+
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 24.h),
@@ -26,26 +36,36 @@ class AppEmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: EdgeInsets.all(20.w),
+              padding: EdgeInsets.all(24.w),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                size: 64.sp,
-                color: AppColors.primary,
+                size: 72.sp,
+                color: AppColors.primary.withValues(alpha: 0.65),
               ),
             ),
             16.verticalSpace,
             Text(
-              message,
-              style: AppTextStyle.font16.copyWith(
+              displayTitle,
+              style: AppTextStyle.font18.copyWith(
                 color: AppColors.textMain,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
+            if (displaySubtitle != null) ...[
+              8.verticalSpace,
+              Text(
+                displaySubtitle,
+                style: AppTextStyle.font14.copyWith(
+                  color: AppColors.greyMedium3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
             if (onRetry != null) ...[
               20.verticalSpace,
               SizedBox(
