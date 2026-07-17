@@ -49,12 +49,14 @@ class UpdateProductRequestBody {
       formData.fields.add(MapEntry('update_variants[$i][price]', updateVariants[i].price));
       formData.fields.add(MapEntry('update_variants[$i][stock]', updateVariants[i].stock.toString()));
       formData.fields.add(MapEntry('update_variants[$i][is_active]', updateVariants[i].isActive.toString()));
+      formData.fields.add(MapEntry('update_variants[$i][is_dollar]', updateVariants[i].isDollar.toString()));
     }
 
     for (int i = 0; i < addVariants.length; i++) {
       formData.fields.add(MapEntry('add_variants[$i][property]', addVariants[i].property));
       formData.fields.add(MapEntry('add_variants[$i][price]', addVariants[i].price));
       formData.fields.add(MapEntry('add_variants[$i][stock]', addVariants[i].stock.toString()));
+      formData.fields.add(MapEntry('add_variants[$i][is_dollar]', addVariants[i].isDollar.toString()));
     }
 
     return formData;

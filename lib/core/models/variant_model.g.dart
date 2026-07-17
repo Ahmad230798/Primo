@@ -18,6 +18,7 @@ VariantModel _$VariantModelFromJson(Map<String, dynamic> json) => VariantModel(
   offerId: (json['offer_id'] as num?)?.toInt(),
   discountAmount: json['discount_amount'],
   newPrice: json['new_price'],
+  isDollar: json['is_dollar'] == 1 || json['is_dollar'] == true || json['is_dollar'] == '1' || json['is_dollar'] == 'true',
 );
 
 Map<String, dynamic> _$VariantModelToJson(VariantModel instance) =>
@@ -32,4 +33,5 @@ Map<String, dynamic> _$VariantModelToJson(VariantModel instance) =>
       'offer_id': instance.offerId,
       'discount_amount': instance.discountAmount,
       'new_price': instance.newPrice,
+      'is_dollar': instance.isDollar ? 1 : 0,
     };

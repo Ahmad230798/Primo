@@ -19,6 +19,7 @@ class NotificationCard extends StatelessWidget {
         border: Border.all(color: AppColors.formBorder),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.black.withOpacity(0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),

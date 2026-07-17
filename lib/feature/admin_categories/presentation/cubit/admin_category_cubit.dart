@@ -56,21 +56,25 @@ class AdminCategoryCubit extends Cubit<AdminCategoryState> {
 
     emit(AdminCategoryLoading());
 
-    final requestBody = AddCategoryRequestBody(
-      name: nameController.text.trim(),
-      image: selectedImage!,
-    );
+    try {
+      final requestBody = AddCategoryRequestBody(
+        name: nameController.text.trim(),
+        image: selectedImage!,
+      );
 
-    final response = await _manageCategoryUseCase.addCategory(requestBody);
+      final response = await _manageCategoryUseCase.addCategory(requestBody);
 
-    response.fold(
-      (failure) => emit(AdminCategoryError(failure.errorMessage)),
-      (success) {
-        nameController.clear();
-        selectedImage = null;
-        emit(const AdminCategorySuccess("تمت إضافة القسم بنجاح"));
-      },
-    );
+      response.fold(
+        (failure) => emit(AdminCategoryError(failure.errorMessage)),
+        (success) {
+          nameController.clear();
+          selectedImage = null;
+          emit(const AdminCategorySuccess("تمت إضافة القسم بنجاح"));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminCategoryError(e.toString()));
+    }
   }
 
   void updateCategory() async {
@@ -82,23 +86,26 @@ class AdminCategoryCubit extends Cubit<AdminCategoryState> {
 
     emit(AdminCategoryLoading());
 
-    // NOTE: image is optional per mandatory user rule!
-    final requestBody = UpdateCategoryRequestBody(
-      name: nameController.text.trim(),
-      image: selectedImage,
-    );
+    try {
+      final requestBody = UpdateCategoryRequestBody(
+        name: nameController.text.trim(),
+        image: selectedImage,
+      );
 
-    final response = await _manageCategoryUseCase.updateCategory(
-      editingCategoryId!,
-      requestBody,
-    );
+      final response = await _manageCategoryUseCase.updateCategory(
+        editingCategoryId!,
+        requestBody,
+      );
 
-    response.fold(
-      (failure) => emit(AdminCategoryError(failure.errorMessage)),
-      (success) {
-        emit(const AdminCategorySuccess("تم تعديل القسم بنجاح"));
-      },
-    );
+      response.fold(
+        (failure) => emit(AdminCategoryError(failure.errorMessage)),
+        (success) {
+          emit(const AdminCategorySuccess("تم تعديل القسم بنجاح"));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminCategoryError(e.toString()));
+    }
   }
 
   @override

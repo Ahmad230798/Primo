@@ -38,34 +38,47 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
       emit(AdminProductsListLoading());
     }
 
-    final result = await _getProductsUseCase.getAll();
-    result.fold(
-      (failure) {
-        if (!hasCache && !isClosed) {
-          emit(AdminProductsListError(failure.errorMessage));
-        }
-      },
-      (products) {
-        allProducts = products;
-        filteredProducts = products;
-        currentProducts = products;
-        try {
-          final jsonString = jsonEncode(
-            products.map((e) => e.toJson()).toList(),
-          );
-          AppStorage.cacheData('cache_admin_products', jsonString);
-        } catch (_) {}
-        if (!isClosed) emit(AdminProductsListLoaded(filteredProducts));
-      },
-    );
+    try {
+      final result = await _getProductsUseCase.getAll();
+      result.fold(
+        (failure) {
+          if (!hasCache && !isClosed) {
+            emit(AdminProductsListError(failure.errorMessage));
+          }
+        },
+        (products) {
+          allProducts = products;
+          filteredProducts = products;
+          currentProducts = products;
+          try {
+            final jsonString = jsonEncode(
+              products.map((e) => e.toJson()).toList(),
+            );
+            AppStorage.cacheData('cache_admin_products', jsonString);
+          } catch (_) {}
+          if (!isClosed) emit(AdminProductsListLoaded(filteredProducts));
+        },
+      );
+    } catch (e) {
+      if (!hasCache && !isClosed) {
+        emit(AdminProductsListError(e.toString()));
+      }
+    }
   }
 
   void searchProducts(String query) {
     final q = query.trim().toLowerCase();
+    final baseList = selectedCategoryIdFilter == null
+        ? allProducts
+        : allProducts.where((p) {
+            final catId = p.categoryId ?? p.category?.id;
+            return catId == selectedCategoryIdFilter;
+          }).toList();
+
     if (q.isEmpty) {
-      filteredProducts = List.from(allProducts);
+      filteredProducts = List.from(baseList);
     } else {
-      filteredProducts = allProducts.where((product) {
+      filteredProducts = baseList.where((product) {
         final nameMatch = (product.name ?? '').toLowerCase().contains(q);
         final skuMatch = (product.skuCode ?? '').toLowerCase().contains(q);
         return nameMatch || skuMatch;
@@ -92,27 +105,27 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
   }
 
   Future<void> deleteProduct(int productId) async {
-    final result = await _manageProductUseCase.deleteProduct(productId);
-    result.fold(
-      (failure) => emit(AdminProductsListError(failure.errorMessage)),
-      (_) {
-        emit(const AdminProductsListActionSuccess("تم حذف المنتج بنجاح"));
-        getProducts();
-      },
-    );
+    try {
+      final result = await _manageProductUseCase.deleteProduct(productId);
+      result.fold(
+        (failure) => emit(AdminProductsListError(failure.errorMessage)),
+        (_) {
+          emit(const AdminProductsListActionSuccess("تم حذف المنتج بنجاح"));
+          getProducts();
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminProductsListError(e.toString()));
+    }
   }
 
   Future<void> toggleProductStatus(int productId) async {
-    // 1. إيجاد المنتج المستهدف في القائمة المحلية
     final index = currentProducts.indexWhere((p) => p.id == productId);
     if (index == -1) return;
 
-    // 2. حفظ الكائن القديم بالكامل للرجوع إليه (Rollback) في حال فشل الـ API
     final oldProduct = currentProducts[index];
     final oldStatus = oldProduct.isActiveBool;
 
-    // 3. التحديث المتفائل (Optimistic Update) بدون copyWith:
-    // نقوم ببناء كائن جديد ممررين له نفس بيانات القديم مع تغيير قيمة isActive فقط
     final updatedProduct = ProductModel(
       id: oldProduct.id,
       categoryId: oldProduct.categoryId,
@@ -122,7 +135,7 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
       description: oldProduct.description,
       price: oldProduct.price,
       skuCode: oldProduct.skuCode,
-      isActive: !oldStatus, // 💡 الحالة الجديدة المعكوسة
+      isActive: !oldStatus,
       category: oldProduct.category,
       variants: oldProduct.variants,
       ratings: oldProduct.ratings,
@@ -132,55 +145,44 @@ class AdminProductsListCubit extends Cubit<AdminProductsListState> {
       directTotalStock: oldProduct.directTotalStock,
     );
 
-    // تحديث العنصر في المصفوفة فوراً
     currentProducts[index] = updatedProduct;
 
-    // إطلاق حالة التحديث الفورية لتغيير السلايدر في الواجهة بلمح البصر (0ms)
     if (!isClosed) {
       emit(AdminProductsListLoaded(List.from(currentProducts)));
     }
 
-    // 4. إرسال الطلب للسيرفر في الخلفية باستخدام الـ UseCase المتاح لديك فعلياً
-    final result = await _manageProductUseCase.toggleStatus(productId);
+    try {
+      final result = await _manageProductUseCase.toggleStatus(productId);
 
-    result.fold(
-      (failure) {
-        // 5. في حال الفشل: تراجع فوري وإعادة المنتج لحالته السابقة لتنبيه المستخدم
-        currentProducts[index] = oldProduct;
-        if (!isClosed) {
-          emit(
-            AdminProductsListLoaded(List.from(currentProducts)),
-          ); // إعادة السلايدر لوضعه القديم
-          emit(
-            AdminProductsListError(failure.errorMessage),
-          ); // إظهار رسالة الخطأ
-        }
-      },
-      (_) {
-        if (!isClosed) {}
-        {
-          emit(
-            const AdminProductsListActionSuccess("تم تغيير حالة المنتج بنجاح"),
-          );
-        }
-        try {
-          final jsonString = jsonEncode(
-            allProducts.map((e) => e.toJson()).toList(),
-          );
-          AppStorage.cacheData('cache_admin_products', jsonString);
-        } catch (_) {}
-      },
-    );
+      result.fold(
+        (failure) {
+          currentProducts[index] = oldProduct;
+          if (!isClosed) {
+            emit(AdminProductsListLoaded(List.from(currentProducts)));
+            emit(AdminProductsListError(failure.errorMessage));
+          }
+        },
+        (_) {
+          if (!isClosed) {
+            emit(
+              const AdminProductsListActionSuccess("تم تغيير حالة المنتج بنجاح"),
+            );
+            emit(AdminProductsListLoaded(List.from(currentProducts)));
+          }
+          try {
+            final jsonString = jsonEncode(
+              allProducts.map((e) => e.toJson()).toList(),
+            );
+            AppStorage.cacheData('cache_admin_products', jsonString);
+          } catch (_) {}
+        },
+      );
+    } catch (e) {
+      currentProducts[index] = oldProduct;
+      if (!isClosed) {
+        emit(AdminProductsListLoaded(List.from(currentProducts)));
+        emit(AdminProductsListError(e.toString()));
+      }
+    }
   }
-
-  // Future<void> toggleProductStatus(int productId) async {
-  //   final result = await _manageProductUseCase.toggleStatus(productId);
-  //   result.fold(
-  //     (failure) => emit(AdminProductsListError(failure.errorMessage)),
-  //     (_) {
-  //       emit(const AdminProductsListActionSuccess("تم تغيير حالة المنتج بنجاح"));
-  //       getProducts();
-  //     },
-  //   );
-  // }
 }

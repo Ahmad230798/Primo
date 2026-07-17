@@ -4,7 +4,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/categories/presentation/cubit/user_categories_cubit.dart';
 import 'package:primo/feature/categories/presentation/cubit/user_categories_state.dart';
@@ -100,7 +100,7 @@ class AllCategoriesScreen extends StatelessWidget {
                       ),
                     );
                   } else if (state is UserCategoriesError) {
-                    return AppErrorWidget(
+                    return CustomErrorRetryWidget(
                       message: state.errorMessage,
                       onRetry: () =>
                           context.read<UserCategoriesCubit>().fetchCategories(),

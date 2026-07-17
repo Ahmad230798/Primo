@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/services/firebase_messaging_service.dart';
+import 'package:primo/core/helper/phone_helper.dart';
 import 'package:primo/feature/auth/data/models/register_request_body.dart';
 import 'package:primo/feature/auth/domain/usecases/register_usecase.dart';
 import 'package:primo/feature/auth/presentation/cubit/register_state.dart';
@@ -20,6 +21,9 @@ class RegisterCubit extends Cubit<RegisterState> {
 
   // مفتاح النموذج للتحقق من صحة المدخلات (Validation)
   final formKey = GlobalKey<FormState>();
+
+  String get cleanedPhoneNumber => PhoneHelper.cleanPhone(phoneController.text);
+
   // ================= UI States =================
   bool isPasswordObscure = true;
   bool isConfirmPasswordObscure = true;
@@ -59,7 +63,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     final fcmToken = await getIt<FirebaseCloudMessagingService>().getDeviceToken();
     final requestBody = RegisterRequestBody(
       name: nameController.text,
-      phone: phoneController.text,
+      phone: cleanedPhoneNumber,
       password: passwordController.text,
       passwordConfirmation: passwordConfirmationController.text,
       fcmToken: fcmToken,

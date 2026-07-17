@@ -43,68 +43,80 @@ class OrdersCubit extends Cubit<OrdersState> {
       emit(OrdersLoading());
     }
 
-    final result = await _getOrdersUseCase(status: activeStatus);
-    result.fold(
-      (failure) {
-        if (!hasCache && !isClosed) emit(OrdersError(failure.errorMessage));
-      },
-      (orders) {
-        List<OrderModel> filtered = orders;
-        if (activeStatus != 'all' && activeStatus.isNotEmpty) {
-          if (activeStatus == 'completed') {
-            filtered = orders
-                .where(
-                  (o) =>
-                      o.status.toLowerCase() == 'completed' ||
-                      o.status.toLowerCase() == 'delivered',
-                )
-                .toList();
-          } else {
-            filtered = orders
-                .where(
-                  (o) => o.status.toLowerCase() == activeStatus.toLowerCase(),
-                )
-                .toList();
+    try {
+      final result = await _getOrdersUseCase(status: activeStatus);
+      result.fold(
+        (failure) {
+          if (!hasCache && !isClosed) emit(OrdersError(failure.errorMessage));
+        },
+        (orders) {
+          List<OrderModel> filtered = orders;
+          if (activeStatus != 'all' && activeStatus.isNotEmpty) {
+            if (activeStatus == 'completed') {
+              filtered = orders
+                  .where(
+                    (o) =>
+                        o.status.toLowerCase() == 'completed' ||
+                        o.status.toLowerCase() == 'delivered',
+                  )
+                  .toList();
+            } else {
+              filtered = orders
+                  .where(
+                    (o) => o.status.toLowerCase() == activeStatus.toLowerCase(),
+                  )
+                  .toList();
+            }
           }
-        }
-        currentOrders = filtered;
-        try {
-          final jsonString =
-              jsonEncode(filtered.map((e) => e.toJson()).toList());
-          AppStorage.cacheData(cacheKey, jsonString);
-        } catch (_) {}
-        if (!isClosed) emit(OrdersLoaded(filtered));
-      },
-    );
+          currentOrders = filtered;
+          try {
+            final jsonString =
+                jsonEncode(filtered.map((e) => e.toJson()).toList());
+            AppStorage.cacheData(cacheKey, jsonString);
+          } catch (_) {}
+          if (!isClosed) emit(OrdersLoaded(filtered));
+        },
+      );
+    } catch (e) {
+      if (!hasCache && !isClosed) emit(OrdersError(e.toString()));
+    }
   }
 
   Future<void> getOrderDetails(int id) async {
     emit(OrdersLoading());
-    final result = await _getOrderByIdUseCase(id);
-    result.fold(
-      (failure) {
-        if (!isClosed) emit(OrdersError(failure.errorMessage)); // 💡 حماية
-      },
-      (order) {
-        if (!isClosed) emit(SingleOrderLoaded(order)); // 💡 حماية
-      },
-    );
+    try {
+      final result = await _getOrderByIdUseCase(id);
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(OrdersError(failure.errorMessage));
+        },
+        (order) {
+          if (!isClosed) emit(SingleOrderLoaded(order));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(OrdersError(e.toString()));
+    }
   }
 
   Future<void> rateProduct(int productId, int orderId, int rating) async {
     emit(OrdersLoading());
-    final result = await _rateProductInOrderUseCase(productId, orderId, rating);
-    result.fold(
-      (failure) {
-        if (!isClosed) emit(OrdersError(failure.errorMessage));
-      },
-      (msg) {
-        if (!isClosed) {
-          emit(OrderRatingSuccess(msg));
-          // 💡 السحر هنا: جلب تفاصيل الطلب الحالي لكي تتحدث الشاشة ويختفي زر التقييم!
-          getOrderDetails(orderId);
-        }
-      },
-    );
+    try {
+      final result = await _rateProductInOrderUseCase(productId, orderId, rating);
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(OrdersError(failure.errorMessage));
+        },
+        (msg) {
+          if (!isClosed) {
+            emit(OrderRatingSuccess(msg));
+            getOrderDetails(orderId);
+            getOrders(status: activeStatus);
+          }
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(OrdersError(e.toString()));
+    }
   }
 }

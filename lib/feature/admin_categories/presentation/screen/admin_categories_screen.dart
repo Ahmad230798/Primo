@@ -6,7 +6,7 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import '../cubit/admin_category_cubit.dart';
 import '../cubit/admin_categories_list_cubit.dart';
@@ -120,7 +120,7 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                               itemBuilder: (context, index) => const CategoryShimmer(),
                             );
                           } else if (state is AdminCategoriesListError) {
-                            return AppErrorWidget(
+                            return CustomErrorRetryWidget(
                               message: state.message,
                               onRetry: () => context.read<AdminCategoriesListCubit>().getCategories(),
                             );

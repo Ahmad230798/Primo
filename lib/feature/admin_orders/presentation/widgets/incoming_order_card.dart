@@ -15,9 +15,10 @@ class IncomingOrderCard extends StatelessWidget {
   final String orderType;
   final String totalPrice;
   final String? statusText;
-  final VoidCallback onStatusUpdate;
-  final VoidCallback onActionTap;
+  final VoidCallback? onStatusUpdate;
+  final VoidCallback? onActionTap;
   final VoidCallback? onRejectTap;
+  final bool showActions;
 
   const IncomingOrderCard({
     super.key,
@@ -30,43 +31,68 @@ class IncomingOrderCard extends StatelessWidget {
     required this.orderType,
     required this.totalPrice,
     this.statusText,
-    required this.onStatusUpdate,
-    required this.onActionTap,
+    this.onStatusUpdate,
+    this.onActionTap,
     this.onRejectTap,
+    this.showActions = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color getStatusDotColor(String? status) {
+    Color getStatusBadgeBgColor(String? status) {
       if (status == null) {
-        return AppColors.primary; // اللون الافتراضي (الأحمر/البرتقالي الأساسي)
+        return isDelayed ? const Color(0xFFFFDAD6) : const Color(0xFFFFF3E0);
       }
-
-      final normalizedStatus = status.trim();
-
-      if (normalizedStatus.contains("تسليم") ||
-          normalizedStatus.contains("مكتمل") ||
-          normalizedStatus.contains("approved")) {
-        return Colors.green; // الأخضر لحالة تم التسليم أو معتمد
-      } else if (normalizedStatus.contains("تجهيز") ||
-          normalizedStatus.contains("processing")) {
-        return Colors.orange; // البرتقالي لقيد التجهيز
-      } else if (normalizedStatus.contains("انتظار") ||
-          normalizedStatus.contains("pending")) {
-        return Colors.blue; // الأزرق لقيد الانتظار
+      final st = status.trim().toLowerCase();
+      if (st.contains("تسليم") ||
+          st.contains("مكتمل") ||
+          st.contains("completed") ||
+          st.contains("delivered") ||
+          st.contains("approved")) {
+        return const Color(0xFFE8F5E9); // Light green
+      } else if (st.contains("تجهيز") ||
+          st.contains("processing") ||
+          st.contains("انتظار") ||
+          st.contains("pending")) {
+        return const Color(0xFFFFF3E0); // Light orange
+      } else if (st.contains("ملغي") || st.contains("cancel")) {
+        return const Color(0xFFFFEBEE); // Light red
       }
+      return isDelayed ? const Color(0xFFFFDAD6) : const Color(0xFFFFF3E0);
+    }
 
-      return AppColors.primary; // القيمة الاحتياطية
+    Color getStatusBadgeTextColor(String? status) {
+      if (status == null) {
+        return isDelayed ? AppColors.primary : const Color(0xFFE65100);
+      }
+      final st = status.trim().toLowerCase();
+      if (st.contains("تسليم") ||
+          st.contains("مكتمل") ||
+          st.contains("completed") ||
+          st.contains("delivered") ||
+          st.contains("approved")) {
+        return const Color(0xFF1B5E20); // Dark green
+      } else if (st.contains("تجهيز") ||
+          st.contains("processing") ||
+          st.contains("انتظار") ||
+          st.contains("pending")) {
+        return const Color(0xFFE65100); // Dark orange
+      } else if (st.contains("ملغي") || st.contains("cancel")) {
+        return const Color(0xFFC62828); // Dark red
+      }
+      return isDelayed ? AppColors.primary : const Color(0xFFE65100);
+    }
+
+    Color getStatusDotColor(String? status) {
+      return getStatusBadgeTextColor(status);
     }
 
     final bgColor = isDelayed ? const Color(0xFFFCE8E8) : AppColors.white;
     final borderColor = isDelayed
         ? AppColors.primary.withOpacity(0.3)
         : AppColors.formBorder;
-    final badgeBgColor = isDelayed
-        ? const Color(0xFFFFDAD6)
-        : AppColors.greyBackground;
-    final badgeTextColor = isDelayed ? AppColors.primary : AppColors.greyDark;
+    final badgeBgColor = getStatusBadgeBgColor(statusText);
+    final badgeTextColor = getStatusBadgeTextColor(statusText);
     final avatarBgColor = isDelayed
         ? AppColors.primary
         : const Color(0xFFFFDAD6);
@@ -76,18 +102,18 @@ class IncomingOrderCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(12.r),
         child: Stack(
           children: [
             if (isDelayed)
@@ -185,6 +211,7 @@ class IncomingOrderCard extends StatelessWidget {
                                       : "قيد التجهيز"),
                               style: AppTextStyle.font12.copyWith(
                                 color: badgeTextColor,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -257,8 +284,10 @@ class IncomingOrderCard extends StatelessWidget {
                   ),
                   16.verticalSpace,
 
-                  Divider(color: borderColor, height: 1),
-                  12.verticalSpace,
+                  if (showActions) ...[
+                    Divider(color: borderColor, height: 1),
+                    12.verticalSpace,
+                  ],
 
                   // --- المجموع والإجمالي ---
                   Row(
@@ -282,126 +311,130 @@ class IncomingOrderCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  16.verticalSpace,
 
-                  // --- الأزرار السفلية (موزعة بـ Expanded لمنع الـ Overflow و ANR) ---
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: onStatusUpdate,
-                          borderRadius: BorderRadius.circular(8.r),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 10.h),
-                            decoration: BoxDecoration(
-                              color: isDelayed
-                                  ? AppColors.white
-                                  : AppColors.greyBackground,
+                  if (showActions) ...[
+                    16.verticalSpace,
+                    // --- الأزرار السفلية ---
+                    Row(
+                      children: [
+                        if (onStatusUpdate != null)
+                          Expanded(
+                            child: InkWell(
+                              onTap: onStatusUpdate,
                               borderRadius: BorderRadius.circular(8.r),
-                              border: isDelayed
-                                  ? Border.all(
-                                      color: AppColors.primary.withOpacity(0.3),
-                                    )
-                                  : Border.all(color: AppColors.formBorder),
-                            ),
-                            alignment: Alignment.center,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "تحديث الحالة",
-                                    style: AppTextStyle.font12.copyWith(
-                                      color: AppColors.textMain,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  4.horizontalSpace,
-                                  Icon(
-                                    Icons.expand_more_rounded,
-                                    size: 16.sp,
-                                    color: AppColors.greyMedium3,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (onRejectTap != null) ...[
-                        8.horizontalSpace,
-                        Expanded(
-                          child: InkWell(
-                            onTap: onRejectTap,
-                            borderRadius: BorderRadius.circular(8.r),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10.h),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade700,
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              alignment: Alignment.center,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  "رفض الطلب",
-                                  style: AppTextStyle.font12.copyWith(
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.bold,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 10.h),
+                                decoration: BoxDecoration(
+                                  color: isDelayed
+                                      ? AppColors.white
+                                      : AppColors.greyBackground,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: isDelayed
+                                      ? Border.all(
+                                          color: AppColors.primary.withOpacity(0.3),
+                                        )
+                                      : Border.all(color: AppColors.formBorder),
+                                ),
+                                alignment: Alignment.center,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "تحديث الحالة",
+                                        style: AppTextStyle.font12.copyWith(
+                                          color: AppColors.textMain,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      4.horizontalSpace,
+                                      Icon(
+                                        Icons.expand_more_rounded,
+                                        size: 16.sp,
+                                        color: AppColors.greyMedium3,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                      8.horizontalSpace,
-                      Expanded(
-                        child: InkWell(
-                          onTap: onActionTap,
-                          borderRadius: BorderRadius.circular(8.r),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 10.h),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
+                        if (onRejectTap != null) ...[
+                          if (onStatusUpdate != null) 8.horizontalSpace,
+                          Expanded(
+                            child: InkWell(
+                              onTap: onRejectTap,
                               borderRadius: BorderRadius.circular(8.r),
-                              boxShadow: [
-                                if (isDelayed)
-                                  BoxShadow(
-                                    color: AppColors.primary.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                              ],
-                            ),
-                            alignment: Alignment.center,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.check_rounded,
-                                    color: AppColors.white,
-                                    size: 16.sp,
-                                  ),
-                                  4.horizontalSpace,
-                                  Text(
-                                    "قبول الطلب",
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 10.h),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade700,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                alignment: Alignment.center,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    "رفض الطلب",
                                     style: AppTextStyle.font12.copyWith(
                                       color: AppColors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        ],
+                        if (onActionTap != null) ...[
+                          if (onStatusUpdate != null || onRejectTap != null) 8.horizontalSpace,
+                          Expanded(
+                            child: InkWell(
+                              onTap: onActionTap,
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 10.h),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF16A34A), // Colors.green.shade600
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF16A34A).withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                alignment: Alignment.center,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check_rounded,
+                                        color: AppColors.white,
+                                        size: 16.sp,
+                                      ),
+                                      4.horizontalSpace,
+                                      Text(
+                                        "قبول الطلب",
+                                        style: AppTextStyle.font12.copyWith(
+                                          color: AppColors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

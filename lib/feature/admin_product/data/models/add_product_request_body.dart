@@ -38,6 +38,7 @@ class AddProductRequestBody {
       formData.fields.add(MapEntry('variants[$i][property]', variants[i].property));
       formData.fields.add(MapEntry('variants[$i][price]', variants[i].price));
       formData.fields.add(MapEntry('variants[$i][stock]', variants[i].stock.toString()));
+      formData.fields.add(MapEntry('variants[$i][is_dollar]', variants[i].isDollar.toString()));
     }
 
     return formData;

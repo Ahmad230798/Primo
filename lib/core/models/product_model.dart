@@ -28,6 +28,8 @@ class ProductModel {
   final bool? isFavorite;
   final String? directLowestPrice;
   final int? directTotalStock;
+  @JsonKey(name: 'is_dollar')
+  final bool? isDollar;
 
   ProductModel({
     this.id,
@@ -46,6 +48,7 @@ class ProductModel {
     this.isFavorite,
     this.directLowestPrice,
     this.directTotalStock,
+    this.isDollar,
   });
 
   String? get fullImageUrl {
@@ -120,6 +123,21 @@ class ProductModel {
       isActive == '1' ||
       isActive?.toString().toLowerCase() == 'true';
 
+  bool get isDollarBool {
+    if (isDollar == true) return true;
+    if (variants != null && variants!.isNotEmpty) {
+      return variants!.any((v) => v.isDollar);
+    }
+    return false;
+  }
+
+  String formatPrice(dynamic priceValue) {
+    if (isDollarBool) {
+      return "\$ $priceValue";
+    }
+    return "$priceValue ل.س";
+  }
+
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     int? parseInt(dynamic val) {
       if (val == null) return null;
@@ -165,6 +183,7 @@ class ProductModel {
       directLowestPrice: target['lowest_price']?.toString(),
       directTotalStock:
           parseInt(target['total_stack']) ?? parseInt(target['total_stock']),
+      isDollar: target['is_dollar'] == 1 || target['is_dollar'] == true || target['is_dollar'] == '1' || target['is_dollar'] == 'true',
     );
   }
 

@@ -16,13 +16,21 @@ class SuggestionsCubit extends Cubit<SuggestionsState> {
       return;
     }
     emit(SuggestionsSubmitting());
-    final result = await _sendSuggestionUseCase(
-      name: name.trim(),
-      description: description.trim(),
-    );
-    result.fold(
-      (failure) => emit(SuggestionsError(failure.errorMessage)),
-      (msg) => emit(SuggestionsSuccess(msg)),
-    );
+    try {
+      final result = await _sendSuggestionUseCase(
+        name: name.trim(),
+        description: description.trim(),
+      );
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(SuggestionsError(failure.errorMessage));
+        },
+        (msg) {
+          if (!isClosed) emit(SuggestionsSuccess(msg));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(SuggestionsError(e.toString()));
+    }
   }
 }

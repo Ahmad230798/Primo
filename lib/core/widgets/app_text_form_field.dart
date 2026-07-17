@@ -24,6 +24,8 @@ class AppTextFormField extends StatelessWidget {
   final bool? enabled;
   final TextDirection? textDirection;
   final TextInputType? keyboardType;
+  final String? prefixText;
+  final int? maxLength;
   const AppTextFormField({
     super.key,
     required this.hinttText,
@@ -46,6 +48,8 @@ class AppTextFormField extends StatelessWidget {
     this.enabled,
     this.textDirection,
     this.keyboardType,
+    this.prefixText,
+    this.maxLength,
   });
 
   @override
@@ -67,6 +71,7 @@ class AppTextFormField extends StatelessWidget {
         return TextFormField(
           textDirection: textDirection,
           keyboardType: keyboardType,
+          maxLength: maxLength,
           readOnly: readOnly ?? false,
           enabled: enabled ?? true,
           maxLines: (isObscureText ?? false) ? 1 : (linesCount ?? 1),
@@ -133,6 +138,11 @@ class AppTextFormField extends StatelessWidget {
             hintText: hinttText,
             suffixIcon: suffixIcone,
             prefixIcon: prefixIcone,
+            prefixText: prefixText,
+            prefixStyle: AppTextStyle.font16.copyWith(
+              color: AppColors.textMain,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           obscureText: isObscureText ?? false,
           style: AppTextStyle.font16.copyWith(color: AppColors.greyMedium3),

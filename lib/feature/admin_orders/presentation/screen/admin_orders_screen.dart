@@ -11,7 +11,7 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
 import '../cubit/admin_orders_cubit.dart';
 import '../cubit/admin_orders_state.dart';
@@ -65,29 +65,21 @@ class AdminOrdersScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
+                        if (Navigator.canPop(context))
+                          InkWell(
+                            onTap: () => Navigator.pop(context),
                             borderRadius: BorderRadius.circular(99.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                            child: Padding(
+                              padding: EdgeInsets.all(4.w),
+                              child: Icon(
+                                Icons.arrow_back_rounded,
+                                color: AppColors.textMain,
+                                size: 24.sp,
                               ),
-                            ],
-                          ),
-                          child: Text(
-                            "// نشط",
-                            style: AppTextStyle.font12.copyWith(
-                              color: AppColors.white,
                             ),
-                          ),
-                        ),
+                          )
+                        else
+                          SizedBox(width: 28.w),
                         Text(
                           "إدارة الطلبات",
                           style: AppTextStyle.font18.copyWith(
@@ -146,10 +138,10 @@ class AdminOrdersScreen extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 5,
         separatorBuilder: (context, index) => 16.verticalSpace,
-        itemBuilder: (context, index) => const ListTileShimmer(),
+        itemBuilder: (context, index) => const AdminOrderCardShimmer(),
       );
     } else if (state is AdminOrdersError && orders.isEmpty) {
-      return AppErrorWidget(
+      return CustomErrorRetryWidget(
         message: state.errorMessage,
         onRetry: () => cubit.getOrders(status: cubit.currentFilter),
       );
@@ -157,8 +149,9 @@ class AdminOrdersScreen extends StatelessWidget {
 
     if (orders.isEmpty) {
       return AppEmptyState(
-        icon: Icons.shopping_bag_outlined,
-        message: "لا توجد طلبات مطابقة حالياً",
+        icon: Icons.receipt_long_outlined,
+        title: "لا توجد بيانات",
+        subtitle: "كل شيء هادئ هنا في الوقت الحالي",
         onRetry: () => cubit.getOrders(status: cubit.currentFilter),
       );
     }
@@ -205,7 +198,7 @@ class AdminOrdersScreen extends StatelessWidget {
                   customerPhone: order.user?.phone,
                   customerAvatarLetter: firstLetter,
                   orderType: order.isDelivery ? "توصيل" : "استلام من الفرع",
-                  totalPrice: "${order.totalAmount} ل.س",
+                  totalPrice: order.formatPrice(order.totalAmount),
                   statusText: order.statusArabic,
                   onStatusUpdate: () =>
                       _showStatusPicker(context, cubit, order),

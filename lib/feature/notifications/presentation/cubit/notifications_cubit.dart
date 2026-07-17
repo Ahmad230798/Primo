@@ -19,30 +19,31 @@ class NotificationsCubit extends Cubit<NotificationsState> {
   Future<void> getNotifications() async {
     if (!isClosed) emit(NotificationsLoading());
 
-    final result = await _getNotificationsUseCase.call();
+    try {
+      final result = await _getNotificationsUseCase.call();
 
-    result.fold(
-      (failure) {
-        if (!isClosed) emit(NotificationsError(failure.errorMessage));
-      },
-      (notifications) async {
-        // 💡 منطق حساب النقطة الحمراء
-        if (notifications.isNotEmpty) {
-          // 1. نقرأ من الذاكرة المحلية فقط إذا كان المتغير المؤقت صفر (أول مرة نفتح التطبيق)
-          if (_inMemoryLastSeenId == 0) {
-            _inMemoryLastSeenId = await _getLastSeenUseCase.call();
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(NotificationsError(failure.errorMessage));
+        },
+        (notifications) async {
+          if (notifications.isNotEmpty) {
+            if (_inMemoryLastSeenId == 0) {
+              _inMemoryLastSeenId = await _getLastSeenUseCase.call();
+            }
+
+            final int latestIdFromApi = notifications.first.id;
+            hasUnreadNotifications = latestIdFromApi > _inMemoryLastSeenId;
+          } else {
+            hasUnreadNotifications = false;
           }
 
-          final int latestIdFromApi = notifications.first.id;
-          // 2. نقارن مع المتغير المؤقت السريع جداً
-          hasUnreadNotifications = latestIdFromApi > _inMemoryLastSeenId;
-        } else {
-          hasUnreadNotifications = false;
-        }
-
-        if (!isClosed) emit(NotificationsLoaded(notifications));
-      },
-    );
+          if (!isClosed) emit(NotificationsLoaded(notifications));
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(NotificationsError(e.toString()));
+    }
   }
 
   // 💡 دالة تُستدعى عند فتح المستخدم لشاشة الإشعارات لإخفاء النقطة وحفظ الـ ID الجديد

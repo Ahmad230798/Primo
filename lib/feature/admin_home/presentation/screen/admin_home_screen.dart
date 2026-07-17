@@ -5,6 +5,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_home/presentation/cubit/admin_dashboard_cubit.dart';
 import 'package:primo/feature/admin_home/presentation/cubit/admin_dashboard_state.dart';
@@ -12,6 +13,7 @@ import 'package:primo/feature/admin_home/presentation/cubit/admin_dashboard_stat
 import '../widgets/admin_stats_section.dart';
 import '../widgets/customer_suggestions_section.dart';
 import '../widgets/incoming_orders_section.dart';
+import '../widgets/admin_dollar_card.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -58,6 +60,8 @@ class AdminHomeScreen extends StatelessWidget {
                     },
                   ),
                   16.verticalSpace,
+                  const AdminDollarCard(),
+                  16.verticalSpace,
                   BlocBuilder<AdminDashboardCubit, AdminDashboardState>(
                     builder: (context, state) {
                       if (state is AdminDashboardLoading) {
@@ -83,6 +87,11 @@ class AdminHomeScreen extends StatelessWidget {
                             32.verticalSpace,
                             CustomerSuggestionsSection(suggestions: dash.pendingSuggestions),
                           ],
+                        );
+                      } else if (state is AdminDashboardError) {
+                        return CustomErrorRetryWidget(
+                          message: state.message,
+                          onRetry: () => context.read<AdminDashboardCubit>().getDashboard(),
                         );
                       }
                       return Column(

@@ -29,19 +29,23 @@ class HomeCubit extends Cubit<HomeState> {
     if (homeData == null) {
       if (!isClosed) emit(HomeLoading());
     }
-    final result = await _getHomeDataUseCase.execute();
-    result.fold(
-      (failure) {
-        if (homeData == null && !isClosed) emit(HomeError(failure.errorMessage));
-      },
-      (data) {
-        homeData = data;
-        try {
-          AppStorage.cacheData('cache_user_home', jsonEncode(data.toJson()));
-        } catch (_) {}
-        if (!isClosed) emit(HomeLoaded(data));
-      },
-    );
+    try {
+      final result = await _getHomeDataUseCase.execute();
+      result.fold(
+        (failure) {
+          if (homeData == null && !isClosed) emit(HomeError(failure.errorMessage));
+        },
+        (data) {
+          homeData = data;
+          try {
+            AppStorage.cacheData('cache_user_home', jsonEncode(data.toJson()));
+          } catch (_) {}
+          if (!isClosed) emit(HomeLoaded(data));
+        },
+      );
+    } catch (e) {
+      if (homeData == null && !isClosed) emit(HomeError(e.toString()));
+    }
   }
 
   Future<void> getHomeData({bool isRefresh = true}) =>

@@ -6,7 +6,7 @@ import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notificatins_state.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
@@ -104,7 +104,7 @@ class OrderHistoryScreen extends StatelessWidget {
                       ),
                     );
                   } else if (state is OrdersError) {
-                    return AppErrorWidget(
+                    return CustomErrorRetryWidget(
                       message: state.errorMessage,
                       onRetry: () => context.read<OrdersCubit>().getOrders(),
                     );

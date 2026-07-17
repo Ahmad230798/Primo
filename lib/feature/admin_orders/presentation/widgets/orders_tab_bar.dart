@@ -28,7 +28,7 @@ class OrdersTabBar extends StatelessWidget {
           _buildTab(title: "قيد الانتظار", filterKey: "pending"),
           _buildTab(title: "قيد التجهيز", filterKey: "processing"),
           _buildTab(title: "مكتمل", filterKey: "completed"),
-          _buildTab(title: "ملغي", filterKey: "canceled"),
+          _buildTab(title: "الطلبات الملغية", filterKey: "canceled"),
         ],
       ),
     );

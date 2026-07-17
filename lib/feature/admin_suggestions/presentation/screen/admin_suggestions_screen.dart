@@ -9,7 +9,7 @@ import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/admin_home/data/models/admin_dashboard_model.dart';
 import 'package:primo/feature/profile/presentation/cubit/profile_cubit.dart';
@@ -126,7 +126,7 @@ class AdminSuggestionsScreen extends StatelessWidget {
         itemBuilder: (context, index) => const ListTileShimmer(),
       );
     } else if (state is AdminSuggestionsError && dynamicSuggestions.isEmpty) {
-      return AppErrorWidget(
+      return CustomErrorRetryWidget(
         message: state.errorMessage,
         onRetry: () => cubit.getSuggestions(),
       );

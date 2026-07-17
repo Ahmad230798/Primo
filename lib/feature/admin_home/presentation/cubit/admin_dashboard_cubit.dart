@@ -9,10 +9,14 @@ class AdminDashboardCubit extends Cubit<AdminDashboardState> {
 
   Future<void> getDashboard() async {
     emit(AdminDashboardLoading());
-    final result = await _getDashboardUseCase();
-    result.fold(
-      (failure) => emit(AdminDashboardError(failure.errorMessage)),
-      (dashboard) => emit(AdminDashboardLoaded(dashboard)),
-    );
+    try {
+      final result = await _getDashboardUseCase();
+      result.fold(
+        (failure) => emit(AdminDashboardError(failure.errorMessage)),
+        (dashboard) => emit(AdminDashboardLoaded(dashboard)),
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminDashboardError(e.toString()));
+    }
   }
 }

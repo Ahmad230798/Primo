@@ -192,7 +192,7 @@ class CreateOfferScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                cubit.isPercentage ? "%" : "ل.س",
+                cubit.isPercentage ? "%" : (cubit.selectedVariant?.isDollar == true ? "\$" : "ل.س"),
                 style: AppTextStyle.font16.copyWith(
                   color: AppColors.greyDark,
                   fontWeight: FontWeight.bold,

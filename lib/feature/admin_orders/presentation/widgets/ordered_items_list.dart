@@ -124,7 +124,7 @@ class OrderedItemsList extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                "${item.price} ل.س",
+                                item.formatPrice(item.price),
                                 style: AppTextStyle.font16.copyWith(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.bold,

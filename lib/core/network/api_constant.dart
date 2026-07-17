@@ -49,6 +49,7 @@ abstract class ApiConstant {
   static const String adminHome = "/admin/home";
   static const String adminGeneralSettings = "/admin/settings/general";
   static const String adminDeliveryPrice = "/admin/settings/delivery-price";
+  static const String adminDollarValue = "/admin/settings/dollar-value";
   static const String adminAddress = "/admin/address";
   static const String adminOrders = "/admin/ordars";
   static const String adminOrderStatus = "/admin/ordars/status";

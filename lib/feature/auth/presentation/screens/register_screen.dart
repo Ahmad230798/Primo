@@ -36,8 +36,7 @@ class RegisterScreen extends StatelessWidget {
                 // جلب رقم الهاتف من الـ Cubit لتمريره للشاشة التالية
                 final phoneNumber = context
                     .read<RegisterCubit>()
-                    .phoneController
-                    .text;
+                    .cleanedPhoneNumber;
 
                 // الانتقال لشاشة الـ OTP مع تمرير رقم الهاتف
                 context.pushNamed(

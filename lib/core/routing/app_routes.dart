@@ -87,6 +87,7 @@ import 'package:primo/feature/admin_settings/presentation/screen/admin_settings_
 import 'package:primo/feature/admin_settings/presentation/screen/admin_general_settings_screen.dart';
 import 'package:primo/feature/admin_settings/presentation/cubit/store_settings_cubit.dart';
 import 'package:primo/feature/admin_settings/presentation/cubit/add_store_address_cubit.dart';
+import 'package:primo/feature/admin_settings/presentation/cubit/admin_dollar_cubit.dart';
 
 class AppRoutes {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -452,6 +453,9 @@ class AppRoutes {
               BlocProvider(
                 create: (_) => getIt<AdminDashboardCubit>()..getDashboard(),
               ),
+              BlocProvider(
+                create: (_) => getIt<AdminDollarCubit>()..getDollarValue(),
+              ),
               BlocProvider(create: (context) => getIt<ProfileCubit>()),
             ],
             child: const AdminHomeScreen(),
@@ -623,7 +627,10 @@ class AppRoutes {
         );
       case Routes.adminGeneralSettings:
         return CupertinoPageRoute(
-          builder: (_) => const AdminGeneralSettingsScreen(),
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<AdminDollarCubit>()..getDollarValue(),
+            child: const AdminGeneralSettingsScreen(),
+          ),
         );
 
       // ================== Default & Checkout ==================

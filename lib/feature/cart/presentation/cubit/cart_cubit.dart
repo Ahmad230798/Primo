@@ -54,50 +54,57 @@ class CartCubit extends Cubit<CartState> {
     if (!hasCache && showLoading && !isClosed) {
       emit(CartLoading());
     }
-    final result = await _getCartUseCase();
-    result.fold(
-      (failure) {
-        if (!hasCache && currentItems.isEmpty && !isClosed) {
-          emit(CartError(failure.errorMessage));
-        }
-      },
-      (items) {
-        currentItems = items;
-        try {
-          final jsonString =
-              jsonEncode(items.map((e) => e.toJson()).toList());
-          AppStorage.cacheData('cache_user_cart', jsonString);
-        } catch (_) {}
-        if (!isClosed) {
-          emit(CartLoaded(items: items, totalPrice: calculateTotal(items)));
-        }
-      },
-    );
+    try {
+      final result = await _getCartUseCase();
+      result.fold(
+        (failure) {
+          if (!hasCache && currentItems.isEmpty && !isClosed) {
+            emit(CartError(failure.errorMessage));
+          }
+        },
+        (items) {
+          currentItems = items;
+          try {
+            final jsonString =
+                jsonEncode(items.map((e) => e.toJson()).toList());
+            AppStorage.cacheData('cache_user_cart', jsonString);
+          } catch (_) {}
+          if (!isClosed) {
+            emit(CartLoaded(items: items, totalPrice: calculateTotal(items)));
+          }
+        },
+      );
+    } catch (e) {
+      if (!hasCache && currentItems.isEmpty && !isClosed) {
+        emit(CartError(e.toString()));
+      }
+    }
   }
 
   Future<void> addToCart(int variantId, int count) async {
     if (!isClosed) emit(CartLoading());
-    final result = await _addToCartUseCase(variantId, count);
-    result.fold(
-      (failure) {
-        if (!isClosed) emit(CartError(failure.errorMessage)); // 💡 حماية
-      },
-      (msg) {
-        // 2. إرسال حالة النجاح مع تمرير رسالة السيرفر (msg) للواجهة
-        if (!isClosed) {
-          emit(
-            CartLoaded(
-              items: currentItems,
-              totalPrice: calculateTotal(currentItems),
-              actionMessage:
-                  msg, // 💡 رسالة السيرفر الحقيقية ("تمت الإضافة بنجاح" مثلاً)
-            ),
-          );
-        }
-        // 3. تحديث السلة في الخلفية بصمت
-        if (!isClosed) getCart(showLoading: false);
-      },
-    );
+    try {
+      final result = await _addToCartUseCase(variantId, count);
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(CartError(failure.errorMessage));
+        },
+        (msg) {
+          if (!isClosed) {
+            emit(
+              CartLoaded(
+                items: currentItems,
+                totalPrice: calculateTotal(currentItems),
+                actionMessage: msg,
+              ),
+            );
+          }
+          if (!isClosed) getCart(showLoading: false);
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(CartError(e.toString()));
+    }
   }
 
   Future<void> updateQuantity(int cartId, int newCount) async {
@@ -106,7 +113,6 @@ class CartCubit extends Cubit<CartState> {
       return;
     }
 
-    // التحديث اللحظي في الواجهة (Optimistic UI Update)
     final index = currentItems.indexWhere((item) => item.id == cartId);
     if (index != -1) {
       final oldItem = currentItems[index];
@@ -125,20 +131,26 @@ class CartCubit extends Cubit<CartState> {
       }
     }
 
-    final result = await _updateCartQuantityUseCase(cartId, newCount);
-    result.fold(
-      (failure) {
-        if (!isClosed) emit(CartError(failure.errorMessage));
-        if (!isClosed) getCart(showLoading: false); // إعادة جلب عند الخطأ
-      },
-      (_) {
-        if (!isClosed) getCart(showLoading: false);
-      },
-    );
+    try {
+      final result = await _updateCartQuantityUseCase(cartId, newCount);
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(CartError(failure.errorMessage));
+          if (!isClosed) getCart(showLoading: false);
+        },
+        (_) {
+          if (!isClosed) getCart(showLoading: false);
+        },
+      );
+    } catch (e) {
+      if (!isClosed) {
+        emit(CartError(e.toString()));
+        getCart(showLoading: false);
+      }
+    }
   }
 
   Future<void> deleteFromCart(int cartId) async {
-    // التحديث اللحظي
     currentItems = currentItems.where((item) => item.id != cartId).toList();
     if (!isClosed) {
       emit(
@@ -150,15 +162,22 @@ class CartCubit extends Cubit<CartState> {
       );
     }
 
-    final result = await _deleteFromCartUseCase(cartId);
-    result.fold(
-      (failure) {
-        if (!isClosed) emit(CartError(failure.errorMessage));
-        if (!isClosed) getCart(showLoading: false);
-      },
-      (_) {
-        if (!isClosed) getCart(showLoading: false);
-      },
-    );
+    try {
+      final result = await _deleteFromCartUseCase(cartId);
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(CartError(failure.errorMessage));
+          if (!isClosed) getCart(showLoading: false);
+        },
+        (_) {
+          if (!isClosed) getCart(showLoading: false);
+        },
+      );
+    } catch (e) {
+      if (!isClosed) {
+        emit(CartError(e.toString()));
+        getCart(showLoading: false);
+      }
+    }
   }
 }

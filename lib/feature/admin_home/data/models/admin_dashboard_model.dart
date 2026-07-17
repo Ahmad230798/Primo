@@ -71,6 +71,15 @@ class AdminDashboardModel {
           (json['pending_orders'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .map((e) => OrderModel.fromJson(e))
+              .where((o) {
+                final st = o.status.trim().toLowerCase();
+                return st != 'canceled' &&
+                    st != 'cancelled' &&
+                    st != 'rejected' &&
+                    st != 'refused' &&
+                    st != 'ملغي' &&
+                    st != 'مرفوض';
+              })
               .toList() ??
           [],
       pendingSuggestions:

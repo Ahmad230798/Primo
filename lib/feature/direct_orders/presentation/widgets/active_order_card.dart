@@ -13,6 +13,7 @@ class ActiveOrderCard extends StatelessWidget {
   final String customerName;
   final String customerType;
   final String distance;
+  final bool isDollar;
 
   const ActiveOrderCard({
     super.key,
@@ -23,6 +24,7 @@ class ActiveOrderCard extends StatelessWidget {
     required this.customerName,
     required this.customerType,
     required this.distance,
+    this.isDollar = false,
   });
 
   @override
@@ -104,16 +106,8 @@ class ActiveOrderCard extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    price,
+                                    isDollar ? "\$ $price" : "$price ل.س",
                                     style: AppTextStyle.font20.copyWith(
-                                      color: AppColors.textMain,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  4.horizontalSpace,
-                                  Text(
-                                    "ل.س",
-                                    style: AppTextStyle.font14.copyWith(
                                       color: AppColors.textMain,
                                       fontWeight: FontWeight.bold,
                                     ),

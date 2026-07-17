@@ -11,7 +11,7 @@ import 'package:primo/feature/cart/presentation/cubit/cart_state.dart';
 
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/widgets/app_empty_state.dart';
-import 'package:primo/core/widgets/app_error_widget.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:primo/feature/favorites/presentation/cubit/favorites_state.dart';
@@ -138,7 +138,7 @@ class FavoritesPage extends StatelessWidget {
                       ),
                     );
                   } else if (state is FavoritesError) {
-                    return AppErrorWidget(
+                    return CustomErrorRetryWidget(
                       message: state.errorMessage,
                       onRetry: () =>
                           context.read<FavoritesCubit>().fetchFavorites(),
