@@ -66,7 +66,6 @@ class SuggestionItemCard extends StatelessWidget {
               ),
               12.horizontalSpace,
 
-              // 💡 التعديل 1: الـ Expanded يحيط بعمود النصوص بالكامل ليمنع التجاوز العرضي
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,8 +80,8 @@ class SuggestionItemCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     2.verticalSpace,
-                    // 💡 التعديل 2: إزالة الـ Expanded من هنا لحل مشكلة الارتفاع اللانهائي
-                    Row(
+
+                    Wrap(
                       children: [
                         Text(
                           customerType,
@@ -92,7 +91,8 @@ class SuggestionItemCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (customerPhone != null && customerPhone!.isNotEmpty) ...[
+                        if (customerPhone != null &&
+                            customerPhone!.isNotEmpty) ...[
                           Text(
                             " • ",
                             style: AppTextStyle.font12.copyWith(

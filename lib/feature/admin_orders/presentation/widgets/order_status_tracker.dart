@@ -22,9 +22,16 @@ class OrderStatusTracker extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = order?.status.toLowerCase() ?? 'pending';
     final isPending = status == 'pending' || order?.status == 'قيد الانتظار';
-    final isProcessing = status == 'processing' || order?.status == 'قيد التجهيز';
-    final isCompleted = status == 'completed' || order?.status == 'مكتمل' || order?.status == 'تم التسليم';
-    final isCancelled = status == 'canceled' || status == 'cancelled' || order?.status == 'ملغي';
+    final isProcessing =
+        status == 'processing' || order?.status == 'قيد التجهيز';
+    final isCompleted =
+        status == 'completed' ||
+        order?.status == 'مكتمل' ||
+        order?.status == 'تم التسليم';
+    final isCancelled =
+        status == 'canceled' ||
+        status == 'cancelled' ||
+        order?.status == 'ملغي';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,38 +87,58 @@ class OrderStatusTracker extends StatelessWidget {
               20.verticalSpace,
               Divider(color: AppColors.formBorder, height: 1),
               16.verticalSpace,
-
-              // أزرار تغيير الحالة السريعة والواضحة
-              Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children: [
-                  _buildActionButton(
-                    "قيد الانتظار",
-                    'pending',
-                    isPending,
-                    AppColors.primary,
+              if (isLoading)
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.h),
+                    child: Column(
+                      children: [
+                        const CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                        12.verticalSpace,
+                        Text(
+                          "جاري التحديث...",
+                          style: AppTextStyle.font12.copyWith(
+                            color: AppColors.greyDark,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  _buildActionButton(
-                    "قيد التجهيز",
-                    'processing',
-                    isProcessing,
-                    Colors.orange.shade700,
-                  ),
-                  _buildActionButton(
-                    "مكتمل / تم التسليم",
-                    'completed',
-                    isCompleted,
-                    Colors.green.shade700,
-                  ),
-                  _buildActionButton(
-                    "ملغي / مرفوض",
-                    'canceled',
-                    isCancelled,
-                    Colors.red.shade700,
-                  ),
-                ],
-              ),
+                )
+              else
+                // أزرار تغيير الحالة السريعة والواضحة
+                Wrap(
+                  spacing: 8.w,
+                  runSpacing: 8.h,
+                  children: [
+                    _buildActionButton(
+                      "قيد الانتظار",
+                      'pending',
+                      isPending,
+                      AppColors.primary,
+                    ),
+                    _buildActionButton(
+                      "قيد التجهيز",
+                      'processing',
+                      isProcessing,
+                      Colors.orange.shade700,
+                    ),
+                    _buildActionButton(
+                      "مكتمل / تم التسليم",
+                      'completed',
+                      isCompleted,
+                      Colors.green.shade700,
+                    ),
+                    _buildActionButton(
+                      "ملغي / مرفوض",
+                      'canceled',
+                      isCancelled,
+                      Colors.red.shade700,
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -148,7 +175,11 @@ class OrderStatusTracker extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isCurrent) ...[
-              Icon(Icons.check_circle_rounded, color: AppColors.white, size: 16.sp),
+              Icon(
+                Icons.check_circle_rounded,
+                color: AppColors.white,
+                size: 16.sp,
+              ),
               6.horizontalSpace,
             ],
             Text(
@@ -205,7 +236,9 @@ class OrderStatusTracker extends StatelessWidget {
           Text(
             title,
             style: AppTextStyle.font12.copyWith(
-              color: (isCurrent || isCompleted) ? AppColors.primary : AppColors.greyDark,
+              color: (isCurrent || isCompleted)
+                  ? AppColors.primary
+                  : AppColors.greyDark,
               fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
             ),
           ),

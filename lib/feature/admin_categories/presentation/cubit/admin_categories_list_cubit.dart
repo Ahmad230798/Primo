@@ -9,8 +9,7 @@ class AdminCategoriesListCubit extends Cubit<AdminCategoriesListState> {
   final ManageCategoryUseCase _useCase;
   List<CategoryModel> categories = [];
 
-  AdminCategoriesListCubit(this._useCase)
-      : super(AdminCategoriesListInitial());
+  AdminCategoriesListCubit(this._useCase) : super(AdminCategoriesListInitial());
 
   Future<void> getCategories() async {
     bool hasCache = false;
@@ -18,8 +17,7 @@ class AdminCategoriesListCubit extends Cubit<AdminCategoriesListState> {
       final cached = await AppStorage.getCachedData('cache_admin_categories');
       if (cached != null) {
         final List<dynamic> jsonList = jsonDecode(cached);
-        categories =
-            jsonList.map((e) => CategoryModel.fromJson(e)).toList();
+        categories = jsonList.map((e) => CategoryModel.fromJson(e)).toList();
         hasCache = true;
         if (!isClosed) emit(AdminCategoriesListLoaded(categories));
       }
@@ -40,8 +38,7 @@ class AdminCategoriesListCubit extends Cubit<AdminCategoriesListState> {
         (data) {
           categories = data;
           try {
-            final jsonString =
-                jsonEncode(data.map((e) => e.toJson()).toList());
+            final jsonString = jsonEncode(data.map((e) => e.toJson()).toList());
             AppStorage.cacheData('cache_admin_categories', jsonString);
           } catch (_) {}
           if (!isClosed) emit(AdminCategoriesListLoaded(categories));
@@ -60,7 +57,18 @@ class AdminCategoriesListCubit extends Cubit<AdminCategoriesListState> {
       result.fold(
         (failure) => emit(AdminCategoriesListError(failure.errorMessage)),
         (success) {
+          // 1. حذف القسم من القائمة المحلية
           categories.removeWhere((c) => c.id == categoryId);
+
+          // 💡 2. التعديل هنا: تحديث الـ Cache فوراً لكي لا يظهر القسم مجدداً عند عمل Refresh
+          try {
+            final jsonString = jsonEncode(
+              categories.map((e) => e.toJson()).toList(),
+            );
+            AppStorage.cacheData('cache_admin_categories', jsonString);
+          } catch (_) {}
+
+          // 3. إرسال حالة النجاح وتحديث الشاشة
           emit(const AdminCategoryDeleteSuccess("تم حذف القسم بنجاح"));
           emit(AdminCategoriesListLoaded(categories));
         },

@@ -53,7 +53,10 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
         st == 'مرفوض';
   }
 
-  List<OrderModel> _applyStrictFilter(List<OrderModel> rawOrders, String filter) {
+  List<OrderModel> _applyStrictFilter(
+    List<OrderModel> rawOrders,
+    String filter,
+  ) {
     if (filter == 'canceled') {
       return rawOrders.where((o) => _isCancelledStatus(o.status)).toList();
     } else if (filter == 'all') {
@@ -113,7 +116,9 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
         (orders) {
           allOrders = _applyStrictFilter(orders, currentFilter);
           try {
-            final jsonString = jsonEncode(orders.map((e) => e.toJson()).toList());
+            final jsonString = jsonEncode(
+              orders.map((e) => e.toJson()).toList(),
+            );
             AppStorage.cacheData(cacheKey, jsonString);
           } catch (_) {}
           if (!isClosed) {
@@ -132,8 +137,10 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
     await getOrders(status: status);
   }
 
-  Future<void> getOrderDetails(int orderId) async {
-    emit(AdminOrdersLoading());
+  Future<void> getOrderDetails(int orderId, {bool isSilent = false}) async {
+    if (!isSilent) {
+      emit(AdminOrdersLoading());
+    }
     try {
       final result = await _getOrderDetailsUseCase(orderId);
       result.fold(
@@ -158,7 +165,8 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
         (failure) {
           if (!isClosed) emit(AdminOrdersError(failure.errorMessage));
         },
-        (msg) async {
+        (msg) {
+          // 💡 قمنا بإزالة كلمة async من هنا لكي لا ننتظر التفاصيل
           final index = allOrders.indexWhere((o) => o.id == orderId);
           if (index != -1) {
             allOrders[index] = allOrders[index].copyWith(status: newStatus);
@@ -166,17 +174,20 @@ class AdminOrdersCubit extends Cubit<AdminOrdersState> {
           allOrders = _applyStrictFilter(allOrders, currentFilter);
           try {
             final cacheKey = 'cache_admin_orders_$currentFilter';
-            final jsonString = jsonEncode(allOrders.map((e) => e.toJson()).toList());
+            final jsonString = jsonEncode(
+              allOrders.map((e) => e.toJson()).toList(),
+            );
             AppStorage.cacheData(cacheKey, jsonString);
           } catch (_) {}
 
+          // 💡 1. نرسل التحديث للواجهة "فوراً" لكي يختفي اللودينغ ويشعر المستخدم بسرعة الاستجابة
           if (!isClosed) {
             emit(AdminOrderStatusSuccess(msg));
-            await getOrderDetails(orderId);
-            if (!isClosed) {
-              emit(AdminOrdersLoaded(allOrders, activeFilter: currentFilter));
-            }
+            emit(AdminOrdersLoaded(allOrders, activeFilter: currentFilter));
           }
+
+          // 💡 2. نجلب التفاصيل في الخلفية بصمت "بدون await" لكي لا نؤخر استجابة الزر!
+          getOrderDetails(orderId, isSilent: true);
         },
       );
     } catch (e) {

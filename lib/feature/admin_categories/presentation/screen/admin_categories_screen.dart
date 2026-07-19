@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -30,6 +31,57 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
     });
   }
 
+  // 💡 إضافة نافذة تأكيد الحذف الاحترافية
+  void _confirmDelete(BuildContext context, int categoryId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Text(
+          "تأكيد الحذف",
+          style: AppTextStyle.font18.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          "هل أنت متأكد أنك تريد حذف هذا القسم؟ لا يمكن التراجع.",
+          style: AppTextStyle.font14,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              "إلغاء",
+              style: AppTextStyle.font14.copyWith(color: AppColors.greyDark),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              // استدعاء دالة الحذف
+              context.read<AdminCategoriesListCubit>().deleteCategory(
+                categoryId,
+              );
+            },
+            child: Text(
+              "حذف",
+              style: AppTextStyle.font14.copyWith(color: AppColors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +109,10 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                 title: "Primo",
                 suffixsIcon: InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.adminNotificationsHistory);
+                    Navigator.pushNamed(
+                      context,
+                      Routes.adminNotificationsHistory,
+                    );
                   },
                   borderRadius: BorderRadius.circular(99.r),
                   child: Padding(
@@ -81,7 +136,9 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
               child: RefreshIndicator(
                 color: AppColors.primary,
                 onRefresh: () async {
-                  await context.read<AdminCategoriesListCubit>().getCategories();
+                  await context
+                      .read<AdminCategoriesListCubit>()
+                      .getCategories();
                 },
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -104,35 +161,56 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                         ),
                       ),
                       32.verticalSpace,
-                      BlocBuilder<AdminCategoriesListCubit, AdminCategoriesListState>(
+
+                      // 💡 التعديل هنا: استخدام BlocConsumer للاستماع لحالة النجاح
+                      BlocConsumer<
+                        AdminCategoriesListCubit,
+                        AdminCategoriesListState
+                      >(
+                        listener: (context, state) {
+                          if (state is AdminCategoryDeleteSuccess) {
+                            context.showSuccess(state.message);
+                          } else if (state is AdminCategoriesListError) {
+                            context.showError(state.message);
+                          }
+                        },
                         builder: (context, state) {
                           if (state is AdminCategoriesListLoading) {
                             return GridView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: 6,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 16.w,
-                                mainAxisSpacing: 16.h,
-                                childAspectRatio: 0.75,
-                              ),
-                              itemBuilder: (context, index) => const CategoryShimmer(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 16.w,
+                                    mainAxisSpacing: 16.h,
+                                    childAspectRatio: 0.75,
+                                  ),
+                              itemBuilder: (context, index) =>
+                                  const CategoryShimmer(),
                             );
                           } else if (state is AdminCategoriesListError) {
                             return CustomErrorRetryWidget(
                               message: state.message,
-                              onRetry: () => context.read<AdminCategoriesListCubit>().getCategories(),
+                              onRetry: () => context
+                                  .read<AdminCategoriesListCubit>()
+                                  .getCategories(),
                             );
                           }
 
-                          final categories = context.read<AdminCategoriesListCubit>().categories;
+                          // 💡 قراءة القائمة المحدثة (التي قام الكيوبت بحذف العنصر منها محلياً)
+                          final categories = context
+                              .read<AdminCategoriesListCubit>()
+                              .categories;
 
                           if (categories.isEmpty) {
                             return AppEmptyState(
                               icon: Icons.category_outlined,
                               message: "لا توجد أقسام حالياً",
-                              onRetry: () => context.read<AdminCategoriesListCubit>().getCategories(),
+                              onRetry: () => context
+                                  .read<AdminCategoriesListCubit>()
+                                  .getCategories(),
                             );
                           }
 
@@ -140,17 +218,19 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: categories.length,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16.w,
-                              mainAxisSpacing: 16.h,
-                              childAspectRatio: 0.75,
-                            ),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16.w,
+                                  mainAxisSpacing: 16.h,
+                                  childAspectRatio: 0.75,
+                                ),
                             itemBuilder: (context, index) {
                               final category = categories[index];
                               return CategoryCard(
                                 title: category.name ?? "قسم",
-                                imagePath: category.image ?? "assets/images/honey.png",
+                                imagePath:
+                                    category.image ?? "assets/images/honey.png",
                                 onTap: () {
                                   Navigator.pushNamed(
                                     context,
@@ -159,7 +239,9 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                                   );
                                 },
                                 onEdit: () {
-                                  context.read<AdminCategoryCubit>().initForEdit(category);
+                                  context
+                                      .read<AdminCategoryCubit>()
+                                      .initForEdit(category);
                                   Navigator.pushNamed(
                                     context,
                                     Routes.addCategory,
@@ -167,8 +249,9 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                                   );
                                 },
                                 onDelete: () {
+                                  // 💡 المناداة على نافذة التأكيد
                                   if (category.id != null) {
-                                    context.read<AdminCategoriesListCubit>().deleteCategory(category.id!);
+                                    _confirmDelete(context, category.id!);
                                   }
                                 },
                               );

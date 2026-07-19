@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/routing/app_routes.dart';
+import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
 
 class FirebaseCloudMessagingService {
   static final FirebaseCloudMessagingService _instance =
@@ -43,7 +45,9 @@ class FirebaseCloudMessagingService {
 
         // Listen for foreground notifications
         FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-          log('Foreground FCM Message Received: ${message.notification?.title}');
+          log(
+            'Foreground FCM Message Received: ${message.notification?.title}',
+          );
           final notification = message.notification;
           if (notification != null) {
             final context = AppRoutes.navigatorKey.currentContext;
@@ -80,9 +84,13 @@ class FirebaseCloudMessagingService {
               );
             }
           }
+          // 💡 السطر السحري: إجبار الكيوبت على جلب البيانات فوراً لكي تظهر النقطة الحمراء
+          getIt<NotificationsCubit>().getNotifications();
         });
       } else {
-        log('User declined or has not accepted permission for Firebase messaging');
+        log(
+          'User declined or has not accepted permission for Firebase messaging',
+        );
       }
     } catch (e) {
       log('Error initializing FirebaseCloudMessagingService: $e');

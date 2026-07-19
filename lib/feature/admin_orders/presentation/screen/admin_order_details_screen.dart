@@ -18,11 +18,16 @@ class AdminOrderDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 💡 هذا المتغير سيحفظ البيانات محلياً ويمنع الشاشة من الوميض
+    OrderModel? screenOrder = orderArg;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: BlocListener<AdminOrdersCubit, AdminOrdersState>(
           listener: (context, state) {
+            
+            // 💡 هنا نعرض رسائل النجاح أو الخطأ فقط (بدون أي استدعاء لأي دوال)
             if (state is AdminOrderStatusSuccess) {
               context.showSuccess(state.message);
             } else if (state is AdminOrdersError) {
@@ -31,7 +36,7 @@ class AdminOrderDetailsScreen extends StatelessWidget {
           },
           child: Column(
             children: [
-              // شريط التنقل العلوي (AppBar)
+              // --- شريط التنقل العلوي (AppBar) ---
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
                 decoration: const BoxDecoration(
@@ -66,37 +71,27 @@ class AdminOrderDetailsScreen extends StatelessWidget {
                 ),
               ),
 
-              // محتوى الشاشة
+              // --- محتوى الشاشة ---
               Expanded(
+                // 💡 1. البيلدر الخارجي: يتحدث فقط عند وصول التفاصيل الكاملة
                 child: BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
-                  // 💡 نقوم بالبناء عند تغير حالات التحميل والنجاح المخصصة للتفاصيل
-                  buildWhen: (previous, current) =>
-                      current is AdminOrdersLoading ||
-                      current is AdminOrderDetailsLoaded ||
-                      current is AdminOrdersLoaded,
-                  builder: (context, state) {
-                    // 💡 1. إظهار مؤشر التحميل أثناء مناداة السيرفر
-                    if (state is AdminOrdersLoading) {
+                  buildWhen: (previous, current) {
+                    return current is AdminOrderDetailsLoaded;
+                  },
+                  builder: (context, mainState) {
+                    
+                    if (mainState is AdminOrderDetailsLoaded) {
+                      screenOrder = mainState.order;
+                    }
+
+                    // 💡 اللودينغ الكبير يظهر فقط في البداية إذا كانت المنتجات غير متوفرة
+                    if (screenOrder?.items == null ||
+                        screenOrder!.items.isEmpty) {
                       return const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primary,
                         ),
                       );
-                    }
-
-                    // 💡 2. تحديد مصدر البيانات:
-                    // إذا نجح السيرفر في جلب التفاصيل الكاملة نعتمد عليها، وإلا نستخدم البيانات المبسطة كخطة احتياطية
-                    OrderModel? liveOrder = orderArg;
-                    if (state is AdminOrderDetailsLoaded) {
-                      liveOrder = state
-                          .order; // التفاصيل الكاملة من السيرفر (تحتوي على العناصر والزبون)
-                    } else if (state is AdminOrdersLoaded) {
-                      // في حال تم تحديث الحالة نجلب الطلب المحدث محلياً
-                      try {
-                        liveOrder = state.orders.firstWhere(
-                          (o) => o.id == orderArg?.id,
-                        );
-                      } catch (_) {}
                     }
 
                     return SingleChildScrollView(
@@ -107,33 +102,49 @@ class AdminOrderDetailsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomerInfoCard(order: liveOrder),
+                          CustomerInfoCard(order: screenOrder),
                           24.verticalSpace,
 
-                          OrderStatusTracker(
-                            order: liveOrder,
-                            // 💡 جعل التتبع يعطي لودينغ فقط عند تحديث الحالة
-                            isLoading:
-                                state is AdminOrderStatusUpdating &&
-                                state.orderId == liveOrder?.id,
-                            onUpdateStatus: (newStatus) {
-                              if (liveOrder?.id != null) {
-                                context
-                                    .read<AdminOrdersCubit>()
-                                    .updateOrderStatus(
-                                      liveOrder!.id,
-                                      newStatus,
-                                    );
+                          // 💡 2. البيلدر الداخلي (الخاص بالزر فقط)
+                          BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
+                            builder: (context, statusState) {
+                              OrderModel? orderForStatus = screenOrder;
+
+                              if (statusState is AdminOrdersLoaded) {
+                                try {
+                                  orderForStatus = statusState.orders
+                                      .firstWhere(
+                                        (o) => o.id == screenOrder?.id,
+                                      );
+                                } catch (_) {}
                               }
+
+                              // استخراج حالة اللودينغ بدقة لهذا الزر
+                              final isButtonLoading =
+                                  statusState is AdminOrderStatusUpdating &&
+                                  statusState.orderId == screenOrder?.id;
+
+                              return OrderStatusTracker(
+                                order: orderForStatus,
+                                isLoading: isButtonLoading,
+                                onUpdateStatus: (newStatus) {
+                                  if (screenOrder?.id != null) {
+                                    context
+                                        .read<AdminOrdersCubit>()
+                                        .updateOrderStatus(
+                                          screenOrder!.id,
+                                          newStatus,
+                                        );
+                                  }
+                                },
+                              );
                             },
                           ),
-                          24.verticalSpace,
 
-                          // 💡 الآن liveOrder?.items ستكون محملة بالكامل من دالة التفاصيل ولن تظهر 0
-                          OrderedItemsList(items: liveOrder?.items),
                           24.verticalSpace,
-
-                          CostSummaryCard(order: liveOrder),
+                          OrderedItemsList(items: screenOrder?.items),
+                          24.verticalSpace,
+                          CostSummaryCard(order: screenOrder),
                           40.verticalSpace,
                         ],
                       ),

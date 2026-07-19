@@ -254,8 +254,11 @@ class AppRoutes {
       case Routes.cart:
         return CupertinoPageRoute(
           // 💡 تم التعديل إلى .value لأننا نستعير السلة العامة ولا ننشئ واحدة جديدة
-          builder: (_) => BlocProvider.value(
-            value: getIt<CartCubit>()..getCart(),
+          builder: (_) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: getIt<CartCubit>()..getCart()),
+              BlocProvider.value(value: getIt<NotificationsCubit>()),
+            ],
             child: const Cart(isFromBottomNav: false),
           ),
         );
@@ -339,14 +342,8 @@ class AppRoutes {
       case Routes.orderDetailsScreen:
         final order = settings.arguments as OrderModel?; // استلام الداتا
         return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (context) {
-              final cubit = getIt<OrdersCubit>();
-              if (order != null) {
-                cubit.getOrderDetails(order.id);
-              }
-              return cubit;
-            },
+          builder: (_) => BlocProvider.value(
+            value: getIt<AdminOrdersCubit>()..getOrderDetails(order!.id),
             child: OrderDetailsScreen(orderArg: order),
           ), // تمريرها للشاشة
         );
@@ -377,7 +374,7 @@ class AppRoutes {
               BlocProvider(
                 create: (context) => getIt<OrdersCubit>()..getOrders(),
               ),
-            BlocProvider.value(value: getIt<NotificationsCubit>()),
+              BlocProvider.value(value: getIt<NotificationsCubit>()),
             ],
             child: const OrderHistoryScreen(isFromBottomNav: false),
           ),
