@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/routing/app_routes.dart';
 import 'package:primo/feature/notifications/presentation/cubit/notifications_cubit.dart';
@@ -13,6 +14,16 @@ class FirebaseCloudMessagingService {
   FirebaseCloudMessagingService._internal();
 
   String? _cachedToken;
+  final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  final AndroidNotificationChannel _channel = const AndroidNotificationChannel(
+    'high_importance_channel',
+    'High Importance Notifications',
+    description: 'This channel is used for important notifications.',
+    importance: Importance.max,
+    playSound: true,
+  );
 
   Future<void> init() async {
     try {
@@ -33,6 +44,24 @@ class FirebaseCloudMessagingService {
           settings.authorizationStatus == AuthorizationStatus.provisional) {
         log('User granted permission for Firebase messaging');
 
+        // Initialize local notifications
+        const AndroidInitializationSettings initializationSettingsAndroid =
+            AndroidInitializationSettings('@mipmap/ic_launcher');
+        const DarwinInitializationSettings initializationSettingsDarwin =
+            DarwinInitializationSettings();
+        const InitializationSettings initializationSettings =
+            InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsDarwin,
+        );
+
+        await _localNotificationsPlugin.initialize(initializationSettings);
+
+        await _localNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(_channel);
+
         // Fetch token
         _cachedToken = await messaging.getToken();
         log('FCM Device Token: $_cachedToken');
@@ -49,7 +78,30 @@ class FirebaseCloudMessagingService {
             'Foreground FCM Message Received: ${message.notification?.title}',
           );
           final notification = message.notification;
+          final android = message.notification?.android;
+
           if (notification != null) {
+            _localNotificationsPlugin.show(
+              notification.hashCode,
+              notification.title,
+              notification.body,
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  _channel.id,
+                  _channel.name,
+                  channelDescription: _channel.description,
+                  importance: _channel.importance,
+                  priority: Priority.high,
+                  icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+                ),
+                iOS: const DarwinNotificationDetails(
+                  presentAlert: true,
+                  presentBadge: true,
+                  presentSound: true,
+                ),
+              ),
+            );
+
             final context = AppRoutes.navigatorKey.currentContext;
             if (context != null && context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -84,7 +136,7 @@ class FirebaseCloudMessagingService {
               );
             }
           }
-          // 💡 السطر السحري: إجبار الكيوبت على جلب البيانات فوراً لكي تظهر النقطة الحمراء
+          // 💡 إجبار الكيوبت على جلب البيانات فوراً لكي تظهر النقطة الحمراء
           getIt<NotificationsCubit>().getNotifications();
         });
       } else {

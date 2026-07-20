@@ -17,15 +17,17 @@ class AdminDollarRepoImpl implements AdminDollarRepo {
       if (data is Map<String, dynamic> && data.containsKey('dollar_value')) {
         final val = data['dollar_value'];
         if (val != null) {
-          return Right(num.tryParse(val.toString()) ?? 0);
+          final parsed = num.tryParse(val.toString()) ?? 0;
+          if (parsed > 0) return Right(parsed);
         }
       } else if (response is Map<String, dynamic> && response.containsKey('dollar_value')) {
         final val = response['dollar_value'];
         if (val != null) {
-          return Right(num.tryParse(val.toString()) ?? 0);
+          final parsed = num.tryParse(val.toString()) ?? 0;
+          if (parsed > 0) return Right(parsed);
         }
       }
-      return const Right(0);
+      return Left(ServerFailure("فشل في جلب سعر الصرف"));
     } on ServerFailure catch (failure) {
       return Left(failure);
     } catch (e) {

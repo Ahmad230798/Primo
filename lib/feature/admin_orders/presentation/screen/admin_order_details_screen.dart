@@ -5,6 +5,7 @@ import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import '../cubit/admin_orders_cubit.dart';
 import '../cubit/admin_orders_state.dart';
 import '../widgets/cost_summary_card.dart';
@@ -73,18 +74,31 @@ class AdminOrderDetailsScreen extends StatelessWidget {
 
               // --- محتوى الشاشة ---
               Expanded(
-                // 💡 1. البيلدر الخارجي: يتحدث فقط عند وصول التفاصيل الكاملة
                 child: BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
                   buildWhen: (previous, current) {
-                    return current is AdminOrderDetailsLoaded;
+                    return current is AdminOrderDetailsLoaded ||
+                        current is AdminOrdersError;
                   },
                   builder: (context, mainState) {
-                    
                     if (mainState is AdminOrderDetailsLoaded) {
                       screenOrder = mainState.order;
                     }
 
-                    // 💡 اللودينغ الكبير يظهر فقط في البداية إذا كانت المنتجات غير متوفرة
+                    if (mainState is AdminOrdersError &&
+                        (screenOrder?.items == null ||
+                            screenOrder!.items.isEmpty)) {
+                      return CustomErrorRetryWidget(
+                        message: mainState.errorMessage,
+                        onRetry: () {
+                          if (orderArg?.id != null) {
+                            context
+                                .read<AdminOrdersCubit>()
+                                .getOrderDetails(orderArg!.id);
+                          }
+                        },
+                      );
+                    }
+
                     if (screenOrder?.items == null ||
                         screenOrder!.items.isEmpty) {
                       return const Center(

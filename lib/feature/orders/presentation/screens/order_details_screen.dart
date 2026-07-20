@@ -5,6 +5,7 @@ import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/models/order_model.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/feature/admin_orders/presentation/cubit/admin_orders_cubit.dart';
 import 'package:primo/feature/admin_orders/presentation/cubit/admin_orders_state.dart';
 import 'package:primo/feature/admin_orders/presentation/widgets/cost_summary_card.dart';
@@ -71,20 +72,31 @@ class OrderDetailsScreen extends StatelessWidget {
 
               // --- محتوى الشاشة ---
               Expanded(
-                // 💡 1. الجدار العازل: هذا البيلدر لن يتحدث أبداً إلا إذا جاءت التفاصيل العميقة
                 child: BlocBuilder<AdminOrdersCubit, AdminOrdersState>(
                   buildWhen: (previous, current) {
-                    // السحر هنا: لا تقم بتحديث الشاشة بالكامل إلا إذا استلمت تفاصيل الطلب!
-                    // أي حالة أخرى (تحديث زر، جلب قائمة) سيتم رفضها وتتجمّد الشاشة على آخر بيانات.
-                    return current is AdminOrderDetailsLoaded;
+                    return current is AdminOrderDetailsLoaded ||
+                        current is AdminOrdersError;
                   },
                   builder: (context, mainState) {
-                    // إذا وصلت التفاصيل، نقوم بتحديث المتغير المحلي
                     if (mainState is AdminOrderDetailsLoaded) {
                       screenOrder = mainState.order;
                     }
 
-                    // اللودينغ الكبير يظهر فقط إذا لم تكن المنتجات متوفرة بعد
+                    if (mainState is AdminOrdersError &&
+                        (screenOrder?.items == null ||
+                            screenOrder!.items.isEmpty)) {
+                      return CustomErrorRetryWidget(
+                        message: mainState.errorMessage,
+                        onRetry: () {
+                          if (orderArg?.id != null) {
+                            context
+                                .read<AdminOrdersCubit>()
+                                .getOrderDetails(orderArg!.id);
+                          }
+                        },
+                      );
+                    }
+
                     if (screenOrder?.items == null ||
                         screenOrder!.items.isEmpty) {
                       return const Center(

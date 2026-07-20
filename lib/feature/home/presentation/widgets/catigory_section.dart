@@ -5,6 +5,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/feature/home/presentation/cubit/home_cubit.dart';
 import 'package:primo/feature/home/presentation/cubit/home_state.dart';
 import 'package:primo/feature/home/presentation/widgets/catigory_chip.dart';
@@ -33,9 +34,9 @@ class CatigorySection extends StatelessWidget {
           if (state.data.categories.isEmpty) {
             return Center(
               child: Text(
-                "لا يوجد أقسام حالياً",
+                "لا توجد تصنيفات متاحة حالياً",
                 style: AppTextStyle.font14.copyWith(
-                  color: AppColors.greyMedium2,
+                  color: AppColors.greyMedium3,
                 ),
               ),
             );
@@ -65,11 +66,9 @@ class CatigorySection extends StatelessWidget {
             }).toList(),
           );
         } else if (state is HomeError) {
-          return Center(
-            child: Text(
-              state.errorMessage,
-              style: AppTextStyle.font14.copyWith(color: AppColors.primary),
-            ),
+          return CustomErrorRetryWidget(
+            message: state.errorMessage,
+            onRetry: () => context.read<HomeCubit>().getHomeData(isRefresh: true),
           );
         }
         return const SizedBox();
