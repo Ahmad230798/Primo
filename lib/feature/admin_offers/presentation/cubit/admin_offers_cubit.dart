@@ -43,7 +43,7 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
     if (before <= 0) return 0.0;
     final discountVal = double.tryParse(discountController.text.trim()) ?? 0.0;
     if (isPercentage) {
-      final after = before - (before * (discountVal / 100));
+      final after = before - (before * (discountVal / 100.0));
       return after < 0 ? 0.0 : after;
     } else {
       final after = before - discountVal;
@@ -57,6 +57,7 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
 
   void selectVariant(VariantModel? variant) {
     selectedVariant = variant;
+
     if (variant?.id != null) {
       selectedVariantId = variant!.id!.toString();
     }
@@ -135,6 +136,9 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
   }
 
   void _emitUIChange() {
+    if (!isClosed) {
+      emit(AdminOffersInitial());
+    }
     emit(
       AdminOffersUIChanged(
         isPercentage: isPercentage,
@@ -166,7 +170,9 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
         variantId: selectedVariantId,
         fromDate: startDateText,
         toDate: endDateText,
-        discountPercentage: isPercentage ? discountController.text.trim() : null,
+        discountPercentage: isPercentage
+            ? discountController.text.trim()
+            : null,
         discountValue: !isPercentage ? discountController.text.trim() : null,
       );
 
@@ -201,7 +207,9 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
         variantId: selectedVariantId,
         fromDate: startDateText,
         toDate: endDateText,
-        discountPercentage: isPercentage ? discountController.text.trim() : null,
+        discountPercentage: isPercentage
+            ? discountController.text.trim()
+            : null,
         discountValue: !isPercentage ? discountController.text.trim() : null,
         image: selectedImage,
       );
@@ -234,4 +242,7 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
     discountController.dispose();
     return super.close();
   }
+
+  String get formattedPriceBefore => priceBeforeDiscount.toStringAsFixed(1);
+  String get formattedPriceAfter => priceAfterDiscount.toStringAsFixed(1);
 }

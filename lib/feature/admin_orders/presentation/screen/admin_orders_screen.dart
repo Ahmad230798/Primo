@@ -132,7 +132,8 @@ class AdminOrdersScreen extends StatelessWidget {
     List<OrderModel> orders,
     AdminOrdersCubit cubit,
   ) {
-    if (state is AdminOrdersLoading && orders.isEmpty) {
+    if ((state is AdminOrdersInitial || state is AdminOrdersLoading) &&
+        orders.isEmpty) {
       return ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),

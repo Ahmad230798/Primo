@@ -86,14 +86,19 @@ class CreateOfferScreen extends StatelessWidget {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: OfferSubmitButton(
-                    text: isEditing ? "حفظ التعديلات" : "تفعيل العرض",
-                    onPressed: () {
-                      if (isEditing) {
-                        cubit.updateOffer();
-                      } else {
-                        cubit.createOffer();
-                      }
+                  child: BlocBuilder<AdminOffersCubit, AdminOffersState>(
+                    builder: (context, state) {
+                      final isLoading = state is AdminOffersLoading;
+                      return OfferSubmitButton(
+                        text: isEditing ? "حفظ التعديلات" : "تفعيل العرض",
+                        onPressed: (){
+                                if (isEditing) {
+                                  cubit.updateOffer();
+                                } else {
+                                  cubit.createOffer();
+                                }
+                              }, isLoading: isLoading,
+                      );
                     },
                   ),
                 ),
@@ -192,7 +197,9 @@ class CreateOfferScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                cubit.isPercentage ? "%" : (cubit.selectedVariant?.isDollar == true ? "\$" : "ل.س"),
+                cubit.isPercentage
+                    ? "%"
+                    : (cubit.selectedVariant?.isDollar == true ? "\$" : "ل.س"),
                 style: AppTextStyle.font16.copyWith(
                   color: AppColors.greyDark,
                   fontWeight: FontWeight.bold,

@@ -13,7 +13,7 @@ void main() async {
     debugPrint("Firebase init note: $e");
   }
   setupServiceLocator(); // تفعيل حاقن التبعيات
-  await AppStorage.init(); // تهيئة التخزين
+  await AppStorage.init(); // تهيئة التخزين**
   await getIt<FirebaseCloudMessagingService>().init();
   runApp(const MyApp());
 }

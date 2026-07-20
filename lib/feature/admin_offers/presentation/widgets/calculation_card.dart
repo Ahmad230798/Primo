@@ -14,8 +14,10 @@ class CalculationCard extends StatelessWidget {
     return BlocBuilder<AdminOffersCubit, AdminOffersState>(
       builder: (context, state) {
         final cubit = context.read<AdminOffersCubit>();
-        final before = cubit.priceBeforeDiscount;
-        final after = cubit.priceAfterDiscount;
+
+        // 💡 هذان المتغيران يأتيان الآن من الكيوبت كنصوص مجهزة بكسور عشرية (مثلاً "1.60")
+        final before = cubit.formattedPriceBefore;
+        final after = cubit.formattedPriceAfter;
 
         return Container(
           padding: EdgeInsets.all(20.w),
@@ -44,8 +46,12 @@ class CalculationCard extends StatelessWidget {
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: Text(
-                      cubit.selectedVariant?.formatPrice(before.toStringAsFixed(0)) ?? "${before.toStringAsFixed(0)} ل.س",
-                      key: ValueKey<double>(before),
+                      // 💡 التعديل هنا: إزالة .toStringAsFixed(0) واستخدام المتغير `before` مباشرة
+                      cubit.selectedVariant?.formatPrice(before) ??
+                          "$before ل.س",
+                      key: ValueKey<String>(
+                        before,
+                      ), // 💡 تعديل النوع إلى String
                       style: AppTextStyle.font16.copyWith(
                         color: AppColors.white.withValues(alpha: 0.6),
                         decoration: TextDecoration.lineThrough,
@@ -71,8 +77,9 @@ class CalculationCard extends StatelessWidget {
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: Text(
-                      cubit.selectedVariant?.formatPrice(after.toStringAsFixed(0)) ?? "${after.toStringAsFixed(0)} ل.س",
-                      key: ValueKey<double>(after),
+                      // 💡 التعديل هنا: إزالة .toStringAsFixed(0) واستخدام المتغير `after` مباشرة
+                      cubit.selectedVariant?.formatPrice(after) ?? "$after ل.س",
+                      key: ValueKey<String>(after), // 💡 تعديل النوع إلى String
                       style: AppTextStyle.font24.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,

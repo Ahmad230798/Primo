@@ -6,13 +6,15 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class OfferSubmitButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final void Function()? onPressed;
   final String text;
+  final bool isLoading;
 
   const OfferSubmitButton({
     super.key,
     required this.onPressed,
     this.text = "تفعيل العرض",
+    required this.isLoading,
   });
 
   @override
@@ -26,7 +28,7 @@ class OfferSubmitButton extends StatelessWidget {
         ),
       ),
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           elevation: 0,
@@ -36,24 +38,33 @@ class OfferSubmitButton extends StatelessWidget {
           ),
           shadowColor: AppColors.primary.withOpacity(0.5),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              text,
-              style: AppTextStyle.font18.copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.bold,
+        child: isLoading
+            ? SizedBox(
+                height: 24.h,
+                width: 24.h,
+                child: const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    text,
+                    style: AppTextStyle.font18.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  8.horizontalSpace,
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    color: AppColors.white,
+                    size: 24.sp,
+                  ),
+                ],
               ),
-            ),
-            8.horizontalSpace,
-            Icon(
-              Icons.check_circle_outline_rounded,
-              color: AppColors.white,
-              size: 24.sp,
-            ),
-          ],
-        ),
       ),
     );
   }
