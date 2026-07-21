@@ -27,29 +27,44 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
       emit(AdminOffersListLoading());
     }
 
-    final result = await _useCase.getAllOffers();
-    result.fold((failure) => emit(AdminOffersListError(failure.errorMessage)), (
-      data,
-    ) {
-      offers = data;
-      if (!isClosed) 
-      {
-        emit(AdminOffersListLoaded(offers));
-      }
-    });
+    try {
+      final result = await _useCase.getAllOffers();
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(AdminOffersListError(failure.errorMessage));
+        },
+        (data) {
+          offers = data;
+          if (!isClosed) {
+            emit(AdminOffersListLoaded(offers));
+          }
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminOffersListError(e.toString()));
+    }
   }
 
   Future<void> deleteOffer(int offerId) async {
     if (!isClosed) {
       emit(AdminOffersListLoading());
     }
-    final result = await _useCase.deleteOffer(offerId);
-    result.fold((failure) => emit(AdminOffersListError(failure.errorMessage)), (
-      success,
-    ) {
-      offers.removeWhere((o) => o.id == offerId);
-      emit(const AdminOfferDeleteSuccess("تم حذف العرض بنجاح"));
-      emit(AdminOffersListLoaded(offers));
-    });
+    try {
+      final result = await _useCase.deleteOffer(offerId);
+      result.fold(
+        (failure) {
+          if (!isClosed) emit(AdminOffersListError(failure.errorMessage));
+        },
+        (success) {
+          offers.removeWhere((o) => o.id == offerId);
+          if (!isClosed) {
+            emit(const AdminOfferDeleteSuccess("تم حذف العرض بنجاح"));
+            emit(AdminOffersListLoaded(offers));
+          }
+        },
+      );
+    } catch (e) {
+      if (!isClosed) emit(AdminOffersListError(e.toString()));
+    }
   }
 }

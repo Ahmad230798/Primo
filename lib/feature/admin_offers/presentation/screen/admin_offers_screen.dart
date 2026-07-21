@@ -7,6 +7,7 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
 import 'package:primo/core/widgets/admin_drawer.dart';
 import 'package:primo/core/widgets/custom_app_bar.dart';
+import 'package:primo/core/widgets/custom_error_retry_widget.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_cubit.dart';
 import 'package:primo/feature/admin_product/presentation/cubit/admin_products_list_state.dart';
 import '../cubit/admin_offers_cubit.dart';
@@ -137,16 +138,11 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                 itemBuilder: (context, index) => const ListTileShimmer(),
                               );
                             } else if (state is AdminOffersListError) {
-                              return Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(40.h),
-                                  child: Text(
-                                    state.message,
-                                    style: AppTextStyle.font16.copyWith(
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                ),
+                              return CustomErrorRetryWidget(
+                                message: state.message,
+                                onRetry: () => context
+                                    .read<AdminOffersListCubit>()
+                                    .getOffers(),
                               );
                             }
 

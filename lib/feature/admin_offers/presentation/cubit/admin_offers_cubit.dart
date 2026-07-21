@@ -178,12 +178,17 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
 
       final response = await _manageOffersUseCase.createOffer(body);
 
-      response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
-        success,
-      ) {
-        _resetForm();
-        emit(AdminOffersSuccess(success.message ?? "تم إضافة العرض بنجاح"));
-      });
+      response.fold(
+        (failure) {
+          if (!isClosed) emit(AdminOffersError(failure.errorMessage));
+        },
+        (success) {
+          _resetForm();
+          if (!isClosed) {
+            emit(AdminOffersSuccess(success.message ?? "تم إضافة العرض بنجاح"));
+          }
+        },
+      );
     } catch (e) {
       if (!isClosed) emit(AdminOffersError(e.toString()));
     }
@@ -192,15 +197,15 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
   void updateOffer() async {
     if (editingOfferId == null) return;
     if (discountController.text.trim().isEmpty) {
-      emit(const AdminOffersError("حقل قيمة الخصم مطلوب"));
+      if (!isClosed) emit(const AdminOffersError("حقل قيمة الخصم مطلوب"));
       return;
     }
     if (startDate == null || endDate == null) {
-      emit(const AdminOffersError("يرجى تحديد تواريخ العرض كاملة"));
+      if (!isClosed) emit(const AdminOffersError("يرجى تحديد تواريخ العرض كاملة"));
       return;
     }
 
-    emit(AdminOffersLoading());
+    if (!isClosed) emit(AdminOffersLoading());
 
     try {
       final body = UpdateOfferRequestBody(
@@ -219,11 +224,16 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
         body,
       );
 
-      response.fold((failure) => emit(AdminOffersError(failure.errorMessage)), (
-        success,
-      ) {
-        emit(AdminOffersSuccess(success.message ?? "تم تعديل العرض بنجاح"));
-      });
+      response.fold(
+        (failure) {
+          if (!isClosed) emit(AdminOffersError(failure.errorMessage));
+        },
+        (success) {
+          if (!isClosed) {
+            emit(AdminOffersSuccess(success.message ?? "تم تعديل العرض بنجاح"));
+          }
+        },
+      );
     } catch (e) {
       if (!isClosed) emit(AdminOffersError(e.toString()));
     }

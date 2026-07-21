@@ -17,8 +17,12 @@ class AdminDollarCubit extends Cubit<AdminDollarState> {
           if (!isClosed) emit(AdminDollarError(failure.errorMessage));
         },
         (val) {
-          currentDollarValue = val;
-          if (!isClosed) emit(AdminDollarLoaded(val));
+          if (val > 0) {
+            currentDollarValue = val;
+            if (!isClosed) emit(AdminDollarLoaded(val));
+          } else {
+            if (!isClosed) emit(AdminDollarError("فشل في جلب سعر الصرف"));
+          }
         },
       );
     } catch (e) {
@@ -35,10 +39,12 @@ class AdminDollarCubit extends Cubit<AdminDollarState> {
           if (!isClosed) emit(AdminDollarError(failure.errorMessage));
         },
         (_) {
-          currentDollarValue = dollarValue;
+          if (dollarValue > 0) {
+            currentDollarValue = dollarValue;
+          }
           if (!isClosed) {
             emit(AdminDollarUpdateSuccess("تم تحديث سعر الصرف بنجاح", dollarValue));
-            emit(AdminDollarLoaded(dollarValue));
+            emit(AdminDollarLoaded(currentDollarValue));
           }
         },
       );
