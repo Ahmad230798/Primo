@@ -343,7 +343,7 @@ class AppRoutes {
         final order = settings.arguments as OrderModel?; // استلام الداتا
         return MaterialPageRoute(
           builder: (_) => BlocProvider.value(
-            value: getIt<AdminOrdersCubit>()..getOrderDetails(order!.id),
+            value: getIt<OrdersCubit>()..getOrderDetails(order!.id),
             child: OrderDetailsScreen(orderArg: order),
           ), // تمريرها للشاشة
         );
