@@ -32,8 +32,7 @@ class OrdersCubit extends Cubit<OrdersState> {
       final cached = await AppStorage.getCachedData(cacheKey);
       if (cached != null) {
         final List<dynamic> jsonList = jsonDecode(cached);
-        currentOrders =
-            jsonList.map((e) => OrderModel.fromJson(e)).toList();
+        currentOrders = jsonList.map((e) => OrderModel.fromJson(e)).toList();
         hasCache = true;
         if (!isClosed) emit(OrdersLoaded(currentOrders));
       }
@@ -70,8 +69,9 @@ class OrdersCubit extends Cubit<OrdersState> {
           }
           currentOrders = filtered;
           try {
-            final jsonString =
-                jsonEncode(filtered.map((e) => e.toJson()).toList());
+            final jsonString = jsonEncode(
+              filtered.map((e) => e.toJson()).toList(),
+            );
             AppStorage.cacheData(cacheKey, jsonString);
           } catch (_) {}
           if (!isClosed) emit(OrdersLoaded(filtered));
@@ -100,17 +100,23 @@ class OrdersCubit extends Cubit<OrdersState> {
   }
 
   Future<void> rateProduct(int productId, int orderId, int rating) async {
-    emit(OrdersLoading());
+    // 💡 أزلنا emit(OrdersLoading()) لكي لا تختفي الشاشة!
     try {
-      final result = await _rateProductInOrderUseCase(productId, orderId, rating);
+      final result = await _rateProductInOrderUseCase(
+        productId,
+        orderId,
+        rating,
+      );
       result.fold(
         (failure) {
           if (!isClosed) emit(OrdersError(failure.errorMessage));
         },
         (msg) {
           if (!isClosed) {
+            // إظهار رسالة النجاح
             emit(OrderRatingSuccess(msg));
-            getOrderDetails(orderId);
+            // 💡 جلب الطلبات بصمت لتحديثها في الخلفية بدون حالة Loading تزعج المستخدم
+            _refreshOrderSilently(orderId);
             getOrders(status: activeStatus);
           }
         },
@@ -118,5 +124,18 @@ class OrdersCubit extends Cubit<OrdersState> {
     } catch (e) {
       if (!isClosed) emit(OrdersError(e.toString()));
     }
+  }
+
+  // 💡 دالة لجلب الطلب بدون حالة OrdersLoading لكي لا تدمر شاشة المستخدم أثناء التقييم
+  Future<void> _refreshOrderSilently(int id) async {
+    try {
+      final result = await _getOrderByIdUseCase(id);
+      result.fold(
+        (failure) {}, // نتجاهل الخطأ في التحديث الصامت
+        (order) {
+          if (!isClosed) emit(SingleOrderLoaded(order));
+        },
+      );
+    } catch (_) {}
   }
 }

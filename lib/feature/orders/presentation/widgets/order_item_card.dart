@@ -7,7 +7,7 @@ import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_cached_network_image.dart';
 
-class OrderItemCard extends StatelessWidget {
+class OrderItemCard extends StatefulWidget {
   final OrderItemModel item;
   final bool showRating;
   final Function(int rating)? onRate;
@@ -20,8 +20,22 @@ class OrderItemCard extends StatelessWidget {
   });
 
   @override
+  State<OrderItemCard> createState() => _OrderItemCardState();
+}
+
+class _OrderItemCardState extends State<OrderItemCard> {
+  // 💡 متغير للاحتفاظ بالتقييم وتحديث الواجهة فوراً
+  late int _currentRating;
+
+  @override
+  void initState() {
+    super.initState();
+    // نأخذ التقييم السابق من السيرفر كقيمة مبدئية
+    _currentRating = widget.item.productRatings;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final int currentRating = item.productRatings;
     return Container(
       padding: EdgeInsets.all(12.w),
       margin: EdgeInsets.only(bottom: 12.h),
@@ -41,9 +55,9 @@ class OrderItemCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12.r),
             ),
             clipBehavior: Clip.antiAlias,
-            child: item.fullImageUrl != null
+            child: widget.item.fullImageUrl != null
                 ? AppCachedNetworkImage(
-                    imageUrl: item.fullImageUrl!,
+                    imageUrl: widget.item.fullImageUrl!,
                     fit: BoxFit.cover,
                     errorWidget: Icon(
                       Icons.image_not_supported_outlined,
@@ -66,7 +80,7 @@ class OrderItemCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        item.name,
+                        widget.item.name,
                         style: AppTextStyle.font16.copyWith(
                           fontWeight: FontWeight.w500,
                           height: 20 / 16,
@@ -78,7 +92,7 @@ class OrderItemCard extends StatelessWidget {
                     ),
                     8.horizontalSpace,
                     Text(
-                      "${item.price} ل.س",
+                      "${widget.item.price} ل.س",
                       style: AppTextStyle.font14.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textMain,
@@ -86,10 +100,11 @@ class OrderItemCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (item.property != null && item.property!.isNotEmpty) ...[
+                if (widget.item.property != null &&
+                    widget.item.property!.isNotEmpty) ...[
                   4.verticalSpace,
                   Text(
-                    item.property!,
+                    widget.item.property!,
                     style: AppTextStyle.font14.copyWith(
                       color: AppColors.greyMedium2,
                     ),
@@ -108,7 +123,7 @@ class OrderItemCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(
-                        "الكمية: ${item.quantity}",
+                        "الكمية: ${widget.item.quantity}",
                         style: AppTextStyle.font14.copyWith(
                           fontWeight: FontWeight.w400,
                           color: AppColors.greyMedium2,
@@ -116,7 +131,7 @@ class OrderItemCard extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    if (showRating && onRate != null)
+                    if (widget.showRating && widget.onRate != null)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -132,13 +147,21 @@ class OrderItemCard extends StatelessWidget {
                             children: List.generate(
                               5,
                               (index) => GestureDetector(
-                                onTap: () => onRate!(index + 1),
+                                onTap: () {
+                                  // 💡 1. نحدث الشاشة فوراً لتلوين النجوم
+                                  setState(() {
+                                    _currentRating = index + 1;
+                                  });
+                                  // 💡 2. نرسل التقييم للسيرفر
+                                  widget.onRate!(_currentRating);
+                                },
                                 child: Padding(
                                   padding: EdgeInsets.only(left: 2.w),
                                   child: Icon(
-                                    index < currentRating
-                                        ? Icons.star
-                                        : Icons.star_border,
+                                    // 💡 نلون النجمة إذا كانت من ضمن العدد المختار
+                                    index < _currentRating
+                                        ? Icons.star_rounded
+                                        : Icons.star_border_rounded,
                                     color: AppColors.primary,
                                     size: 20.sp,
                                   ),
