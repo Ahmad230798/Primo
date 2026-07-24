@@ -3,8 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:primo/core/di/service_locator.dart';
 import 'package:primo/core/helper/navigation.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart';
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -193,6 +196,36 @@ class SettingsScreen extends StatelessWidget {
                 _buildSectionTitle("حول التطبيق والدعم"),
                 8.verticalSpace,
                 _buildSectionCard([
+                  SettingsLinkItem(
+                    title: "تابعنا على إنستغرام",
+                    customIcon: FaIcon(
+                      FontAwesomeIcons.instagram,
+                      color: const Color(0xFFE1306C),
+                      size: 20.sp,
+                    ),
+                    iconColor: const Color(0xFFE1306C),
+                    onTap: () async {
+                      const String placeholder = 'INSTAGRAM_URL_HERE';
+                      final Uri uri = Uri.parse(placeholder);
+                      try {
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        } else {
+                          if (context.mounted) {
+                            context.showSuccess('رابط إنستغرام: $placeholder');
+                          }
+                        }
+                      } catch (_) {
+                        if (context.mounted) {
+                          context.showSuccess('رابط إنستغرام: $placeholder');
+                        }
+                      }
+                    },
+                  ),
+                  _buildDivider(),
                   SettingsLinkItem(
                     title: "مركز المساعدة والدعم",
                     icon: Icons.help_outline_rounded,

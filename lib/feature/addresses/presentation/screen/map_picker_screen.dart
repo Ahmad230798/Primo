@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
@@ -23,7 +22,7 @@ class MapPickerScreen extends StatefulWidget {
 }
 
 class _MapPickerScreenState extends State<MapPickerScreen> {
-  final MapController _mapController = MapController();
+  GoogleMapController? _mapController;
   late LatLng _currentPosition;
   bool _isLoadingLocation = false;
 
@@ -64,11 +63,14 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       );
 
       if (mounted) {
+        final newPos = LatLng(position.latitude, position.longitude);
         setState(() {
-          _currentPosition = LatLng(position.latitude, position.longitude);
+          _currentPosition = newPos;
           _isLoadingLocation = false;
         });
-        _mapController.move(_currentPosition, 15.0); // تحريك الكاميرا لموقعك
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(newPos, 15.0),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -94,47 +96,67 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             Expanded(
               child: Stack(
                 children: [
-                  // --- الخريطة المجانية (OpenStreetMap) ---
-                  FlutterMap(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter: _currentPosition,
-                      initialZoom: 15.0,
-                      onTap: (tapPosition, point) {
-                        setState(() {
-                          _currentPosition = point; // تغيير مكان الدبوس عند النقر
-                        });
-                      },
+                  // --- خريطة جوجل (Google Maps) ---
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: _currentPosition,
+                      zoom: 15.0,
                     ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.example.primo',
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+                    },
+                    onCameraMove: (position) {
+                      setState(() {
+                        _currentPosition = position.target;
+                      });
+                    },
+                    onTap: (point) {
+                      setState(() {
+                        _currentPosition = point;
+                      });
+                      _mapController?.animateCamera(
+                        CameraUpdate.newLatLng(point),
+                      );
+                    },
+                    markers: {
+                      Marker(
+                        markerId: const MarkerId('selected_location'),
+                        position: _currentPosition,
+                        draggable: true,
+                        onDragEnd: (newPosition) {
+                          setState(() {
+                            _currentPosition = newPosition;
+                          });
+                        },
                       ),
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: _currentPosition,
-                            width: 60.w,
-                            height: 60.h,
-                            child: Icon(
-                              Icons.location_on,
-                              color: AppColors.primary,
-                              size: 40.sp,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    },
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
                   ),
-                  
+
+                  // --- دبوس ثابت في المنتصف لإعطاء تجربة سلسة أثناء سحب الخريطة ---
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 35.h),
+                      child: Icon(
+                        Icons.location_on_rounded,
+                        color: AppColors.primary,
+                        size: 44.sp,
+                      ),
+                    ),
+                  ),
+
                   // --- صندوق الإرشادات العلوي ---
                   Positioned(
                     top: 16.h,
                     right: 16.w,
                     left: 16.w,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 12.h,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(12.r),
@@ -148,11 +170,15 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.touch_app, color: AppColors.primary, size: 22.sp),
+                          Icon(
+                            Icons.touch_app,
+                            color: AppColors.primary,
+                            size: 22.sp,
+                          ),
                           8.horizontalSpace,
                           Expanded(
                             child: Text(
-                              "اضغط على الخريطة في أي مكان لتحديد موقع التوصيل بدقة",
+                              "حرك الخريطة أو اضغط في أي مكان لتحديد موقع التوصيل بدقة",
                               style: AppTextStyle.font12.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textMain,
@@ -170,24 +196,30 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     left: 16.w,
                     child: FloatingActionButton(
                       backgroundColor: AppColors.white,
-                      onPressed: _isLoadingLocation ? null : _checkAndGetCurrentLocation,
-                      child: _isLoadingLocation
-                          ? SizedBox(
-                              width: 24.w,
-                              height: 24.h,
-                              child: const CircularProgressIndicator(strokeWidth: 2.5),
-                            )
-                          : Icon(
-                              Icons.my_location,
-                              color: AppColors.primary,
-                              size: 26.sp,
-                            ),
+                      onPressed:
+                          _isLoadingLocation
+                              ? null
+                              : _checkAndGetCurrentLocation,
+                      child:
+                          _isLoadingLocation
+                              ? SizedBox(
+                                width: 24.w,
+                                height: 24.h,
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                              : Icon(
+                                Icons.my_location,
+                                color: AppColors.primary,
+                                size: 26.sp,
+                              ),
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             // --- اللوحة السفلية للتأكيد ---
             Container(
               padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -206,12 +238,18 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.location_city, color: AppColors.greyMedium3, size: 20.sp),
+                      Icon(
+                        Icons.location_city,
+                        color: AppColors.greyMedium3,
+                        size: 20.sp,
+                      ),
                       8.horizontalSpace,
                       Expanded(
                         child: Text(
                           "الإحداثيات: Lat ${_currentPosition.latitude.toStringAsFixed(5)}, Lng ${_currentPosition.longitude.toStringAsFixed(5)}",
-                          style: AppTextStyle.font12.copyWith(color: AppColors.greyMedium2),
+                          style: AppTextStyle.font12.copyWith(
+                            color: AppColors.greyMedium2,
+                          ),
                           textDirection: TextDirection.ltr,
                         ),
                       ),
@@ -222,7 +260,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     text: "تأكيد هذا الموقع",
                     icon: Icons.check,
                     onPressed: () {
-                      Navigator.pop(context, _currentPosition); // إرجاع القيمة للشيت
+                      Navigator.pop(context, _currentPosition); // إرجاع LatLng لشيت العنوان
                     },
                   ),
                 ],

@@ -8,6 +8,7 @@ class AddressModel {
   final String? locationLat;
   final String? locationLng;
   final String? phone;
+  final num? distance;
   final String? createdAt;
   final String? updatedAt;
   bool isDefault;
@@ -20,6 +21,7 @@ class AddressModel {
     this.locationLat,
     this.locationLng,
     this.phone,
+    this.distance,
     this.createdAt,
     this.updatedAt,
     this.isDefault = false,
@@ -34,6 +36,7 @@ class AddressModel {
       locationLat: json['location_lat']?.toString() ?? '',
       locationLng: json['location_lng']?.toString() ?? '',
       phone: json['phone']?.toString(),
+      distance: num.tryParse(json['distance']?.toString() ?? json['distance_in_meters']?.toString() ?? ''),
       createdAt: json['created_at']?.toString(),
       updatedAt: json['updated_at']?.toString(),
       isDefault: json['is_default'] == true || json['is_default'] == 1,
@@ -49,6 +52,7 @@ class AddressModel {
       'location_lat': locationLat,
       'location_lng': locationLng,
       'phone': phone,
+      'distance': distance,
       'created_at': createdAt,
       'updated_at': updatedAt,
       'is_default': isDefault ? 1 : 0,

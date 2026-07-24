@@ -78,6 +78,7 @@ class AddressesCubit extends Cubit<AddressesState> {
     required String locationLat,
     required String locationLng,
     String? phone,
+    num? distance,
   }) async {
     emit(AddressActionLoading());
     final body = AddressRequestBody(
@@ -86,6 +87,7 @@ class AddressesCubit extends Cubit<AddressesState> {
       locationLat: locationLat,
       locationLng: locationLng,
       phone: phone,
+      distance: distance,
     );
     final result = await _createAddressUseCase.execute(body);
     result.fold(
@@ -99,20 +101,14 @@ class AddressesCubit extends Cubit<AddressesState> {
         );
       },
       (response) async {
-        // 💡 التعديل 2: ننتظر جلب القائمة الجديدة من السيرفر أولاً
         await getAddresses(showLoading: false);
-
-        // 💡 التعديل 3: نرسل حالة النجاح لكي يستمع لها الشيت ويغلق نفسه
         emit(const AddressActionSuccess(message: "تم إضافة العنوان بنجاح"));
-
-        // 💡 التعديل 4: نؤكد إرسال حالة الـ Loaded لكي تبني شاشة الـ Checkout القائمة الجديدة فوراً
         emit(
           AddressesLoaded(
             addresses: addresses,
             defaultAddressId: defaultAddressId,
           ),
         );
-
         getAddresses(showLoading: false);
       },
     );
@@ -125,6 +121,7 @@ class AddressesCubit extends Cubit<AddressesState> {
     required String locationLat,
     required String locationLng,
     String? phone,
+    num? distance,
   }) async {
     emit(AddressActionLoading());
     final body = AddressRequestBody(
@@ -133,6 +130,7 @@ class AddressesCubit extends Cubit<AddressesState> {
       locationLat: locationLat,
       locationLng: locationLng,
       phone: phone,
+      distance: distance,
     );
     final result = await _updateAddressUseCase.execute(id, body);
     result.fold(
