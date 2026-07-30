@@ -55,21 +55,24 @@ class _ProductDetailsState extends State<ProductDetails> {
               return CustomErrorRetryWidget(
                 message: state.errorMessage,
                 onRetry: () => context.read<ProductCubit>().getProductDetails(
-                      widget.initialProduct?.id ?? widget.initialOffer?.productId ?? 0,
-                    ),
+                  widget.initialProduct?.id ??
+                      widget.initialOffer?.productId ??
+                      0,
+                ),
               );
             }
 
             final cubit = context.read<ProductCubit>();
-            VariantModel? activeVariant = selectedVariant ??
+            VariantModel? activeVariant =
+                selectedVariant ??
                 cubit.selectedVariant ??
                 (product?.variants != null && product!.variants!.isNotEmpty
                     ? (widget.initialOffer?.variantId != null
-                        ? product.variants!.firstWhere(
-                            (v) => v.id == widget.initialOffer!.variantId,
-                            orElse: () => product!.variants!.first,
-                          )
-                        : product.variants!.first)
+                          ? product.variants!.firstWhere(
+                              (v) => v.id == widget.initialOffer!.variantId,
+                              orElse: () => product!.variants!.first,
+                            )
+                          : product.variants!.first)
                     : null);
 
             final favCubit = context.watch<FavoritesCubit>();
@@ -80,7 +83,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                   )
                 : false;
 
-            final bool hasOffer = widget.initialOffer != null ||
+            final bool hasOffer =
+                widget.initialOffer != null ||
                 (activeVariant?.hasActiveOffer == true) ||
                 (activeVariant?.discountAmount != null &&
                     activeVariant?.discountAmount != 0);
@@ -88,24 +92,27 @@ class _ProductDetailsState extends State<ProductDetails> {
             String? oldPrice;
             String currentPrice = product?.displayPrice ?? "0";
 
-            if (widget.initialOffer != null) {
-              oldPrice = widget.initialOffer!.variantPrice?.toString() ??
-                  activeVariant?.price?.toString();
-              currentPrice = widget.initialOffer!.discountValue?.toString() ??
-                  widget.initialOffer!.variantPrice?.toString() ??
-                  activeVariant?.newPrice?.toString() ??
-                  activeVariant?.price?.toString() ??
-                  currentPrice;
-            } else if (activeVariant != null) {
-              if (activeVariant.hasActiveOffer == true ||
+            if (activeVariant != null) {
+              // 💡 التحقق مما إذا كان هناك عرض فعال على هذا المنتج/النوع
+              final bool isOfferActive =
+                  widget.initialOffer != null ||
+                  activeVariant.hasActiveOffer == true ||
                   (activeVariant.discountAmount != null &&
-                      activeVariant.discountAmount != 0)) {
+                      activeVariant.discountAmount! > 0);
+
+              if (isOfferActive) {
+                // 💡 في حالة العرض: السعر القديم هو الأساسي، والسعر الحالي هو السعر بعد الخصم (newPrice)
                 oldPrice = activeVariant.price?.toString();
-                currentPrice = activeVariant.newPrice?.toString() ??
+                // نأخذ newPrice الذي يجب أن يرسله الباك إيند محسوباً بشكل صحيح
+                currentPrice =
+                    activeVariant.newPrice?.toString() ??
                     activeVariant.price?.toString() ??
                     "0";
               } else {
-                currentPrice = activeVariant.price?.toString() ??
+                // 💡 في حالة عدم وجود عرض: لا يوجد سعر قديم، والسعر الحالي هو الأساسي
+                oldPrice = null;
+                currentPrice =
+                    activeVariant.price?.toString() ??
                     product?.displayPrice ??
                     "0";
               }
@@ -173,7 +180,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                               Text(
                                 durationText,
                                 style: AppTextStyle.font12.copyWith(
-                                  color: AppColors.white.withValues(alpha: 0.95),
+                                  color: AppColors.white.withValues(
+                                    alpha: 0.95,
+                                  ),
                                 ),
                               ),
                             ],
@@ -235,8 +244,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                      color: AppColors.primary
-                                          .withValues(alpha: 0.25),
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.25,
+                                      ),
                                       blurRadius: 6,
                                       offset: const Offset(0, 3),
                                     ),
@@ -351,7 +361,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                         duration: const Duration(milliseconds: 250),
                         transitionBuilder: (child, animation) {
                           return ScaleTransition(
-                              scale: animation, child: child);
+                            scale: animation,
+                            child: child,
+                          );
                         },
                         child: Icon(
                           isFav
@@ -545,14 +557,18 @@ class _ProductDetailsState extends State<ProductDetails> {
                       isLoading: cartState is CartLoading,
                       onPressed: () {
                         if (cartState is CartLoading) return;
-                        final variantToAdd = selectedVariant ??
+                        final variantToAdd =
+                            selectedVariant ??
                             cubit.selectedVariant ??
                             (cubit.currentProduct?.variants?.isNotEmpty == true
                                 ? cubit.currentProduct!.variants!.first
-                                : (widget.initialProduct?.variants?.isNotEmpty ==
-                                        true
-                                    ? widget.initialProduct!.variants!.first
-                                    : null));
+                                : (widget
+                                              .initialProduct
+                                              ?.variants
+                                              ?.isNotEmpty ==
+                                          true
+                                      ? widget.initialProduct!.variants!.first
+                                      : null));
                         if (variantToAdd != null && variantToAdd.id != null) {
                           getIt<CartCubit>().addToCart(
                             variantToAdd.id!,

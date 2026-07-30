@@ -573,23 +573,23 @@ class AppRoutes {
             child: const AddCategoryScreen(),
           ),
         );
-      case Routes.adminOffers: // استخدم اسم المسار الخاص بك
+      case Routes.adminOffers:
         return MaterialPageRoute(
           builder: (context) => MultiBlocProvider(
             providers: [
-              // 1. كيوبت إنشاء وتعديل العروض (للـ Form)
-              BlocProvider(create: (context) => getIt<AdminOffersCubit>()),
+              BlocProvider.value(value: getIt<AdminOffersCubit>()),
 
-              // 2. كيوبت المنتجات (لكي تعمل القائمة المنسدلة للأنواع)
-              BlocProvider(
-                create: (context) => getIt<AdminProductsListCubit>(),
+              BlocProvider.value(value: getIt<AdminProductsListCubit>()),
+
+              // ========================================================
+              // 💡 التعديل الجذري هنا: استخدمنا .value بدلاً من create
+              // لكي لا يتم قتل الكيوبت أبداً عند الذهاب لصفحة الاقتراحات!
+              // ========================================================
+              BlocProvider.value(
+                value: getIt<AdminOffersListCubit>()..getOffers(),
               ),
 
-              // 3. 💡 كيوبت قائمة العروض (هذا هو المفقود الذي يسبب الشاشة الحمراء الآن!)
-              BlocProvider(
-                create: (context) => getIt<AdminOffersListCubit>()..getOffers(),
-              ),
-              BlocProvider(create: (context) => getIt<ProfileCubit>()),
+              BlocProvider.value(value: getIt<ProfileCubit>()),
             ],
             child: const AdminOffersScreen(),
           ),

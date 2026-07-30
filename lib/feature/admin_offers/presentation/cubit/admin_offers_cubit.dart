@@ -85,11 +85,24 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
       startDate != null ? _formatDate(startDate!) : "mm/dd/yyyy";
   String get endDateText =>
       endDate != null ? _formatDate(endDate!) : "mm/dd/yyyy";
-
   void initForEdit(OfferModel offer) {
     editingOfferId = offer.id;
-    discountController.text =
-        offer.discountValue?.toString() ?? offer.variantPrice?.toString() ?? "";
+
+    // 1. فحص نوع الخصم بذكاء لتجنب مشكلة الـ 2000%
+    if (offer.discountPercentage != null &&
+        offer.discountPercentage.toString() != "0" &&
+        offer.discountPercentage.toString() != "0.0") {
+      isPercentage = true; // الخصم كان نسبة مئوية
+      discountController.text = offer.discountPercentage.toString();
+    } else if (offer.discountValue != null) {
+      isPercentage = false; // الخصم كان مبلغ ثابت
+      discountController.text = offer.discountValue.toString();
+    } else {
+      isPercentage = true;
+      discountController.text = offer.variantPrice?.toString() ?? "";
+    }
+
+    // 2. تعيين التواريخ
     if (offer.from != null) {
       try {
         startDate = DateTime.parse(offer.from!);
@@ -100,6 +113,8 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
         endDate = DateTime.parse(offer.to!);
       } catch (_) {}
     }
+
+    // 3. تحديد المتغير (Variant)
     if (offer.variantId != null) {
       selectedVariantId = offer.variantId.toString();
       try {
@@ -108,16 +123,31 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
         );
       } catch (_) {}
     }
+
     selectedImage = null;
-    emit(AdminOffersInitial());
+
+    // 💡 نستدعي هذه الدالة بدلاً من AdminOffersInitial لكي تتحدث الواجهة والأرقام فوراً
+    _emitUIChange();
   }
 
   void clearForAdd() {
     editingOfferId = null;
-    selectedVariant = null;
-    selectedVariantId = "";
+
+    // 1. إعادة تعيين المنتج المختار ليكون أول منتج في القائمة
+    // (لكي لا يظل المنتج الذي كنت تعدله معلقاً في الشاشة)
+    if (availableVariants.isNotEmpty) {
+      selectedVariant = availableVariants.first;
+      selectedVariantId = availableVariants.first.id?.toString() ?? "";
+    } else {
+      selectedVariant = null;
+      selectedVariantId = "";
+    }
+
+    // 2. تفريغ الحقول
     _resetForm();
-    emit(AdminOffersInitial());
+
+    // 3. 💡 السطر السحري: إجبار واجهة المستخدم على التحديث فوراً لتفريغ الشاشة
+    _emitUIChange();
   }
 
   void changeOfferType(bool percentage) {
@@ -201,7 +231,8 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
       return;
     }
     if (startDate == null || endDate == null) {
-      if (!isClosed) emit(const AdminOffersError("يرجى تحديد تواريخ العرض كاملة"));
+      if (!isClosed)
+        emit(const AdminOffersError("يرجى تحديد تواريخ العرض كاملة"));
       return;
     }
 
@@ -240,7 +271,7 @@ class AdminOffersCubit extends Cubit<AdminOffersState> {
   }
 
   void _resetForm() {
-    discountController.clear();
+    discountController.text = "";
     startDate = null;
     endDate = null;
     isPercentage = true;

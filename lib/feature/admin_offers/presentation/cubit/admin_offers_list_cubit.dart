@@ -19,7 +19,8 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
         final List<dynamic> jsonList = jsonDecode(cached);
         offers = jsonList.map((e) => OfferModel.fromJson(e)).toList();
         hasCache = true;
-        if (!isClosed) emit(AdminOffersListLoaded(offers));
+        // 💡 إعطاء نسخة جديدة من القائمة لضمان تحديث الواجهة
+        if (!isClosed) emit(AdminOffersListLoaded(List.from(offers)));
       }
     } catch (_) {}
 
@@ -35,8 +36,17 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
         },
         (data) {
           offers = data;
+          try {
+            final jsonString = jsonEncode(
+              offers.map((e) => e.toJson()).toList(),
+            );
+            AppStorage.cacheData('cache_admin_offers', jsonString);
+          } catch (_) {}
+
           if (!isClosed) {
-            emit(AdminOffersListLoaded(offers));
+            // 💡 إرسال حالة ابتدائية ثم إعطاء نسخة جديدة كلياً لكسر عناد الـ Bloc
+            emit(AdminOffersListInitial());
+            emit(AdminOffersListLoaded(List.from(offers)));
           }
         },
       );
@@ -45,21 +55,34 @@ class AdminOffersListCubit extends Cubit<AdminOffersListState> {
     }
   }
 
-  Future<void> deleteOffer(int offerId) async {
-    if (!isClosed) {
-      emit(AdminOffersListLoading());
-    }
+  void deleteOffer(int id) async {
+    if (!isClosed) emit(AdminOffersListLoading());
+
     try {
-      final result = await _useCase.deleteOffer(offerId);
-      result.fold(
+      final response = await _useCase.deleteOffer(id);
+
+      response.fold(
         (failure) {
           if (!isClosed) emit(AdminOffersListError(failure.errorMessage));
         },
         (success) {
-          offers.removeWhere((o) => o.id == offerId);
           if (!isClosed) {
-            emit(const AdminOfferDeleteSuccess("تم حذف العرض بنجاح"));
-            emit(AdminOffersListLoaded(offers));
+            // 1. الحذف من القائمة محلياً
+            offers.removeWhere((offer) => offer.id == id);
+
+            // 2. تحديث الكاش فوراً
+            try {
+              final jsonString = jsonEncode(
+                offers.map((e) => e.toJson()).toList(),
+              );
+              AppStorage.cacheData('cache_admin_offers', jsonString);
+            } catch (_) {}
+
+            // 3. 💡 السطر السحري:
+            // استخدام List.from يصنع مرجعاً جديداً بالذاكرة للقائمة
+            // وبذلك ينتبه فلاتر أن هناك تغييراً ويقوم برسم الشاشة فوراً!
+            emit(AdminOffersListInitial());
+            emit(AdminOffersListLoaded(List.from(offers)));
           }
         },
       );

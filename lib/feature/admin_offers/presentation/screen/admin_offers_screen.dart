@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:primo/core/helper/snack_bar_helper.dart'; // 💡 أضفنا هذا الاستيراد للـ SnackBars
 import 'package:primo/core/routing/routes.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
@@ -52,9 +53,14 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
       drawer: const AdminDrawer(currentRoute: Routes.adminOffers),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
+          // 💡 أضفنا async
           context.read<AdminOffersCubit>().clearForAdd();
-          Navigator.pushNamed(context, Routes.createOffer);
+          // 💡 السحر هنا: ننتظر حتى تغلق شاشة الإضافة ثم نحدث القائمة فوراً!
+          await Navigator.pushNamed(context, Routes.createOffer);
+          if (context.mounted) {
+            context.read<AdminOffersListCubit>().getOffers();
+          }
         },
         backgroundColor: AppColors.primary,
         elevation: 4,
@@ -72,7 +78,10 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                 title: "Primo",
                 suffixsIcon: InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.adminNotificationsHistory);
+                    Navigator.pushNamed(
+                      context,
+                      Routes.adminNotificationsHistory,
+                    );
                   },
                   borderRadius: BorderRadius.circular(99.r),
                   child: Padding(
@@ -127,15 +136,23 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                         listener: (context, state) {
                           _syncProductsWithOffers(); // تحديث القائمة المنسدلة فور وصول المنتجات
                         },
-                        child: BlocBuilder<AdminOffersListCubit, AdminOffersListState>(
+                        // 💡 التعديل الجذري هنا: تحويل BlocBuilder إلى BlocConsumer للاستماع لعملية الحذف
+                        child: BlocConsumer<AdminOffersListCubit, AdminOffersListState>(
+                          listener: (context, state) {
+                            if (state is AdminOffersListError) {
+                              context.showError(state.message);
+                            }
+                          },
                           builder: (context, state) {
                             if (state is AdminOffersListLoading) {
                               return ListView.separated(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: 5,
-                                separatorBuilder: (context, index) => 16.verticalSpace,
-                                itemBuilder: (context, index) => const ListTileShimmer(),
+                                separatorBuilder: (context, index) =>
+                                    16.verticalSpace,
+                                itemBuilder: (context, index) =>
+                                    const ListTileShimmer(),
                               );
                             } else if (state is AdminOffersListError) {
                               return CustomErrorRetryWidget(
@@ -170,14 +187,14 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                               itemBuilder: (context, index) {
                                 final offer = offers[index];
                                 String formatDate(String? rawDate) {
-                                  if (rawDate == null || rawDate.trim().isEmpty) {
+                                  if (rawDate == null ||
+                                      rawDate.trim().isEmpty) {
                                     return 'غير محدد';
                                   }
                                   try {
                                     final parsedDate = DateTime.parse(rawDate);
                                     return "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
                                   } catch (e) {
-                                    // خطة بديلة في حال كان التنسيق مختلفاً
                                     return rawDate
                                         .split('T')
                                         .first
@@ -186,20 +203,24 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                   }
                                 }
 
-                                // 💡 2. تطبيق الدالة على تاريخي البداية والنهاية
                                 final cleanFromDate = formatDate(offer.from);
                                 final cleanToDate = formatDate(offer.to);
+
                                 return Container(
                                   padding: EdgeInsets.all(16.w),
                                   decoration: BoxDecoration(
                                     color: AppColors.white,
                                     borderRadius: BorderRadius.circular(16.r),
                                     border: Border.all(
-                                      color: AppColors.formBorder.withValues(alpha: 0.6),
+                                      color: AppColors.formBorder.withValues(
+                                        alpha: 0.6,
+                                      ),
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.06),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.06,
+                                        ),
                                         blurRadius: 16.r,
                                         offset: const Offset(0, 4),
                                       ),
@@ -212,10 +233,14 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                         height: 72.w,
                                         decoration: BoxDecoration(
                                           color: AppColors.greyBackground,
-                                          borderRadius: BorderRadius.circular(14.r),
+                                          borderRadius: BorderRadius.circular(
+                                            14.r,
+                                          ),
                                         ),
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(14.r),
+                                          borderRadius: BorderRadius.circular(
+                                            14.r,
+                                          ),
                                           child: offer.fullImageUrl != null
                                               ? AppCachedNetworkImage(
                                                   imageUrl: offer.fullImageUrl!,
@@ -236,14 +261,16 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                       16.horizontalSpace,
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               offer.productName ?? "منتج العرض",
-                                              style: AppTextStyle.font16.copyWith(
-                                                color: AppColors.textMain,
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                              style: AppTextStyle.font16
+                                                  .copyWith(
+                                                    color: AppColors.textMain,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -254,15 +281,19 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                                 vertical: 2.h,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: AppColors.primary.withValues(alpha: 0.1),
-                                                borderRadius: BorderRadius.circular(6.r),
+                                                color: AppColors.primary
+                                                    .withValues(alpha: 0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(6.r),
                                               ),
                                               child: Text(
                                                 "الخصم: ${offer.discountValue ?? ''}",
-                                                style: AppTextStyle.font12.copyWith(
-                                                  color: AppColors.primary,
-                                                  fontWeight: FontWeight.w700,
-                                                ),
+                                                style: AppTextStyle.font12
+                                                    .copyWith(
+                                                      color: AppColors.primary,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
                                               ),
                                             ),
                                             6.verticalSpace,
@@ -277,12 +308,16 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                                 Expanded(
                                                   child: Text(
                                                     "من $cleanFromDate إلى $cleanToDate",
-                                                    style: AppTextStyle.font12.copyWith(
-                                                      color: AppColors.greyMedium3,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
+                                                    style: AppTextStyle.font12
+                                                        .copyWith(
+                                                          color: AppColors
+                                                              .greyMedium3,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
                                                     maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -294,21 +329,33 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           InkWell(
-                                            onTap: () {
+                                            onTap: () async {
+                                              // 💡 أضفنا async
                                               context
                                                   .read<AdminOffersCubit>()
                                                   .initForEdit(offer);
-                                              Navigator.pushNamed(
+                                              // 💡 ننتظر حتى تغلق شاشة التعديل ثم نحدث القائمة
+                                              await Navigator.pushNamed(
                                                 context,
                                                 Routes.createOffer,
                                               );
+                                              if (context.mounted) {
+                                                context
+                                                    .read<
+                                                      AdminOffersListCubit
+                                                    >()
+                                                    .getOffers();
+                                              }
                                             },
-                                            borderRadius: BorderRadius.circular(8.r),
+                                            borderRadius: BorderRadius.circular(
+                                              8.r,
+                                            ),
                                             child: Container(
                                               padding: EdgeInsets.all(6.w),
                                               decoration: BoxDecoration(
                                                 color: AppColors.greyBackground,
-                                                borderRadius: BorderRadius.circular(8.r),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.r),
                                               ),
                                               child: Icon(
                                                 Icons.edit_outlined,
@@ -321,17 +368,25 @@ class _AdminOffersScreenState extends State<AdminOffersScreen> {
                                           InkWell(
                                             onTap: () {
                                               if (offer.id != null) {
+                                                // 💡 سيقوم الكيوبت بحذف العرض، وإذا حدث خطأ سيتم التقاطه في الـ listener أعلاه
                                                 context
-                                                    .read<AdminOffersListCubit>()
+                                                    .read<
+                                                      AdminOffersListCubit
+                                                    >()
                                                     .deleteOffer(offer.id!);
                                               }
                                             },
-                                            borderRadius: BorderRadius.circular(8.r),
+                                            borderRadius: BorderRadius.circular(
+                                              8.r,
+                                            ),
                                             child: Container(
                                               padding: EdgeInsets.all(6.w),
                                               decoration: BoxDecoration(
-                                                color: Colors.red.withValues(alpha: 0.1),
-                                                borderRadius: BorderRadius.circular(8.r),
+                                                color: Colors.red.withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.r),
                                               ),
                                               child: Icon(
                                                 Icons.delete_outline_rounded,
