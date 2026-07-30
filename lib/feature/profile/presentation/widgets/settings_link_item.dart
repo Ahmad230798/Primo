@@ -5,7 +5,8 @@ import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 
 class SettingsLinkItem extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final String? trailingText;
   final VoidCallback onTap;
   final Color? titleColor;
@@ -14,7 +15,8 @@ class SettingsLinkItem extends StatelessWidget {
   const SettingsLinkItem({
     super.key,
     required this.title,
-    required this.icon,
+    this.icon,
+    this.customIcon,
     this.trailingText,
     required this.onTap,
     this.titleColor,
@@ -39,10 +41,13 @@ class SettingsLinkItem extends StatelessWidget {
                 color: (iconColor ?? AppColors.greyDark).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: iconColor ?? AppColors.greyDark,
-                size: 20.sp,
+              child: Center(
+                child: customIcon ??
+                    Icon(
+                      icon,
+                      color: iconColor ?? AppColors.greyDark,
+                      size: 20.sp,
+                    ),
               ),
             ),
             12.horizontalSpace,

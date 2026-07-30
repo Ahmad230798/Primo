@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:primo/core/helper/navigation.dart';
 import 'package:primo/core/helper/snack_bar_helper.dart';
+import 'package:primo/core/services/google_maps_service.dart';
 import 'package:primo/core/utils/appcolor/app_colors.dart';
 import 'package:primo/core/utils/apptextstyle/app_text_style.dart';
 import 'package:primo/core/widgets/app_button.dart';
@@ -10,7 +11,7 @@ import 'package:primo/feature/addresses/data/models/address_model.dart';
 import 'package:primo/feature/addresses/presentation/screen/map_picker_screen.dart';
 import '../bloc/adresses_cubit.dart';
 import '../bloc/adresses_state.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddEditAddressSheet extends StatefulWidget {
   final AddressModel? address;
@@ -29,6 +30,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
   late TextEditingController _latController;
   late TextEditingController _lngController;
   bool _isLocationSelected = false;
+  num? _calculatedDistance;
 
   @override
   void initState() {
@@ -42,15 +44,16 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
     );
     final initialLat = widget.address?.locationLat?.isNotEmpty == true
         ? widget.address!.locationLat!
-        : '24.7136';
+        : '34.7706';
     final initialLng = widget.address?.locationLng?.isNotEmpty == true
         ? widget.address!.locationLng!
-        : '46.6753';
+        : '36.3206';
     _latController = TextEditingController(text: initialLat);
     _lngController = TextEditingController(text: initialLng);
     _isLocationSelected =
         widget.address?.locationLat?.isNotEmpty == true &&
         widget.address?.locationLng?.isNotEmpty == true;
+    _calculatedDistance = widget.address?.distance;
   }
 
   @override
@@ -79,6 +82,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
           locationLat: _latController.text.trim(),
           locationLng: _lngController.text.trim(),
           phone: _phoneController.text.trim(),
+          distance: _calculatedDistance,
         );
       } else {
         cubit.createAddress(
@@ -87,6 +91,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
           locationLat: _latController.text.trim(),
           locationLng: _lngController.text.trim(),
           phone: _phoneController.text.trim(),
+          distance: _calculatedDistance,
         );
       }
     }
@@ -263,23 +268,31 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
                             builder: (_) => MapPickerScreen(
                               initialLat:
                                   double.tryParse(_latController.text) ??
-                                  24.7136,
+                                  34.7706,
                               initialLng:
                                   double.tryParse(_lngController.text) ??
-                                  46.6753,
+                                  36.3206,
                             ),
                           ),
                         );
                         if (selectedLatLng != null &&
                             selectedLatLng is LatLng) {
-                          // <-- التأكد من النوع
-                          setState(() {
-                            _latController.text = selectedLatLng.latitude
-                                .toString();
-                            _lngController.text = selectedLatLng.longitude
-                                .toString();
-                            _isLocationSelected = true;
-                          });
+                          final distanceMeters =
+                              await GoogleMapsService().getRoutingDistanceInMeters(
+                            destinationLat: selectedLatLng.latitude,
+                            destinationLng: selectedLatLng.longitude,
+                          );
+
+                          if (mounted) {
+                            setState(() {
+                              _latController.text = selectedLatLng.latitude
+                                  .toString();
+                              _lngController.text = selectedLatLng.longitude
+                                  .toString();
+                              _calculatedDistance = distanceMeters;
+                              _isLocationSelected = true;
+                            });
+                          }
                         }
                       },
                       borderRadius: BorderRadius.circular(12.r),
@@ -330,7 +343,7 @@ class _AddEditAddressSheetState extends State<AddEditAddressSheet> {
                                   4.verticalSpace,
                                   Text(
                                     _isLocationSelected
-                                        ? "Lat: ${_latController.text.substring(0, _latController.text.length.clamp(0, 8))} , Lng: ${_lngController.text.substring(0, _lngController.text.length.clamp(0, 8))}"
+                                        ? "Lat: ${_latController.text.substring(0, _latController.text.length.clamp(0, 8))} , Lng: ${_lngController.text.substring(0, _lngController.text.length.clamp(0, 8))}${_calculatedDistance != null ? ' | المسافة: ${(_calculatedDistance! / 1000).toStringAsFixed(1)} كم' : ''}"
                                         : "لا تقم بكتابة الإحداثيات يدوياً، استخدم الخريطة التفاعلية",
                                     style: AppTextStyle.font12.copyWith(
                                       color: AppColors.greyMedium3,
