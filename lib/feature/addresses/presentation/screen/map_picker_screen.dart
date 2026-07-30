@@ -25,12 +25,28 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   GoogleMapController? _mapController;
   late LatLng _currentPosition;
   bool _isLoadingLocation = false;
+  Set<Marker> _markers = {};
 
   @override
   void initState() {
     super.initState();
     _currentPosition = LatLng(widget.initialLat, widget.initialLng);
+    _setMarker(_currentPosition);
     _checkAndGetCurrentLocation();
+  }
+
+  // دالة لتحديث الدبوس في الموقع المحدد فقط
+  void _setMarker(LatLng position) {
+    setState(() {
+      _currentPosition = position;
+      _markers = {
+        Marker(
+          markerId: const MarkerId('selected_delivery_location'),
+          position: position,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        ),
+      };
+    });
   }
 
   Future<void> _checkAndGetCurrentLocation() async {
@@ -64,13 +80,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
 
       if (mounted) {
         final newPos = LatLng(position.latitude, position.longitude);
-        setState(() {
-          _currentPosition = newPos;
-          _isLoadingLocation = false;
-        });
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(newPos, 15.0),
-        );
+        _setMarker(newPos);
+        setState(() => _isLoadingLocation = false);
+        _mapController?.animateCamera(CameraUpdate.newLatLngZoom(newPos, 16.0));
       }
     } catch (e) {
       if (mounted) {
@@ -105,46 +117,14 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     onMapCreated: (controller) {
                       _mapController = controller;
                     },
-                    onCameraMove: (position) {
-                      setState(() {
-                        _currentPosition = position.target;
-                      });
-                    },
+                    // النقر على الخريطة هو الوحيد الذي يُغيّر موقع الدبوس
                     onTap: (point) {
-                      setState(() {
-                        _currentPosition = point;
-                      });
-                      _mapController?.animateCamera(
-                        CameraUpdate.newLatLng(point),
-                      );
+                      _setMarker(point);
                     },
-                    markers: {
-                      Marker(
-                        markerId: const MarkerId('selected_location'),
-                        position: _currentPosition,
-                        draggable: true,
-                        onDragEnd: (newPosition) {
-                          setState(() {
-                            _currentPosition = newPosition;
-                          });
-                        },
-                      ),
-                    },
+                    markers: _markers,
                     myLocationEnabled: true,
                     myLocationButtonEnabled: false,
                     zoomControlsEnabled: false,
-                  ),
-
-                  // --- دبوس ثابت في المنتصف لإعطاء تجربة سلسة أثناء سحب الخريطة ---
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 35.h),
-                      child: Icon(
-                        Icons.location_on_rounded,
-                        color: AppColors.primary,
-                        size: 44.sp,
-                      ),
-                    ),
                   ),
 
                   // --- صندوق الإرشادات العلوي ---
@@ -178,7 +158,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                           8.horizontalSpace,
                           Expanded(
                             child: Text(
-                              "حرك الخريطة أو اضغط في أي مكان لتحديد موقع التوصيل بدقة",
+                              "اضغط في أي مكان على الخريطة لتحديد موقع التوصيل بدقة",
                               style: AppTextStyle.font12.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.textMain,
@@ -196,24 +176,22 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     left: 16.w,
                     child: FloatingActionButton(
                       backgroundColor: AppColors.white,
-                      onPressed:
-                          _isLoadingLocation
-                              ? null
-                              : _checkAndGetCurrentLocation,
-                      child:
-                          _isLoadingLocation
-                              ? SizedBox(
-                                width: 24.w,
-                                height: 24.h,
-                                child: const CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                ),
-                              )
-                              : Icon(
-                                Icons.my_location,
-                                color: AppColors.primary,
-                                size: 26.sp,
+                      onPressed: _isLoadingLocation
+                          ? null
+                          : _checkAndGetCurrentLocation,
+                      child: _isLoadingLocation
+                          ? SizedBox(
+                              width: 24.w,
+                              height: 24.h,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2.5,
                               ),
+                            )
+                          : Icon(
+                              Icons.my_location,
+                              color: AppColors.primary,
+                              size: 26.sp,
+                            ),
                     ),
                   ),
                 ],
@@ -260,7 +238,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     text: "تأكيد هذا الموقع",
                     icon: Icons.check,
                     onPressed: () {
-                      Navigator.pop(context, _currentPosition); // إرجاع LatLng لشيت العنوان
+                      Navigator.pop(context, _currentPosition);
                     },
                   ),
                 ],

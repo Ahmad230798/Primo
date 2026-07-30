@@ -9,7 +9,7 @@ class GoogleMapsService {
   static const double storeLng = 36.3206;
 
   // 🔑 المفتاح الخاص بـ Google Maps / Directions API
-  static const String apiKey = 'YOUR_API_KEY';
+  static const String apiKey = 'AIzaSyBLLTXlCa23zgk9UvLVqNy4OidhMAZLh_U';
 
   final Dio _dio;
 
