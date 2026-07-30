@@ -24,6 +24,21 @@ class AppStorage {
   static const String _isFirstTimeKey = 'is_first_time';
   static const String _lastOtpTimeKey = 'last_otp_time';
   static const String _lastSeenNotificationIdKey = 'last_seen_notification_id';
+  static const String _storeLatKey = 'store_lat';
+  static const String _storeLngKey = 'store_lng';
+
+  // ================= إدارة إحداثيات المتجر =================
+  static Future<void> saveStoreCoordinates({
+    required double lat,
+    required double lng,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_storeLatKey, lat);
+    await prefs.setDouble(_storeLngKey, lng);
+  }
+
+  static double? getStoreLat() => _prefs?.getDouble(_storeLatKey);
+  static double? getStoreLng() => _prefs?.getDouble(_storeLngKey);
 
   static Future<void> saveLastSeenNotificationId(int id) async {
     final prefs = await SharedPreferences.getInstance();
@@ -87,8 +102,6 @@ class AppStorage {
     await _prefs?.remove(_userPhoneKey);
     await _prefs?.remove(_userAvatarKey);
     await _prefs?.remove(_defaultAddressKey);
-
-    // (يمكنك إضافة remove لأي مفتاح كاش آخر تستخدمه مثل 'cache_admin_products')
   }
 
   // =====================================
