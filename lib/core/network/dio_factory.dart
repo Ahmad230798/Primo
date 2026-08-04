@@ -11,7 +11,7 @@ import 'package:primo/core/routing/routes.dart';
 class DioFactory {
   DioFactory._();
   static Dio? _dio;
-  static const Duration _timeOut = Duration(seconds: 15);
+  static const Duration _timeOut = Duration(seconds: 30);
 
   static Dio getDio() {
     if (_dio == null) {
@@ -100,4 +100,3 @@ class DioFactory {
     );
   }
 }
-

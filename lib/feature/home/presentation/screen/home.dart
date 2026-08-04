@@ -118,7 +118,52 @@ class Home extends StatelessWidget {
                     33.verticalSpace,
                     const ActivitiesList(),
                     41.verticalSpace,
-                    const CatigorySection(),
+                    // ==========================================
+                    // 💡 قسم الأقسام مع زر "عرض الكل"
+                    // ==========================================
+                    Row(
+                      children: [
+                        Container(
+                          width: 6.w,
+                          height: 24.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        8.horizontalSpace,
+                        Text(
+                          "الأقسام",
+                          style: AppTextStyle.font20.copyWith(
+                            color: AppColors.textMain,
+                          ),
+                        ),
+                        const Spacer(), // 💡 لدفع زر عرض الكل إلى أقصى اليسار
+                        InkWell(
+                          onTap: () {
+                            // 💡 تأكد أن اسم المسار لديك هو Routes.categories أو حسب ما سميته في AppRoutes
+                            Navigator.pushNamed(context, Routes.categories);
+                          },
+                          borderRadius: BorderRadius.circular(4.r),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4.w,
+                              vertical: 2.h,
+                            ),
+                            child: Text(
+                              "عرض الكل",
+                              style: AppTextStyle.font14.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    16.verticalSpace,
+                    const CatigorySection(), // 💡 ويدجت الأقسام الخاص بك
+                    // ==========================================
                     32.verticalSpace,
                     Row(
                       children: [
